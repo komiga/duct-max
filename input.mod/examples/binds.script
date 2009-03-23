@@ -1,0 +1,13 @@
+
+'Valid binds
+bind "w" "up"
+bind "s" "down"
+bind "a" left
+bind d "right"
+
+bind space update
+
+'Invalid binds
+bind 0.004 "forward"
+bind "invalidcode" down
+bind anotherinvalid update

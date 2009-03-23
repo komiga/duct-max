@@ -1,0 +1,52 @@
+
+idoffset 0
+incrementoffset true
+
+datadir normal
+outputfile ../tiles.dts
+
+maskcolor 0 0 255
+
+tiles {
+	
+	' Since incrementoffset is true, the id's will automagically increase by one (starting from the idoffset)
+	
+	tile {
+		
+		base 0 "sand" "sand.png"
+		
+	}
+	
+	tile {
+		
+		base 0 "sand" "sand1.png"
+		
+	}
+	
+	tile {
+		
+		base 0 "sand" "sand2.png"
+		
+	}
+	
+	tile {
+		
+		base 0 "snow" "snow.png"
+		
+	}
+	
+	tile {
+		
+		base 0 "water" "water.png"
+		
+	}
+	
+}
+
+
+
+
+
+
+
+

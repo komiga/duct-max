@@ -1,0 +1,34 @@
+
+'String test..
+attr value1 "value two! /'/' lalala {}/>>"
+
+namednode { 'Comment after node!
+	
+	data.zip\\sounds\intro.ogg 0 1 1 2 3 5 8 13 ' Take a guess on what those numbers are ;)
+	
+}'Hello!
+
+'This is a comment!
+madness? "das cookie?" 'Another comment!
+
+{'Smells like trout up here
+	namelessnode this,is,sparta!'No space test!
+	echoes "/eval: a + b / 0.1392"
+} ' Hmm..
+
+after periods.namespaces! '!!!! ('namespaces'.. if you will)
+
+Lets Make a superlong "SUPER LLONG!!/>>" identifier />>
+ "More... and moreeee" 12145636 />>
+	463.023861
+
+SingleNode {First "single line test"}
+{ Second "single line test" }
+
+{
+	Named { Alloc}
+	Named2 { Make blubber}
+	{notnamed}
+}
+
+

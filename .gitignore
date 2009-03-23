@@ -1,0 +1,10 @@
+# ignore build results:
+*.[ai]
+.bmx/
+*.exe
+# generated docs
+doc/commands.html
+# backup files produced by MaxIDE
+*.bak
+*~
+
