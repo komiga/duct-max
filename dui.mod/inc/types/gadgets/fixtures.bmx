@@ -1,4 +1,7 @@
 
+Rem
+	fixtures.bmx (Contains: dui_TFixtureList, dui_TFixture)
+End Rem
 
 Rem
 	bbdoc: Fixture List Gadget

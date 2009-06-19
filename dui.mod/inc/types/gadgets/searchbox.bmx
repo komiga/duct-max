@@ -1,8 +1,7 @@
 
-' 
-' searchbox.bmx (Contains: dui_TSearchBox, )
-' 
-' 
+Rem
+	searchbox.bmx (Contains: dui_TSearchBox, )
+End Rem
 
 Rem
 	bbdoc: The dui search box gadget type.

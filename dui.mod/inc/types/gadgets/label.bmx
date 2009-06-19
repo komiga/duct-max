@@ -1,8 +1,7 @@
 
-' 
-' label.bmx (Contains: dui_TLabel, )
-' 
-' 
+Rem
+	label.bmx (Contains: dui_TLabel, )
+End Rem
 
 Rem
 	bbdoc: The dui label gadget type.

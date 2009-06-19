@@ -1,8 +1,7 @@
 
-' 
-' table.bmx (Contains: dui_TTable, dui_TTableItem, )
-' 
-' 
+Rem
+	table.bmx (Contains: dui_TTable, dui_TTableItem, )
+End Rem
 
 Rem
 	bbdoc: The dui table gadget type.

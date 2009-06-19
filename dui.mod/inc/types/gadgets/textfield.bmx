@@ -1,8 +1,7 @@
 
-' 
-' textfield.bmx (Contains: dui_TTextField, )
-' 
-' 
+Rem
+	textfield.bmx (Contains: dui_TTextField, )
+End Rem
 
 Rem
 	bbdoc: The dui textfield gadget type.

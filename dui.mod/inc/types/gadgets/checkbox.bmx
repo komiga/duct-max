@@ -1,8 +1,7 @@
 
-' 
-' checkbox.bmx (Contains: dui_TCheckBox, )
-' 
-' 
+Rem
+	checkbox.bmx (Contains: dui_TCheckBox, )
+End Rem
 
 Rem
 	bbdoc: The dui checkbox gadget Type.

@@ -1,8 +1,8 @@
 
-' 
-' basegadget.bmx (Contains: _dui_TBaseGadget, dui_TGadget, )
-' 
-' 
+Rem
+	basegadget.bmx (Contains: _dui_TBaseGadget, dui_TGadget, )
+End Rem
+
 
 Rem
 	bbdoc: The dui gadget Type.

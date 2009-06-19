@@ -3,7 +3,7 @@
 .bmx/
 *.exe
 # generated docs
-doc/commands.html
+doc/
 # backup files produced by MaxIDE
 *.bak
 *~

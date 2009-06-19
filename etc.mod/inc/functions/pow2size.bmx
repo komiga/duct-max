@@ -1,8 +1,7 @@
 
-' 
-' pow2size.bmx (Contains: Pow2Size(), )
-' 
-' 
+Rem
+	pow2size.bmx (Contains: Pow2Size(), )
+End Rem
 
 ' Nabbed from either BRL or klepto.
 Rem
@@ -14,7 +13,7 @@ Function Pow2Size:Float(n:Int)
 	
 	t = 1
 	
-	While(t < n)
+	While t < n
 		
 		t:*2
 		

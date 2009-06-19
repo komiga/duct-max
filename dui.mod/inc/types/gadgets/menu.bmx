@@ -1,8 +1,7 @@
 
-' 
-' menu.bmx (Contains: dui_TMenu, )
-' 
-' 
+Rem
+	menu.bmx (Contains: dui_TMenu, )
+End Rem
 
 Rem
 	bbdoc: The dui menu gadget type.

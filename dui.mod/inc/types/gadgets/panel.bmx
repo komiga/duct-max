@@ -1,8 +1,7 @@
 
-' 
-' panel.bmx (Contains: dui_TPanel, )
-' 
-' 
+Rem
+	panel.bmx (Contains: dui_TPanel, )
+End Rem
 
 Rem
 	bbdoc: The dui panel gadget Type.

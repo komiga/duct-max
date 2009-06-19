@@ -1,8 +1,7 @@
 
-' 
-' extra.bmx (Contains: dui_VirtualGraphics(), MouseIn and point-in routines, )
-' 
-' 
+Rem
+	extra.bmx (Contains: dui_VirtualGraphics(), MouseIn and point-in routines, )
+End Rem
 
 Rem
 	bbdoc: Set virtual graphics resolution.

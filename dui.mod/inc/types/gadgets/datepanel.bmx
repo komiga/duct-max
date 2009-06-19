@@ -1,8 +1,7 @@
 
-' 
-' datepanel.bmx (Contains: dui_TDatePanel, )
-' 
-' 
+Rem
+	datepanel.bmx (Contains: dui_TDatePanel, )
+End Rem
 
 Rem
 	bbdoc: The dui date panel gadget type.

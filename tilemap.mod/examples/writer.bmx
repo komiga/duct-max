@@ -11,7 +11,7 @@ Import brl.glmax2d
 Import brl.pngloader
 Import brl.bmploader
 
-Import duct.TileMap
+Import duct.tilemap
 Import duct.memcrypt
 
 
@@ -20,9 +20,11 @@ Import duct.memcrypt
 
 Global deftile:TMapTileResource = New TMapTileResource.Create(0, "default", Null)
 
-Local map:TTileMap = New TTileMap.Create("map_test", 144, 144, Null, Null)
-Local hmap:TPixmap = LoadPixmap("tiles/heightmap_small.bmp")
-
+Local mapwidth:Int = 8, mapheight:Int = 8
+Local map:TTileMap = New TTileMap.Create("map_test", mapwidth, mapheight, Null, Null)
+'Local hmap:TPixmap = LoadPixmap("tiles/heightmap_small.bmp")
+'DebugLog("hmap size: w=" + hmap.width + " h=" + hmap.height)
+'map = New TTileMap.Create("map_test", hmap.width, hmap.height, Null, Null)
 'map = HeightMapToTileMap(hmap)
 
 Local crow:Int, ccolumn:Int
@@ -37,6 +39,7 @@ For crow = 0 To map.GetHeight() - 1
 	
 Next
 
+'Rem
 map.AddStaticToPos(New TDrawnStatic.Create(1, 0), 7, 10)
 map.AddStaticToPos(New TDrawnStatic.Create(1, 0), 8, 10)
 map.AddStaticToPos(New TDrawnStatic.Create(1, 0), 9, 10)
@@ -54,6 +57,7 @@ map.AddStaticToPos(New TDrawnStatic.Create(2, 0), 10, 8)
 map.AddStaticToPos(New TDrawnStatic.Create(2, 0), 11, 7)
 map.AddStaticToPos(New TDrawnStatic.Create(2, 0), 10, 7)
 map.AddStaticToPos(New TDrawnStatic.Create(2, 0), 10, 6)
+'End Rem
 
 Rem
 'Top!
@@ -95,28 +99,28 @@ Local stream:TBankStream = CreateBankStream(Null)
 stream.Close()
 
 
-Function HeightMapToTileMap:TTileMap(_hmap:TPixmap)
+Function HeightMapToTileMap:TTileMap(hmap:TPixmap)
 	Local x:Int, y:Int, pixel:Byte
-	Local _map:TTileMap
+	Local map:TTileMap
 	
-	_map = New TTileMap.Create("map_test", _hmap.width, _hmap.height, Null, Null, 3, 0)
+	map = New TTileMap.Create("map_test", hmap.width, hmap.height, Null, Null, 3, 0)
 	
-	Print(_map.width + ", " + _map.height)
+	Print(map.GetWidth() + ", " + map.GetHeight())
 	
-	For y = 0 To _hmap.height - 1
+	For y = 0 To hmap.height - 1
 		
-		For x = 0 To _hmap.width - 1
+		For x = 0 To hmap.width - 1
 			
-			pixel = _hmap.ReadPixel(x, y)
+			pixel = hmap.ReadPixel(x, y)
 			
 			'_map.data_terrain[y, x].SetResourceID(3)
-			_map.data_terrain[y, x].SetZ((Int(pixel) * 100) / 255)
+			map.GetTileAtPos(x, y).SetZ((Int(pixel) * 100) / 255)
 			
 		Next
 		
 	Next
 	
-	Return _map
+	Return map
 	
 End Function
 

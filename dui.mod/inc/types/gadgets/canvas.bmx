@@ -1,8 +1,7 @@
 
-' 
-' canvas.bmx (Contains: dui_TCanvas, )
-' 
-' 
+Rem
+	canvas.bmx (Contains: dui_TCanvas, )
+End Rem
 
 Rem
 	bbdoc: The dui canvas gadget Type.

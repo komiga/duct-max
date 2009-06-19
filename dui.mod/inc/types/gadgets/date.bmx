@@ -1,8 +1,7 @@
 
-' 
-' date.bmx (Contains: dui_TDate, )
-' 
-' 
+Rem
+	date.bmx (Contains: dui_TDate, )
+End Rem
 
 Rem
 	bbdoc: The dui date gadget type.

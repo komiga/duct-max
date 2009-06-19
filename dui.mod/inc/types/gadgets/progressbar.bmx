@@ -1,8 +1,7 @@
 
-' 
-' progressbar.bmx (Contains: dui_TProgressBar, )
-' 
-' 
+Rem
+	progressbar.bmx (Contains: dui_TProgressBar, )
+End Rem
 
 Rem
 	bbdoc: The dui progress bar gadget type.

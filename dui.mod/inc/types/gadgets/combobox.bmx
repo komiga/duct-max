@@ -1,8 +1,7 @@
 
-' 
-' combobox.bmx (Contains: dui_TComboBox, )
-' 
-' 
+Rem
+	combobox.bmx (Contains: dui_TComboBox, )
+End Rem
 
 Rem
 	bbdoc: The dui combobox gadget type.

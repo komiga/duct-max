@@ -1,8 +1,7 @@
 
-' 
-' image.bmx (Contains: dui_TImage, )
-' 
-' 
+Rem
+	image.bmx (Contains: dui_TImage, )
+End Rem
 
 Rem
 	bbdoc: The dui image gadget type.

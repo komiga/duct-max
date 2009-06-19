@@ -1,8 +1,7 @@
 
-' 
-' event.bmx (Contains: dui_TEvent, )
-'  
-' 
+Rem
+	event.bmx (Contains: dui_TEvent, )
+End Rem
 
 ' Event constants
 Const dui_EVENT_SETSCREEN:Int = 1			' Screen changed 

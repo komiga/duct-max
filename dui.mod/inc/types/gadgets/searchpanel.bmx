@@ -1,8 +1,7 @@
 
-' 
-' searchpanel.bmx (Contains: dui_TSearchPanel, )
-' 
-' 
+Rem
+	searchpanel.bmx (Contains: dui_TSearchPanel, )
+End Rem
 
 Rem
 	bbdoc: The dui search panel gadget type.

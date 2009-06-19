@@ -1,8 +1,7 @@
 
-' 
-' screen.bmx (Contains: dui_TScreen, )
-' 
-' 
+Rem
+	screen.bmx (Contains: dui_TScreen, )
+End Rem
 
 Rem
 	bbdoc: The dui screen Type.

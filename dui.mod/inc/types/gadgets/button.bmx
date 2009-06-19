@@ -1,8 +1,7 @@
 
-' 
-' button.bmx (Contains: dui_TButton, )
-' 
-' 
+Rem
+	button.bmx (Contains: dui_TButton, )
+End Rem
 
 Rem
 	bbdoc: The dui button gadget Type.

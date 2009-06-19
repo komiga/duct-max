@@ -5,15 +5,13 @@ Framework brl.blitz
 Import brl.standardio
 
 Import brl.glmax2d
-?win32
-Import brl.d3d7max2d
-?
 Import brl.pngloader
+
 Import brl.map
 Import brl.random
 
 Import duct.etc
-Import duct.TileMap
+Import duct.tilemap
 
 Import brl.filesystem
 Import brl.stream
@@ -26,7 +24,7 @@ TApp.Run()
 
 Type TApp
 	
-	Global gfx_width:Int = 1024, gfx_height:Int = 768
+	Global gfx_width:Int = 1440, gfx_height:Int = 900
 	
 	Global resids:Int[]
 	Global map:TTileMap, maphandler:TMyMapHandler, resources:TMapResourceSet, environment:TMapEnvironment
@@ -45,43 +43,53 @@ Type TApp
 			End Try
 			
 			Local tiley:Float, tilex:Float, tile:TMapResource
-			Local xoff:Float = 180.0, yoff:Float = 25.0, tilerange_low:Int = 0, tilerange:Int = resources.Count() - 1
+			Local tilerange_low:Int = 0, tilerange:Int = resources.Count() - 1
 			
 			Local mz:Int, omz:Int
 			Local y:Int, x:Int, rid:Int, dtile:TDrawnTile
+			
+			Local drawtime:Int
 			
 			SetBlend(MASKBLEND)
 			While KeyDown(KEY_ESCAPE) = False And AppTerminate() = False
 				
 				Cls()
 					
-					maphandler.mousep.Set(MouseX(), MouseY())
+					maphandler.m_mousep.Set(MouseX(), MouseY())
 					
-					map.Draw(xoff, yoff)
+					drawtime = MilliSecs()
+					map.Draw()
+					DrawText("Draw time: " + String(MilliSecs() - drawtime) + "ms", 110.0, 13.0)
 					
 					SetColor(255, 255, 255)
-					DrawRectangle(xoff, yoff, xoff + (map.dw_width * 44.0), yoff + (map.dw_height * 44.0))
+					DrawRectangle(map.GetWindowX(), map.GetWindowY(), map.GetWindowX() + (map.GetWindowWidth()), map.GetWindowY() + (map.GetWindowHeight()))
 					
 					If KeyHit(KEY_F1)
 						
-						maphandler.debug:~1
+						maphandler.m_debug:~1
 						
+					End If
+					
+					If maphandler.m_coll_terrain <> Null
+						DrawText("tilez: " + maphandler.m_coll_terrain.GetZ(), 10.0, 13.0)
 					End If
 					
 					mz = MouseZ()
 					If mz <> omz
 						
-						dtile = maphandler.coll_terrain
+						dtile = maphandler.m_coll_terrain
 						If dtile <> Null
 							
 							If mz < omz
-								dtile.SetZ(dtile.GetZ() - 2)
+								dtile.SetZ(dtile.GetZ() - 4)
 							Else If mz > omz
-								dtile.SetZ(dtile.GetZ() + 2)
+								dtile.SetZ(dtile.GetZ() + 4)
 							End If
 							
 						End If
 						
+						map.UpdateTileAtPos(dtile.m_pos.m_x, dtile.m_pos.m_y, True)
+						map.UpdateTileNormalsAtPos(dtile.m_pos.m_x, dtile.m_pos.m_y)
 						omz = mz
 						
 					End If
@@ -100,38 +108,57 @@ Type TApp
 						End If
 					End If
 					
-					If KeyDown(KEY_UP) Then yoff:-5
-					If KeyDown(KEY_DOWN) Then yoff:+5
-					If KeyDown(KEY_LEFT) Then xoff:-5
-					If KeyDown(KEY_RIGHT) Then xoff:+5
+					If KeyDown(KEY_UP)
+						map.SetWindowY(map.GetWindowY() - 5)
+					End If
+					If KeyDown(KEY_DOWN)
+						map.SetWindowY(map.GetWindowY() + 5)
+					End If
+					If KeyDown(KEY_LEFT)
+						map.SetWindowX(map.GetWindowX() - 5)
+					End If
+					If KeyDown(KEY_RIGHT)
+						map.SetWindowX(map.GetWindowX() + 5)
+					End If
 					
-					If KeyDown(KEY_D) Then map.SetDrawWindowPosition(map.dw_x + 1, map.dw_y - 1)
-					If KeyDown(KEY_A) Then map.SetDrawWindowPosition(map.dw_x - 1, map.dw_y + 1)
-					If KeyDown(KEY_W) Then map.SetDrawWindowPosition(map.dw_x - 1, map.dw_y - 1)
-					If KeyDown(KEY_S) Then map.SetDrawWindowPosition(map.dw_x + 1, map.dw_y + 1)
+					If KeyDown(KEY_W) Then maphandler.MovePlayer(- 1, - 1)
+					If KeyDown(KEY_S) Then maphandler.MovePlayer(+ 1, + 1)
+					If KeyDown(KEY_A) Then maphandler.MovePlayer(- 1, + 1)
+					If KeyDown(KEY_D) Then maphandler.MovePlayer(+ 1, - 1)
 					
-					If KeyDown(KEY_SPACE)
+					If KeyDown(KEY_SPACE) = True
+						
+						'y = 6
+						'x = 4
 						
 						SeedRnd(MilliSecs())
-						For y = 0 To map.height - 1
+						'map.GetTileAtPos(x, y).SetZ(127)
+						'map.UpdateTileAtPos(x, y, True)
+						
+						For y = 0 To map.GetHeight() - 1
 							
-							For x = 0 To map.width - 1
+							For x = 0 To map.GetWidth() - 1
 								
-								dtile = map.data_terrain[y, x]
+								dtile = map.GetTileAtPos(x, y)
 								rid = resids[Rand(tilerange_low, tilerange)]
 								
-								map.data_terrain[y, x].SetZ(Rand(- 15, 15))
-								map.data_terrain[y, x].SetResourceID(rid)
+								dtile.SetZ(Rand(- 5, 5))
+								dtile.SetResourceID(rid)
 								
 							Next
 							
 						Next
 						
+						map.UpdateAllTiles()
+						map.UpdateAllTileNormals()
+						
+						map.UpdateAllTileResources()
+						
 					End If
 					
 					tiley = 40.0
 					tilex = 5.0
-					For tile = EachIn resources._map.Values()
+					For tile = EachIn resources.ValueEnumerator()
 						
 						DrawImage(tile.GetTexture().GetImage(), tilex, tiley)
 						
@@ -147,7 +174,7 @@ Type TApp
 					
 					DrawText("[" + tilerange_low + " - " + tilerange + "] || FPS: " + String(TFPSCounter.GetFPS()), 0.0, 0.0)
 					
-				Flip()
+				Flip(0)
 				TFPSCounter.Update()
 				Delay(10)
 				
@@ -158,36 +185,47 @@ Type TApp
 		Function Initiate()
 			Local instream:TStream, staticres:TMapResourceSet
 			
-			'SetGraphicsDriver(D3D7Max2DDriver())
 			SetGraphicsDriver(GLMax2DDriver())
 			Graphics(gfx_width, gfx_height, 0)
 			
+			' Important! This must be called to initiate the OpenGL lighting for tiles
+			TTileMap.InitGL()
+			
 			resources = TMapResourceSet.LoadFromFile("tiles.dts")
 			staticres = TMapResourceSet.LoadFromFile("statics.dts")
+			environment = New TMapEnvironment.Create(255, 255, 255)
 			
-			instream = ReadStream("map_test.map")
-			If instream = Null Then Throw("Failed to load map!")
-			map = TTileMap.Load(instream)
-			instream.Close()
+			' We don't call the Create method here because we're DeSerializing (we can set things manually, )
+			map = New TTileMap
 			
+			maphandler = New TMyMapHandler.Create(map)
+			map.SetHandler(maphandler)
 			map.SetTileResourceMap(resources)
 			map.SetStaticResourceMap(staticres)
-			
-			environment = New TMapEnvironment.Create(255, 255, 255)
 			map.SetEnvironment(environment)
 			
-			DebugLog("Window set: " + map.SetDrawWindow(0, 0, 16, 16, True))
-			DebugLog("dw_x: " + map.dw_x + " dw_y: " + map.dw_y)
-			DebugLog("dw_w: " + map.dw_width + " dw_h: " + map.dw_height)
-			DebugLog("w: " + map.data_terrain.Length + " h: " + map.data_terrain.Length)
-			DebugLog("gw: " + (map.Getwidth() - 1) + " gh: " + (map.GetHeight() - 1))
+			instream = ReadStream("map_test.map")
+			If instream = Null
+				Throw("Failed to load map!")
+			Else
+				
+				map.DeSerialize(instream)
+				instream.Close()
+				
+			End If
+			
+			DebugLog("Window set: " + map.SetWindowDimensions(180, 25, 800, 600))
+			DebugLog("Window X: " + map.GetWindowX() + " Window Y: " + map.GetWindowY())
+			DebugLog("Window W: " + map.GetWindowWidth() + " Window H: " + map.GetWindowHeight())
+			DebugLog("Chunks: " + map.GetChunkCount())
+			DebugLog("Map Width: " + map.Getwidth() + " Map Height: " + map.GetHeight())
 			
 			resids = New Int[resources.Count()]
 			Local i:Int, ii:Int, res:TMapResource
 			For i = 0 To resources.Count() - 1
 				
 				ii = 0
-				For res = EachIn resources._map.Values()
+				For res = EachIn resources.ValueEnumerator()
 					
 					If ii = i
 						resids[i] = res.GetID()
@@ -195,22 +233,15 @@ Type TApp
 					End If
 					
 					ii:+1
-				Next
-				
-			Next
-			
-			maphandler = New TMyMapHandler
-			map.handler = maphandler
-			
-			For i = 0 To map.GetHeight() - 1
-				
-				For ii = 0 To map.GetWidth() - 1
-					
-					If map.data_terrain[i, ii] = Null Then Print("Position (" + i + ", " + ii + ") is Null")
 					
 				Next
 				
 			Next
+			
+			maphandler.m_coll_terrain = map.GetTileAtPos(10, 10)
+			
+			map.UpdateAllTileResources()
+			map.UpdateAllStaticResources()
 			
 		End Function
 		
@@ -219,39 +250,30 @@ End Type
 
 Type TMyMapHandler Extends TTileMapHandler
 	
-	Field debug:Int = False
-	Field mousep:TVec2 = New TVec2.Create(0.0, 0.0)
+	Field m_debug:Int = False
+	Field m_mousep:TVec2 = New TVec2.Create(0.0, 0.0)
 	
-		Method BeforeCollidingTileDrawn(cdata:TTileCollisionData, light:Float)
+		Method Create:TMyMapHandler(map:TTileMap)
 			
-			SetColor(255 * light, 255 * light, light)
+			Init(map, New TMapPos, New TVec3, True, True)
 			
-			Rem
-			If cdata.quad.IsVectorInside(mousep) = True
-				
-				colliding = cdata.Copy()
-				
-			Else If colliding <> Null
-				
-				If cdata.tilex = colliding.tilex And cdata.tiley = colliding.tiley
-					
-					' Simply to update the tile quad so debug rendering updates if tile heights are modified
-					colliding = cdata.Copy()
-					
-				End If
-				
-			End If
-			End Rem
+			Return Self
 			
 		End Method
 		
-		Method AfterTileDrawn(cdata:TTileCollisionData)
+		Method BeforeCollidingTileDrawn()
+			
+			SetColor(255, 255, 0)
+			
+		End Method
+		
+		Method AfterTileDrawn(tile:TDrawnTile)
+			
+			If m_debug = True
 				
-			If debug = True
-				
-				SetColor(255, 0, 0)
-				cdata.quad.DrawTopOutline()
-				cdata.quad.DrawBottomOutline()
+				'SetColor(255, 0, 0)
+				'cdata.m_quad.DrawTopOutline()
+				'cdata.m_quad.DrawBottomOutline()
 				
 			End If
 			
@@ -264,36 +286,6 @@ Type TMyMapHandler Extends TTileMapHandler
 		End Method
 		
 		Method FinishedDrawing()
-			Local coll:Object[]
-			
-			coll = CollideRect(mousep.x, mousep.y, 1, 1, static_clayer, 0)
-			
-			If coll = Null
-				
-				coll_static = Null
-				
-			Else
-				
-				coll_terrain = Null
-				coll_static = TDrawnStatic(coll[0])
-				
-			End If
-			ResetCollisions(static_clayer)
-			
-			If coll_static = Null
-				coll = CollideRect(mousep.x, mousep.y, 1, 1, terrain_clayer, 0)
-				
-				If coll = Null
-					
-					coll_terrain = Null
-					
-				Else
-					
-					coll_terrain = TDrawnTile(coll[0])
-					
-				End If
-				ResetCollisions(terrain_clayer)
-			End If
 			
 		End Method
 		

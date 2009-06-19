@@ -1,8 +1,7 @@
 
-' 
-' scrollbar.bmx (Contains: dui_TScrollBar, )
-' 
-' 
+Rem
+	scrollbar.bmx (Contains: dui_TScrollBar, )
+End Rem
 
 Rem
 	bbdoc: The dui scrollbar gadget Type.

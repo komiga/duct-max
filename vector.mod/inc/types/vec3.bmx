@@ -1,46 +1,46 @@
 
-' Copyright (c) 2009 Tim Howard
-' 
-' Permission is hereby granted, free of charge, to any person obtaining a copy
-' of this software and associated documentation files (the "Software"), to deal
-' in the Software without restriction, including without limitation the rights
-' to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-' copies of the Software, and to permit persons to whom the Software is
-' furnished to do so, subject to the following conditions:
-' 
-' The above copyright notice and this permission notice shall be included in
-' all copies or substantial portions of the Software.
-' 
-' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-' IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-' FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-' AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-' LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-' THE SOFTWARE.
-' 
-
-' 
-' vec3.bmx (Contains: TVec3, )
-' 
-' 
+Rem
+	Copyright (c) 2009 Tim Howard
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
+	-----------------------------------------------------------------------------
+	
+	vec3.bmx (Contains: TVec3, )
+	
+End Rem
 
 Rem
-	bbdoc: The 3d (x, y & z) vector module.
+	bbdoc: The 3d (x, y & z) vector type.
 End Rem
 Type TVec3
 	
-	Field x:Float, y:Float, z:Float
+	Field m_x:Float, m_y:Float, m_z:Float
 		
 		Rem
-			bbdoc: Create a 3d vector.
-			returns: The created vector (itself).
+			bbdoc: Create a new Vec3.
+			returns: The new vector (itself).
 		End Rem
-		Method Create:TVec3(_x:Float, _y:Float, _z:Float)
+		Method Create:TVec3(x:Float, y:Float, z:Float)
 			
-			x = _x
-			y = _y
-			z = _z
+			m_x = x
+			m_y = y
+			m_z = z
 			
 			Return Self
 			
@@ -52,19 +52,21 @@ Type TVec3
 		End Rem
 		Method Copy:TVec3()
 			
-			Return New TVec3.Create(x, y, z)
+			Return New TVec3.Create(m_x, m_y, m_z)
 			
 		End Method
+		
+		'#region Field accessors
 		
 		Rem
 			bbdoc: Get the vector's values.
 			returns: Nothing. @_x, @_y and @_z will contain the values of the vector.
 		End Rem
-		Method Get(_x:Float Var, _y:Float Var, _z:Float Var)
+		Method Get(x:Float Var, y:Float Var, z:Float Var)
 			
-			_x = x
-			_y = y
-			_z = z
+			x = m_x
+			y = m_y
+			z = m_z
 			
 		End Method
 		
@@ -72,13 +74,28 @@ Type TVec3
 			bbdoc: Set the vector's values.
 			returns: Nothing.
 		End Rem
-		Method Set(_x:Float, _y:Float, _z:Float)
+		Method Set(x:Float, y:Float, z:Float)
 			
-			x = _x
-			y = _y
-			z = _z
+			m_x = x
+			m_y = y
+			m_z = z
 			
 		End Method
+		
+		Rem
+			bbdoc: Set the vector's values by the given vector.
+			returns: Nothing.
+			about: This will <b>NOT</b> check if @vec is Null.
+		End Rem
+		Method SetVec(vec:TVec3)
+			
+			m_x = vec.m_x
+			m_y = vec.m_y
+			m_z = vec.m_z
+			
+		End Method
+		
+		'#end region (Field accessors)
 		
 		Rem
 			bbdoc: Get the vector's angle.
@@ -86,7 +103,7 @@ Type TVec3
 		End Rem
 		Method GetAngle:Float()
 			
-			Return ATan2(y, Sqr(x * x + z * z))
+			Return ATan2(m_y, Sqr(m_x * m_x + m_z * m_z))
 			
 		End Method
 		
@@ -94,24 +111,45 @@ Type TVec3
 			bbdoc: Add the given values to this vector.
 			returns: Nothing.
 		End Rem
-		Method Add(_x:Float, _y:Float, _z:Float)
+		Method AddParams(x:Float, y:Float, z:Float)
 			
-			x:+_x
-			y:+_y
-			z:+_z
+			m_x:+x
+			m_y:+y
+			m_z:+z
+			
+		End Method
+		
+		Rem
+			bbdoc: Add the given values to this vector, and stuff the result into a new vector.
+			returns: A new vector for the result.
+		End Rem
+		Method AddParamsNew:TVec3(x:Float, y:Float, z:Float)
+			
+			Return New TVec3.Create(m_x + x, m_y + y, m_z + z)
 			
 		End Method
 		
 		Rem
 			bbdoc: Add the given vector to this vector.
 			returns: Nothing.
+			about: Warning: This will not check if @vec is Null!
 		End Rem
 		Method AddVec(vec:TVec3)
-			If vec = Null Return
 			
-			x:+vec.x
-			y:+vec.y
-			z:+vec.z
+			m_x:+vec.m_x
+			m_y:+vec.m_y
+			m_z:+vec.m_z
+			
+		End Method
+		
+		Rem
+			bbdoc: Add the given vector to this vector, and stuff the result into a new vector.
+			returns: A new vector for the result.
+			about: Warning: This will not check if @vec is Null!
+		End Rem
+		Method AddVecNew:TVec3(vec:TVec3)
+			
+			Return New TVec3.Create(m_x + vec.m_x, m_y + vec.m_y, m_z + vec.m_z)
 			
 		End Method
 		
@@ -119,24 +157,45 @@ Type TVec3
 			bbdoc: Subtract this vector by the values given.
 			returns: Nothing.
 		End Rem
-		Method Subtract(_x:Float, _y:Float, _z:Float)
+		Method SubtractParams(x:Float, y:Float, z:Float)
 			
-			x:-_x
-			y:-_y
-			z:-_z
+			m_x:-x
+			m_y:-y
+			m_z:-z
+			
+		End Method
+		
+		Rem
+			bbdoc: Subtract this vector by the values given, and stuff the result into a new vector.
+			returns: A new vector for the result.
+		End Rem
+		Method SubtractParamsNew:TVec3(x:Float, y:Float, z:Float)
+			
+			Return New TVec3.Create(m_x - x, m_y - y, m_z - z)
 			
 		End Method
 		
 		Rem
 			bbdoc: Subtract this vector by another vector.
 			returns: Nothing.
+			about: Warning: This will not check if @vec is Null!
 		End Rem
 		Method SubtractVec(vec:TVec3)
-			If vec = Null Return
 			
-			x:-vec.x
-			y:-vec.y
-			z:-vec.z
+			m_x:-vec.m_x
+			m_y:-vec.m_y
+			m_z:-vec.m_z
+			
+		End Method
+		
+		Rem
+			bbdoc: Subtract this vector by another vector, and stuff the result into a new vector.
+			returns: A new vector for the result.
+			about: Warning: This will not check if @vec is Null!
+		End Rem
+		Method SubtractVecNew:TVec3(vec:TVec3)
+			
+			Return New TVec3.Create(m_x - vec.m_x, m_y - vec.m_y, m_z - vec.m_z)
 			
 		End Method
 		
@@ -144,96 +203,131 @@ Type TVec3
 			bbdoc: Multiply this vector by the values given.
 			returns: Nothing.
 		End Rem
-		Method Multiply(_x:Float, _y:Float, _z:Float)
+		Method MultiplyParams(x:Float, y:Float, z:Float)
 			
-			x:*_x
-			y:*_y
-			z:*_z
+			m_x:*x
+			m_y:*y
+			m_z:*z
+			
+		End Method
+		
+		Rem
+			bbdoc: Multiply this vector by the values given, and stuff the result into a new vector.
+			returns: A new vector for the result.
+		End Rem
+		Method MultiplyParamsNew:TVec3(x:Float, y:Float, z:Float)
+			
+			Return New TVec3.Create(m_x * x, m_y * y, m_z * z)
 			
 		End Method
 		
 		Rem
 			bbdoc: Multiply this vector by another vector.
 			returns: Nothing.
+			about: Warning: This will not check if @vec is Null!
 		End Rem
 		Method MultiplyVec(vec:TVec3)
-			If vec = Null Return
 			
-			x:*vec.x
-			y:*vec.y
-			z:*vec.z
+			m_x:*vec.m_x
+			m_y:*vec.m_y
+			m_z:*vec.m_z
 			
 		End Method
 		
 		Rem
-			bbdoc: Divide this vector by the values given.
-			returns: Nothing.
-			about: This does check if the divisors are zero.
+			bbdoc: Multiply this vector by another vector, and stuff the result into a new vector.
+			returns: A new vector for the result.
+			about: Warning: This will not check if @vec is Null!
 		End Rem
-		Method Divide(_x:Float, _y:Float, _z:Float)
+		Method MultiplyVecNew:TVec3(vec:TVec3)
 			
-			If _x <> 0 And _y <> 0 And _z <> 0
-				x:/_x
-				y:/_y
-				z:/_z
+			Return New TVec3.Create(m_x * vec.m_x, m_y * vec.m_y, m_z * vec.m_z)
+			
+		End Method
+		
+		Rem
+			bbdoc: Divide this vector by the scalar given.
+			returns: Nothing.
+			about: This will check if the divisor is zero.
+		End Rem
+		Method DivideParams(scalar:Float)
+			
+			If scalar <> 0
+				
+				m_x:/scalar
+				m_y:/scalar
+				m_z:/scalar
+				
 			End If
 			
 		End Method
 		
 		Rem
-			bbdoc: Divide this vector by another vector.
-			returns: Nothing.
-			about: This does check if the given vector's values are zero.
+			bbdoc: Divide this vector by the scalar given, and stuff the result into a new vector.
+			returns: A new vector for the result.
+			about: This will check if the divisor is zero.
 		End Rem
-		Method DivideVec(vec:TVec3)
-			If vec = Null Return
+		Method DivideParamsNew:TVec3(scalar:Float)
+			Local nvec:TVec3 = Copy()
 			
-			If vec.x <> 0 And vec.y <> 0 And vec.z <> 0
-				x:/vec.x
-				y:/vec.y
-				z:/vec.z
+			If scalar <> 0
+				
+				nvec.m_x:/scalar
+				nvec.m_y:/scalar
+				nvec.m_z:/scalar
+				
 			End If
+			
+			Return nvec
+			
+		End Method
+		
+		Rem
+			bbdoc: Get the dot product of this vector and the given values.
+			returns: The dot product of this vector and the given values.
+		End Rem
+		Method DotProductParams:Float(x:Float, y:Float, z:Float)
+			
+			Return m_x * x + m_y * y + m_z * z
 			
 		End Method
 		
 		Rem
 			bbdoc: Get the dot product of this vector and the vector given.
 			returns: The dot product of the two vectors.
+			about: Warning: This will not check if @vec is Null!
 		End Rem
-		Method DotProduct:Float(vec:TVec3)
+		Method DotProductVec:Float(vec:TVec3)
 			
-			Return x * vec.x + y * vec.y + z * vec.z
+			Return m_x * vec.m_x + m_y * vec.m_y + m_z * vec.m_z
+			
+		End Method
+		
+		Rem
+			bbdoc: Get this vector reflected upon the given values.
+			returns: A new vector that is the result of this vector reflecting off the given values.
+		End Rem
+		Method GetReflectedParamsNew:TVec3(x:Float, y:Float, z:Float)
+			
+			Return GetReflectedVecNew(New TVec3.Create(x, y, z))
 			
 		End Method
 		
 		Rem
 			bbdoc: Get this vector reflected upon another.
-			returns: A new vector that is the result of this vector reflecting off the given vector.
+			returns: A new vector that is the result of this vector reflecting off of @vec.
+			about: This method does not check if @vec is Null.
 		End Rem
-		Method Reflected:TVec3(vec:TVec3)
-			Local vecn:TVec3 = vec.Normalized()
-			Local vec1:TVec3 = Copy()
-			Local vecn_DOT_vec1:Float = vecn.DotProduct(vec1)
+		Method GetReflectedVecNew:TVec3(vec:TVec3)
+			Local vecnormal:TVec3 = vec.NormalizeNew()
+			Local clone:TVec3 = Copy()
+			Local dotp:Float = vecnormal.DotProductVec(clone)
 			
-			vecn.Multiply(2 * vecn_DOT_vec1, 2 * vecn_DOT_vec1, 2 * vecn_DOT_vec1)
+			vecnormal.MultiplyParams(2 * dotp, 2 * dotp, 2 * dotp)
 			
-			vec1.SubtractVec(vecn)
+			clone.SubtractVec(vecnormal)
 			
-			Return vec1
-			
-		End Method
-		
-		Rem
-			bbdoc: Get a normalized vector of this vector.
-			returns: This vector normalized.
-			about: See also #Normalize.
-		End Rem
-		Method Normalized:TVec3() 
-			Local vector:TVec3 = Copy()
-			
-			vector.Normalize()
-			
-			Return vector
+			Return clone
 			
 		End Method
 		
@@ -246,11 +340,25 @@ Type TVec3
 			
 			If magn <> 0
 				
-				x:/magn
-				y:/magn
-				z:/magn
+				m_x:/magn
+				m_y:/magn
+				m_z:/magn
 				
 			End If
+			
+		End Method
+		
+		Rem
+			bbdoc: Get a normalized vector of this vector.
+			returns: This vector normalized.
+			about: See also #Normalize.
+		End Rem
+		Method NormalizeNew:TVec3()
+			Local vector:TVec3 = Copy()
+			
+			vector.Normalize()
+			
+			Return vector
 			
 		End Method
 		
@@ -260,20 +368,65 @@ Type TVec3
 		End Rem
 		Method GetMagnitude:Float()
 			
-			Return Sqr(x * x + y * y + z * z)
+			Return Sqr(m_x * m_x + m_y * m_y + m_z * m_z)
 			
 		End Method
 		
+		Rem
+			bbdoc: Make this vector the cross product of the given values and this vector (Self CrossProduct [@x, @y, @z]).
+			returns: Nothing.
+		End Rem
+		Method CrossProductParams(x:Float, y:Float, z:Float)
+			Local cpx:Float, cpy:Float, cpz:Float
+			
+			cpx = m_y * z - m_z * y
+			cpy = m_z * x - m_x * z
+			cpz = m_x * y - m_y * x
+			
+			m_x = cpx
+			m_y = cpy
+			m_z = cpz
+			
+		End Method
 		
 		Rem
-			bbdoc: Cross multiply two vectors.
-			returns: The cross product of the two given vectors.
+			bbdoc: Get the cross product of this vector and the given values (Self CrossProduct [@x, @y, @z]).
+			returns: A new vector containing the result.
 		End Rem
-		Function CrossProduct:TVec3( vec1:TVec3, vec2:TVec3 )
+		Method CrossProductParamsNew:TVec3(x:Float, y:Float, z:Float)
 			
-			Return New TVec3.Create(vec1.y * vec2.z - vec1.z * vec2.y, vec1.z * vec2.x - vec1.x * vec2.z, vec1.x * vec2.y - vec1.y * vec2.x)
+			Return New TVec3.Create(m_y * z - m_z * y, m_z * x - m_x * z, m_x * y - m_y * x)
 			
-		End Function
+		End Method
+		
+		Rem
+			bbdoc: Make this vector the cross product of the given vector and this vector (Self CrossProduct @vec).
+			returns: Nothing.
+			about: Warning: This does not check if the given vector is Null.
+		End Rem
+		Method CrossProductVec(vec:TVec3)
+			Local cpx:Float, cpy:Float, cpz:Float
+			
+			cpx = m_y * vec.m_z - m_z * vec.m_y
+			cpy = m_z * vec.m_x - m_x * vec.m_z
+			cpz = m_x * vec.m_y - m_y * vec.m_x
+			
+			m_x = cpx
+			m_y = cpy
+			m_z = cpz
+			
+		End Method
+		
+		Rem
+			bbdoc: Get the cross product of this vector and the given vector (Self CrossProduct [@x, @y, @z]).
+			returns: A new vector containing the result.
+			about: Warning: This does not check if the given vector is Null.
+		End Rem
+		Method CrossProductVecNew:TVec3(vec:TVec3)
+			
+			Return New TVec3.Create(m_y * vec.m_z - m_z * vec.m_y, m_z * vec.m_x - m_x * vec.m_z, m_x * vec.m_y - m_y * vec.m_x)
+			
+		End Method
 		
 End Type
 

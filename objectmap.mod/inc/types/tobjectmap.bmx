@@ -1,42 +1,42 @@
 
-' Copyright (c) 2009 Tim Howard
-' 
-' Permission is hereby granted, free of charge, to any person obtaining a copy
-' of this software and associated documentation files (the "Software"), to deal
-' in the Software without restriction, including without limitation the rights
-' to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-' copies of the Software, and to permit persons to whom the Software is
-' furnished to do so, subject to the following conditions:
-' 
-' The above copyright notice and this permission notice shall be included in
-' all copies or substantial portions of the Software.
-' 
-' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-' IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-' FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-' AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-' LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-' THE SOFTWARE.
-' 
-
-' 
-' tobjectmap.bmx (Contains: TObjectMap, )
-' 
-'
+Rem
+	Copyright (c) 2009 Tim Howard
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
+	-----------------------------------------------------------------------------
+	
+	tobjectmap.bmx (Contains: TObjectMap, )
+	
+End Rem
 
 Rem
-	bbdoc: The TObjectMap type.
-	about: Intended as an abstract type, but still usable otherwise.
+	bbdoc: The ObjectMap type.
+	about: This type is intended to be used abstractly, but still usable otherwise.
 End Rem
 Type TObjectMap
 	
-	Field _count:Int
-	Field _map:TMap
+	Field m_count:Int
+	Field m_map:TMap
 	
 		Method New()
 			
-			_map = New TMap
+			m_map = New TMap
 			
 		End Method
 		
@@ -55,8 +55,8 @@ Type TObjectMap
 		End Rem
 		Method _Insert(key:Object, value:Object)
 			
-			_map.Insert(key, value)
-			_count:+1
+			m_map.Insert(key, value)
+			m_count:+1
 			
 		End Method
 		
@@ -67,9 +67,9 @@ Type TObjectMap
 		End Rem
 		Method _Remove:Int(key:Object)
 			
-			If _map.Remove(key) = True
+			If m_map.Remove(key) = True
 				
-				_count:-1
+				m_count:-1
 				Return True
 				
 			End If
@@ -79,12 +79,13 @@ Type TObjectMap
 		End Method
 		
 		Rem
-			bbdoc: Get a value by it's key.
+			bbdoc: Get a value by its key.
 			returns: An object or Null (not found).
 		End Rem
 		Method _ValueByKey:Object(key:Object)
 			
-			Return _map.ValueForKey(key)
+			If key = Null Then Return Null
+			Return m_map.ValueForKey(key)
 			
 		End Method
 		
@@ -94,7 +95,7 @@ Type TObjectMap
 		End Rem
 		Method _Contains:Int(key:Object)
 			
-			Return _map.Contains(key)
+			Return m_map.Contains(key)
 			
 		End Method
 		
@@ -105,19 +106,38 @@ Type TObjectMap
 		End Rem
 		Method Clear()
 			
-			_map.Clear()
-			_count = 0
+			m_map.Clear()
+			m_count = 0
 			
 		End Method
 		
 		Rem
-			bbdoc: 
+			bbdoc: Get the number of entries in the map.
 			returns: Nothing.
-			about: 
 		End Rem
 		Method Count:Int()
 			
-			Return _count
+			Return m_count
+			
+		End Method
+		
+		Rem
+			bbdoc: Get the value enumerator for the map.
+			returns: Nothing.
+		End Rem
+		Method ValueEnumerator:TMapEnumerator()
+			
+			Return m_map.Values()
+			
+		End Method
+		
+		Rem
+			bbdoc: Get the key enumerator for the map.
+			returns: Nothing.
+		End Rem
+		Method KeyEnumerator:TMapEnumerator()
+			
+			Return m_map.Keys()
 			
 		End Method
 		

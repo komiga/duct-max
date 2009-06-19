@@ -1,8 +1,7 @@
 
-' 
-' gadgets.bmx (Contains: Includes all gadget types, )
-' 
-' 
+Rem
+	gadgets.bmx (Contains: Includes all gadget types, )
+End Rem
 
 Include "basegadget.bmx"
 

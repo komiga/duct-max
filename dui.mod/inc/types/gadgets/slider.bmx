@@ -1,8 +1,7 @@
 
-' 
-' slider.bmx (Contains: dui_TSlider, )
-' 
-' 
+Rem
+	slider.bmx (Contains: dui_TSlider, )
+End Rem
 
 Rem
 	bbdoc: The dui slider gadget Type.

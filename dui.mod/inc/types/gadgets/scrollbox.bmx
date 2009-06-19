@@ -1,8 +1,7 @@
 
-' 
-' scrollbox.bmx (Contains: dui_TScrollBox, )
-' 
-' 
+Rem
+	scrollbox.bmx (Contains: dui_TScrollBox, )
+End Rem
 
 Rem
 	bbdoc: The dui scrollbox gadget type.

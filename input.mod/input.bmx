@@ -1,36 +1,39 @@
 
-' Copyright (c) 2009 Tim Howard
-' 
-' Permission is hereby granted, free of charge, to any person obtaining a copy
-' of this software and associated documentation files (the "Software"), to deal
-' in the Software without restriction, including without limitation the rights
-' to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-' copies of the Software, and to permit persons to whom the Software is
-' furnished to do so, subject to the following conditions:
-' 
-' The above copyright notice and this permission notice shall be included in
-' all copies or substantial portions of the Software.
-' 
-' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-' IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-' FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-' AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-' LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-' THE SOFTWARE.
-' 
+Rem
+	Copyright (c) 2009 Tim Howard
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
+End Rem
 
 SuperStrict
 
 Rem
-bbdoc: Input module
+bbdoc: Input handling module
 End Rem
 Module duct.Input
 
-ModuleInfo "Version: 0.37"
+ModuleInfo "Version: 0.38"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.38"
+ModuleInfo "History: General code cleanup"
 ModuleInfo "History: Version 0.37"
 ModuleInfo "History: Changes: Updated for Template multi-name support (duct.template v0.12), and removed syntax incorrectedness (in Returns, News, Cases and Selects)"
 ModuleInfo "History: Version 0.36"
@@ -42,7 +45,7 @@ ModuleInfo "History: Version 0.35"
 ModuleInfo "History: Initial release."
 
 
-'Used modules
+' Used modules
 Import brl.polledinput
 Import brl.keycodes
 
@@ -51,8 +54,8 @@ Import duct.scriptparser
 Import duct.template
 
 
-'Included code
-Include "inc/types/tinputconv.bmx"
+' Included code
+Include "inc/types/inputconv.bmx"
 Include "inc/types/keyhandler.bmx"
 Include "inc/types/bindmap.bmx"
 

@@ -86,6 +86,7 @@ Type TMasterServer Extends TServer
 				
 			Else
 				
+				player = Null
 				AssignID(player, pid)
 				
 				SendPlayerList(player)
@@ -158,7 +159,7 @@ Type TMasterServer Extends TServer
 		End Method
 		
 		Rem
-			bbdoc: Assign an id to this ServerPlayer.
+			bbdoc: Assign an id to a ServerPlayer.
 			returns: Nothing.
 		End Rem
 		Method AssignID(player:TServerPlayer, _pid:Byte)
