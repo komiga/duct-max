@@ -33,6 +33,8 @@ ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "Author: Yahfree (most of TVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.22"
+ModuleInfo "History: Added Assertions for vector <-> vector operations"
 ModuleInfo "History: Version 0.21"
 ModuleInfo "History: Removed TVec2.DivideVec, DivideVecNew and TVec3.DivideVec, DivideVecNew - Vectors can only be divided by a scalar (change made by )"
 ModuleInfo "History: Version 0.2"

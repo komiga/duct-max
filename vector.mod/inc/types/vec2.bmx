@@ -82,9 +82,11 @@ Type TVec2
 		Rem
 			bbdoc: Set the vector's values by the given vector.
 			returns: Nothing.
-			about: This will <b>NOT</b> check if @vec is Null.
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method SetVec(vec:TVec2)
+			
+			Assert vec, "[TVec2.SetVec] @vec is Null!"
 			
 			m_x = vec.m_x
 			m_y = vec.m_y
@@ -152,9 +154,11 @@ Type TVec2
 		Rem
 			bbdoc: Add the given vector to this vector.
 			returns: Nothing.
-			about: Warning: This does not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method AddVec(vec:TVec2)
+			
+			Assert vec, "[TVec2.AddVec] @vec is Null!"
 			
 			m_x:+vec.m_x
 			m_y:+vec.m_y
@@ -164,9 +168,11 @@ Type TVec2
 		Rem
 			bbdoc: Add the given vector to this vector, and stuff the result into a new vector.
 			returns: A new vector with the result.
-			about: Warning: This does not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method AddVecNew:TVec2(vec:TVec2)
+			
+			Assert vec, "[TVec2.AddVecNew] @vec is Null!"
 			
 			Return New TVec2.Create(m_x + vec.m_x, m_y + vec.m_y)
 			
@@ -196,9 +202,11 @@ Type TVec2
 		Rem
 			bbdoc: Subtract this vector by another vector.
 			returns: Nothing.
-			about: Warning: This does not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method SubtractVec(vec:TVec2)
+			
+			Assert vec, "[TVec2.SubtractVec] @vec is Null!"
 			
 			m_x:-vec.m_x
 			m_y:-vec.m_y
@@ -208,9 +216,11 @@ Type TVec2
 		Rem
 			bbdoc: Subtract this vector by another vector, and stuff the result into a new vector.
 			returns: A new vector with the result.
-			about: Warning: This does not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method SubtractVecNew:TVec2(vec:TVec2)
+			
+			Assert vec, "[TVec2.SubtractVecNew] @vec is Null!"
 			
 			Return New TVec2.Create(m_x - vec.m_x, m_y - vec.m_y)
 			
@@ -240,9 +250,11 @@ Type TVec2
 		Rem
 			bbdoc: Multiply this vector by another vector.
 			returns: Nothing.
-			about: Warning: This does not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method MultiplyVec(vec:TVec2)
+			
+			Assert vec, "[TVec2.MultiplyVec] @vec is Null!"
 			
 			m_x:*vec.m_x
 			m_y:*vec.m_y
@@ -252,9 +264,11 @@ Type TVec2
 		Rem
 			bbdoc: Multiply this vector by another vector, and stuff the result into a new vector.
 			returns: A new vector with the result.
-			about: Warning: This does not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method MultiplyVecNew:TVec2(vec:TVec2)
+			
+			Assert vec, "[TVec2.MultiplyVecNew] @vec is Null!"
 			
 			Return New TVec2.Create(m_x * vec.m_x, m_y * vec.m_y)
 			
@@ -297,7 +311,7 @@ Type TVec2
 		
 		Rem
 			bbdoc: Get the dot product of this vector and the values given.
-			returns: The dot product if this vector and the values given.
+			returns: The dot product of this vector and the values given.
 		End Rem
 		Method DotProductParams:Float(x:Float, y:Float)
 			
@@ -308,9 +322,11 @@ Type TVec2
 		Rem
 			bbdoc: Get the dot product of this vector and the vector given.
 			returns: The dot product of the two vectors.
-			about: Warning: This method does not check if the given vector is Null.
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method DotProductVec:Float(vec:TVec2)
+			
+			Assert vec, "[TVec2.DotProductVec] @vec is Null!"
 			
 			Return m_x * vec.m_x + m_y * vec.m_y
 			
@@ -329,19 +345,13 @@ Type TVec2
 		Rem
 			bbdoc: Get the angle difference between this vector and the vector given.
 			returns: The difference, in angles, between this vector and the given vector.
-			about: If the given vector (@vec) is Null, the return value will be 0.0
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method GetAngleDiffVec:Float(vec:TVec2)
 			
-			If vec = Null
-				
-				Return 0.0
-				
-			Else
-				
-				Return Abs(TrueMod(ATan2(m_y, m_x) + 180 - ATan2(vec.m_y, vec.m_x), 360) - 180)
-				
-			End If
+			Assert vec, "[TVec2.GetAngleDiffVec] @vec is Null!"
+			
+			Return Abs(TrueMod(ATan2(m_y, m_x) + 180 - ATan2(vec.m_y, vec.m_x), 360) - 180)
 			
 		End Method
 		
@@ -358,14 +368,20 @@ Type TVec2
 		Rem
 			bbdoc: Get this vector reflected upon another.
 			returns: A new vector that is the result of this vector reflecting off of @vec.
-			about: This method does not check if @vec is Null.
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method GetReflectedVecNew:TVec2(vec:TVec2)
-			Local vecnormal:TVec2 = vec.NormalizeNew()
-			Local clone:TVec2 = Copy()
-			Local dotp:Float = vecnormal.DotProductVec(clone)
+			Local vecnormal:TVec2
+			Local clone:TVec2
+			Local dotp:Float
 			
-			vecnormal.MultiplyParams(2 * dotp, 2 * dotp)
+			Assert vec, "[TVec2.GetReflectedVecNew] @vec is Null!"
+			
+			vecnormal = vec.NormalizeNew()
+			clone = Copy()
+			dotp = vecnormal.DotProductVec(clone)
+			
+			vecnormal.MultiplyParams(2.0 * dotp, 2.0 * dotp)
 			
 			clone.SubtractVec(vecnormal)
 			

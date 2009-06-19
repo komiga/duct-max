@@ -85,9 +85,11 @@ Type TVec3
 		Rem
 			bbdoc: Set the vector's values by the given vector.
 			returns: Nothing.
-			about: This will <b>NOT</b> check if @vec is Null.
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method SetVec(vec:TVec3)
+			
+			Assert vec, "[TVec3.SetVec] @vec is Null!"
 			
 			m_x = vec.m_x
 			m_y = vec.m_y
@@ -132,9 +134,11 @@ Type TVec3
 		Rem
 			bbdoc: Add the given vector to this vector.
 			returns: Nothing.
-			about: Warning: This will not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method AddVec(vec:TVec3)
+			
+			Assert vec, "[TVec3.AddVec] @vec is Null!"
 			
 			m_x:+vec.m_x
 			m_y:+vec.m_y
@@ -145,9 +149,11 @@ Type TVec3
 		Rem
 			bbdoc: Add the given vector to this vector, and stuff the result into a new vector.
 			returns: A new vector for the result.
-			about: Warning: This will not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method AddVecNew:TVec3(vec:TVec3)
+			
+			Assert vec, "[TVec3.AddVecNew] @vec is Null!"
 			
 			Return New TVec3.Create(m_x + vec.m_x, m_y + vec.m_y, m_z + vec.m_z)
 			
@@ -178,9 +184,11 @@ Type TVec3
 		Rem
 			bbdoc: Subtract this vector by another vector.
 			returns: Nothing.
-			about: Warning: This will not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method SubtractVec(vec:TVec3)
+			
+			Assert vec, "[TVec3.SubtractVec] @vec is Null!"
 			
 			m_x:-vec.m_x
 			m_y:-vec.m_y
@@ -191,9 +199,11 @@ Type TVec3
 		Rem
 			bbdoc: Subtract this vector by another vector, and stuff the result into a new vector.
 			returns: A new vector for the result.
-			about: Warning: This will not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method SubtractVecNew:TVec3(vec:TVec3)
+			
+			Assert vec, "[TVec3.SubtractVecNew] @vec is Null!"
 			
 			Return New TVec3.Create(m_x - vec.m_x, m_y - vec.m_y, m_z - vec.m_z)
 			
@@ -224,9 +234,11 @@ Type TVec3
 		Rem
 			bbdoc: Multiply this vector by another vector.
 			returns: Nothing.
-			about: Warning: This will not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method MultiplyVec(vec:TVec3)
+			
+			Assert vec, "[TVec3.MultiplyVec] @vec is Null!"
 			
 			m_x:*vec.m_x
 			m_y:*vec.m_y
@@ -237,9 +249,11 @@ Type TVec3
 		Rem
 			bbdoc: Multiply this vector by another vector, and stuff the result into a new vector.
 			returns: A new vector for the result.
-			about: Warning: This will not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method MultiplyVecNew:TVec3(vec:TVec3)
+			
+			Assert vec, "[TVec3.MultiplyVecNew] @vec is Null!"
 			
 			Return New TVec3.Create(m_x * vec.m_x, m_y * vec.m_y, m_z * vec.m_z)
 			
@@ -295,9 +309,11 @@ Type TVec3
 		Rem
 			bbdoc: Get the dot product of this vector and the vector given.
 			returns: The dot product of the two vectors.
-			about: Warning: This will not check if @vec is Null!
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method DotProductVec:Float(vec:TVec3)
+			
+			Assert vec, "[TVec3.DotProductVec] @vec is Null!"
 			
 			Return m_x * vec.m_x + m_y * vec.m_y + m_z * vec.m_z
 			
@@ -316,12 +332,17 @@ Type TVec3
 		Rem
 			bbdoc: Get this vector reflected upon another.
 			returns: A new vector that is the result of this vector reflecting off of @vec.
-			about: This method does not check if @vec is Null.
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method GetReflectedVecNew:TVec3(vec:TVec3)
-			Local vecnormal:TVec3 = vec.NormalizeNew()
-			Local clone:TVec3 = Copy()
-			Local dotp:Float = vecnormal.DotProductVec(clone)
+			Local vecnormal:TVec3, clone:TVec3
+			Local dotp:Float
+			
+			Assert vec, "[TVec3.GetReflectedVecNew] @vec is Null!"
+			
+			vecnormal = vec.NormalizeNew()
+			clone = Copy()
+			dotp = vecnormal.DotProductVec(clone)
 			
 			vecnormal.MultiplyParams(2 * dotp, 2 * dotp, 2 * dotp)
 			
@@ -402,10 +423,12 @@ Type TVec3
 		Rem
 			bbdoc: Make this vector the cross product of the given vector and this vector (Self CrossProduct @vec).
 			returns: Nothing.
-			about: Warning: This does not check if the given vector is Null.
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method CrossProductVec(vec:TVec3)
 			Local cpx:Float, cpy:Float, cpz:Float
+			
+			Assert vec, "[TVec3.CrossProductVec] @vec is Null!"
 			
 			cpx = m_y * vec.m_z - m_z * vec.m_y
 			cpy = m_z * vec.m_x - m_x * vec.m_z
@@ -420,9 +443,11 @@ Type TVec3
 		Rem
 			bbdoc: Get the cross product of this vector and the given vector (Self CrossProduct [@x, @y, @z]).
 			returns: A new vector containing the result.
-			about: Warning: This does not check if the given vector is Null.
+			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
 		Method CrossProductVecNew:TVec3(vec:TVec3)
+			
+			Assert vec, "[TVec3.CrossProductVecNew] @vec is Null!"
 			
 			Return New TVec3.Create(m_y * vec.m_z - m_z * vec.m_y, m_z * vec.m_x - m_x * vec.m_z, m_x * vec.m_y - m_y * vec.m_x)
 			
