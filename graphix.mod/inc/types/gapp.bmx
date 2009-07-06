@@ -60,6 +60,18 @@ Type TDGraphicsApp Extends TDApp
 		End Rem
 		Method Run() Abstract
 		
+		Rem
+			bbdoc: Render the world.
+			returns: Nothing.
+		End Rem
+		Method Render() Abstract
+		
+		Rem
+			bbdoc: Update the world (update logic, input, etc).
+			returns: Nothing.
+		End Rem
+		Method Update() Abstract
+		
 End Type
 
 

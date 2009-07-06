@@ -30,13 +30,17 @@ Rem
 End Rem
 
 Rem
-	bbdoc: The DGraphics OpenGL driver.
+	bbdoc: The DGraphics OpenGL driver identifier.
 End Rem
 Const DGFX_DRIVER_OGL:Int = 1
 Rem
-	bbdoc: The DGraphics D3D7 driver.
+	bbdoc: The DGraphics Extended OpenGL driver identifier.
 End Rem
-Const DGFX_DRIVER_D3D7:Int = 2
+Const DGFX_DRIVER_OGLEXT:Int = 2
+Rem
+	bbdoc: The DGraphics D3D7 driver identifier.
+End Rem
+Const DGFX_DRIVER_D3D7:Int = 3
 
 Rem
 	bbdoc: The DGraphics type.
@@ -45,8 +49,16 @@ Type TDGraphics
 	
 	Field m_width:Int, m_height:Int, m_depth:Int, m_hertz:Int, m_flags:Int
 	Field m_driver:Int
-	Field m_gfx:TMax2DGraphics
+	Field m_m2d_gcontext:TMax2DGraphics
+	Field m_driver_context:TMax2DDriver
 	
+	' Casted helpers for rendering
+	Field m_driver_context_oglext:TGLMax2DExtDriver
+	Field m_driver_context_ogl:TGLMax2DDriver
+	?Win32
+		Field m_driver_context_d3d7:TD3D7Max2DDriver
+	?
+		
 		Method New()
 		End Method
 		
@@ -54,14 +66,26 @@ Type TDGraphics
 			bbdoc: Create a new DGraphics.
 			returns: The new DGraphics (itself).
 		End Rem
-		Method Create:TDGraphics(gdriver:Int, width:Int, height:Int, depth:Int = 0, hertz:Int = 60, flags:Int = 0)
+		Method Create:TDGraphics(gdriver:Int, width:Int, height:Int, depth:Int = 0, hertz:Int = 60, flags:Int = 0, create_window:Int = True)
 			
 			SetWidth(width)
 			SetHeight(height)
 			
-			SetDriver(gdriver, False)
+			SetDepth(depth, False)
+			SetHertz(hertz, False)
+			SetFlags(flags, False)
 			
-			Return Self
+			If SetDriver(gdriver, create_window) = True
+				
+				Return Self
+				
+			Else
+				
+				DebugLog("(TDGraphics.Create) Failed to set the driver!")
+				
+			End If
+			
+			Return Null
 			
 		End Method
 		
@@ -75,17 +99,24 @@ Type TDGraphics
 			
 			Select m_driver
 				Case DGFX_DRIVER_OGL
-					SetGraphicsDriver(GLMax2DDriver())
+					m_driver_context = GLMax2DDriver()
+					m_driver_context_ogl = TGLMax2DDriver(m_driver_context)
 					
+				Case DGFX_DRIVER_OGLEXT
+					m_driver_context = GLMax2DExtDriver()
+					m_driver_context_oglext = TGLMax2DExtDriver(m_driver_context)
+					
+				?Win32
 				Case DGFX_DRIVER_D3D7
-					?Win32
-						SetGraphicsDriver(D3D7Max2DDriver())
-					?
-					
+					m_driver_context = D3D7Max2DDriver()
+				?
+				
 				Default
 					Return False
 					
 			End Select
+			
+			SetGraphicsDriver(m_driver_context)
 			
 			If remake_gwindow = True
 				StartGraphics()
@@ -96,22 +127,34 @@ Type TDGraphics
 		End Method
 		
 		Rem
-			bbdoc: Get the current driver.
-			returns: The current driver for this DGraphics.
-		End Rem
-		Method GetDriver:Int()
-			
-			Return m_driver
-			
-		End Method
-		
-		Rem
 			bbdoc: Start the graphics window.
 			returns: Nothing.
 		End Rem
 		Method StartGraphics()
 			
-			m_gfx = TMax2DGraphics(Graphics(m_width, m_height, m_depth, m_hertz, m_flags))
+			m_m2d_gcontext = TMax2DGraphics(Graphics(m_width, m_height, m_depth, m_hertz, m_flags))
+			
+		End Method
+		
+		'#region Field accessors
+		
+		Rem
+			bbdoc: Get the uncasted driver context.
+			returns: Nothing.
+		End Rem
+		Method GetDriverContextAbstract:TMax2DDriver()
+			
+			Return m_driver_context
+			
+		End Method
+		
+		Rem
+			bbdoc: Get the current driver type (as an integer).
+			returns: The current driver for this DGraphics.
+		End Rem
+		Method GetDriverType:Int()
+			
+			Return m_driver
 			
 		End Method
 		
@@ -246,11 +289,13 @@ Type TDGraphics
 			bbdoc: Get the current graphics context.
 			returns: Nothing.
 		End Rem
-		Method GetGraphics:TMax2DGraphics()
+		Method GetGraphicsContext:TMax2DGraphics()
 			
-			Return m_gfx
+			Return m_m2d_gcontext
 			
 		End Method
+		
+		'#end region (Field accessors)
 		
 		Rem
 			bbdoc: Clear the screen.
@@ -258,7 +303,7 @@ Type TDGraphics
 		End Rem
 		Method Cls()
 			
-			brl.max2d.Cls()
+			m_driver_context.Cls()
 			
 		End Method
 		

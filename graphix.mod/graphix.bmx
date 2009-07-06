@@ -29,10 +29,14 @@ about: This module needs a large amount of work.
 End Rem
 Module duct.graphix
 
-ModuleInfo "Version: 0.11"
+ModuleInfo "Version: 0.12"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.12"
+ModuleInfo "History: Added driver contexts to TDGraphics for more direct access"
+ModuleInfo "History: Updated TDGraphicsApp - uses more standardized flow: Update (logic) and Render (drawing)"
+ModuleInfo "History: Implemented handling for the duct.glmax2dext driver"
 ModuleInfo "History: Version 0.11"
 ModuleInfo "History: General code cleanup"
 ModuleInfo "History: Version 0.1"
@@ -41,11 +45,15 @@ ModuleInfo "History: Initial version"
 ' Used modules
 Import brl.Graphics
 Import brl.max2d
+
 Import brl.glmax2d
 ?Win32
 	Import brl.d3d7max2d
 ?
 
+Import duct.glmax2dext
+
+Import duct.app
 Import duct.objectmap
 Import duct.animations
 Import duct.vector
@@ -54,6 +62,7 @@ Import duct.vector
 ' Included code
 Include "inc/types/dgraphics.bmx"
 Include "inc/types/entity.bmx"
+Include "inc/types/gapp.bmx"
 Include "inc/types/etc.bmx"
 
 
