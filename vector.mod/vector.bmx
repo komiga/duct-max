@@ -33,6 +33,8 @@ ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "Author: Yahfree (most of TVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.24"
+ModuleInfo "History: Whoops! Forgot to include vec4.bmx, also found and corrected a slight documentation issue"
 ModuleInfo "History: Version 0.23"
 ModuleInfo "History: Added TVec4 and changed Assert formats"
 ModuleInfo "History: Version 0.22"
@@ -67,6 +69,7 @@ Public
 ' Included code
 Include "inc/types/vec2.bmx"
 Include "inc/types/vec3.bmx"
+Include "inc/types/vec4.bmx"
 
 
 

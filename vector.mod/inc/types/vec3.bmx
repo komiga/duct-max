@@ -26,7 +26,7 @@ Rem
 End Rem
 
 Rem
-	bbdoc: The 3d (x, y & z) vector type.
+	bbdoc: The 3-dimensional (x,y,z) vector type.
 End Rem
 Type TVec3
 	
@@ -60,7 +60,7 @@ Type TVec3
 		
 		Rem
 			bbdoc: Get the vector's values.
-			returns: Nothing. @_x, @_y and @_z will contain the values of the vector.
+			returns: Nothing. @x, @y and @z will contain the values of the vector.
 		End Rem
 		Method Get(x:Float Var, y:Float Var, z:Float Var)
 			

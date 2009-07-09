@@ -26,7 +26,7 @@ Rem
 End Rem
 
 Rem
-	bbdoc: The 2d (x & y) vector type.
+	bbdoc: The 2-dimensional (x,y) vector type.
 End Rem
 Type TVec2
 	
@@ -59,7 +59,7 @@ Type TVec2
 		
 		Rem
 			bbdoc: Get the vector's values.
-			returns: Nothing. @_x and @_y will contain the values of the vector.
+			returns: Nothing. @x and @y will contain the values of the vector.
 		End Rem
 		Method Get(x:Float Var, y:Float Var)
 			

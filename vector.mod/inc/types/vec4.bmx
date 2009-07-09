@@ -26,7 +26,7 @@ Rem
 End Rem
 
 Rem
-	bbdoc: The 4d (x, y, z & w) vector type.
+	bbdoc: The 4-dimensional (x,y,z,w) vector type.
 End Rem
 Type TVec4
 	
@@ -61,7 +61,7 @@ Type TVec4
 		
 		Rem
 			bbdoc: Get the vector's values.
-			returns: Nothing. @_x, @_y and @_z will contain the values of the vector.
+			returns: Nothing. @x, @y, @z and @w will contain the values of the vector.
 		End Rem
 		Method Get(x:Float Var, y:Float Var, z:Float Var, w:Float Var)
 			
@@ -318,39 +318,6 @@ Type TVec4
 			Assert vec, "(TVec4.DotProductVec) @vec is Null!"
 			
 			Return m_x * vec.m_x + m_y * vec.m_y + m_z * vec.m_z + m_w * vec.m_w
-			
-		End Method
-		
-		Rem
-			bbdoc: Get this vector reflected upon the given values.
-			returns: A new vector that is the result of this vector reflecting off the given values.
-		End Rem
-		Method GetReflectedParamsNew:TVec4(x:Float, y:Float, z:Float)
-			
-			Return GetReflectedVecNew(New TVec4.Create(x, y, z))
-			
-		End Method
-		
-		Rem
-			bbdoc: Get this vector reflected upon another.
-			returns: A new vector that is the result of this vector reflecting off of @vec.
-			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
-		End Rem
-		Method GetReflectedVecNew:TVec4(vec:TVec4)
-			Local vecnormal:TVec4, clone:TVec4
-			Local dotp:Float
-			
-			Assert vec, "(TVec4.GetReflectedVecNew) @vec is Null!"
-			
-			vecnormal = vec.NormalizeNew()
-			clone = Copy()
-			dotp = vecnormal.DotProductVec(clone)
-			
-			vecnormal.MultiplyParams(2 * dotp, 2 * dotp, 2 * dotp)
-			
-			clone.SubtractVec(vecnormal)
-			
-			Return clone
 			
 		End Method
 		
