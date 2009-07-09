@@ -21,26 +21,27 @@ Rem
 	THE SOFTWARE.
 	-----------------------------------------------------------------------------
 	
-	vec3.bmx (Contains: TVec3, )
+	vec4.bmx (Contains: TVec4, )
 	
 End Rem
 
 Rem
-	bbdoc: The 3d (x, y & z) vector type.
+	bbdoc: The 4d (x, y, z & w) vector type.
 End Rem
-Type TVec3
+Type TVec4
 	
-	Field m_x:Float, m_y:Float, m_z:Float
+	Field m_x:Float, m_y:Float, m_z:Float, m_w:Float
 		
 		Rem
-			bbdoc: Create a new Vec3.
+			bbdoc: Create a new Vec4.
 			returns: The new vector (itself).
 		End Rem
-		Method Create:TVec3(x:Float, y:Float, z:Float)
+		Method Create:TVec4(x:Float, y:Float, z:Float, w:Float)
 			
 			m_x = x
 			m_y = y
 			m_z = z
+			m_w = w
 			
 			Return Self
 			
@@ -50,9 +51,9 @@ Type TVec3
 			bbdoc: Get a copy of this vector.
 			returns: A clone of this vector.
 		End Rem
-		Method Copy:TVec3()
+		Method Copy:TVec4()
 			
-			Return New TVec3.Create(m_x, m_y, m_z)
+			Return New TVec4.Create(m_x, m_y, m_z, m_w)
 			
 		End Method
 		
@@ -62,11 +63,12 @@ Type TVec3
 			bbdoc: Get the vector's values.
 			returns: Nothing. @_x, @_y and @_z will contain the values of the vector.
 		End Rem
-		Method Get(x:Float Var, y:Float Var, z:Float Var)
+		Method Get(x:Float Var, y:Float Var, z:Float Var, w:Float Var)
 			
 			x = m_x
 			y = m_y
 			z = m_z
+			w = m_w
 			
 		End Method
 		
@@ -74,11 +76,12 @@ Type TVec3
 			bbdoc: Set the vector's values.
 			returns: Nothing.
 		End Rem
-		Method Set(x:Float, y:Float, z:Float)
+		Method Set(x:Float, y:Float, z:Float, w:Float)
 			
 			m_x = x
 			m_y = y
 			m_z = z
+			m_w = w
 			
 		End Method
 		
@@ -87,37 +90,29 @@ Type TVec3
 			returns: Nothing.
 			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
-		Method SetVec(vec:TVec3)
+		Method SetVec(vec:TVec4)
 			
-			Assert vec, "(TVec3.SetVec) @vec is Null!"
+			Assert vec, "(TVec4.SetVec) @vec is Null!"
 			
 			m_x = vec.m_x
 			m_y = vec.m_y
 			m_z = vec.m_z
+			m_w = vec.m_w
 			
 		End Method
 		
 		'#end region (Field accessors)
 		
 		Rem
-			bbdoc: Get the vector's angle.
-			returns: The angle of the vector.
-		End Rem
-		Method GetAngle:Float()
-			
-			Return ATan2(m_y, Sqr(m_x * m_x + m_z * m_z))
-			
-		End Method
-		
-		Rem
 			bbdoc: Add the given values to this vector.
 			returns: Nothing.
 		End Rem
-		Method AddParams(x:Float, y:Float, z:Float)
+		Method AddParams(x:Float, y:Float, z:Float, w:Float)
 			
 			m_x:+x
 			m_y:+y
 			m_z:+z
+			m_w:+w
 			
 		End Method
 		
@@ -125,9 +120,9 @@ Type TVec3
 			bbdoc: Add the given values to this vector, and stuff the result into a new vector.
 			returns: A new vector for the result.
 		End Rem
-		Method AddParamsNew:TVec3(x:Float, y:Float, z:Float)
+		Method AddParamsNew:TVec4(x:Float, y:Float, z:Float, w:Float)
 			
-			Return New TVec3.Create(m_x + x, m_y + y, m_z + z)
+			Return New TVec4.Create(m_x + x, m_y + y, m_z + z, m_w + w)
 			
 		End Method
 		
@@ -136,13 +131,14 @@ Type TVec3
 			returns: Nothing.
 			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
-		Method AddVec(vec:TVec3)
+		Method AddVec(vec:TVec4)
 			
-			Assert vec, "(TVec3.AddVec) @vec is Null!"
+			Assert vec, "(TVec4.AddVec) @vec is Null!"
 			
 			m_x:+vec.m_x
 			m_y:+vec.m_y
 			m_z:+vec.m_z
+			m_w:+vec.m_w
 			
 		End Method
 		
@@ -151,11 +147,11 @@ Type TVec3
 			returns: A new vector for the result.
 			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
-		Method AddVecNew:TVec3(vec:TVec3)
+		Method AddVecNew:TVec4(vec:TVec4)
 			
-			Assert vec, "(TVec3.AddVecNew) @vec is Null!"
+			Assert vec, "(TVec4.AddVecNew) @vec is Null!"
 			
-			Return New TVec3.Create(m_x + vec.m_x, m_y + vec.m_y, m_z + vec.m_z)
+			Return New TVec4.Create(m_x + vec.m_x, m_y + vec.m_y, m_z + vec.m_z, m_w + vec.m_w)
 			
 		End Method
 		
@@ -163,11 +159,12 @@ Type TVec3
 			bbdoc: Subtract this vector by the values given.
 			returns: Nothing.
 		End Rem
-		Method SubtractParams(x:Float, y:Float, z:Float)
+		Method SubtractParams(x:Float, y:Float, z:Float, w:Float)
 			
 			m_x:-x
 			m_y:-y
 			m_z:-z
+			m_w:-w
 			
 		End Method
 		
@@ -175,9 +172,9 @@ Type TVec3
 			bbdoc: Subtract this vector by the values given, and stuff the result into a new vector.
 			returns: A new vector for the result.
 		End Rem
-		Method SubtractParamsNew:TVec3(x:Float, y:Float, z:Float)
+		Method SubtractParamsNew:TVec4(x:Float, y:Float, z:Float, w:Float)
 			
-			Return New TVec3.Create(m_x - x, m_y - y, m_z - z)
+			Return New TVec4.Create(m_x - x, m_y - y, m_z - z, m_w - w)
 			
 		End Method
 		
@@ -186,13 +183,14 @@ Type TVec3
 			returns: Nothing.
 			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
-		Method SubtractVec(vec:TVec3)
+		Method SubtractVec(vec:TVec4)
 			
-			Assert vec, "(TVec3.SubtractVec) @vec is Null!"
+			Assert vec, "(TVec4.SubtractVec) @vec is Null!"
 			
 			m_x:-vec.m_x
 			m_y:-vec.m_y
 			m_z:-vec.m_z
+			m_w:-vec.m_w
 			
 		End Method
 		
@@ -201,11 +199,11 @@ Type TVec3
 			returns: A new vector for the result.
 			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
-		Method SubtractVecNew:TVec3(vec:TVec3)
+		Method SubtractVecNew:TVec4(vec:TVec4)
 			
-			Assert vec, "(TVec3.SubtractVecNew) @vec is Null!"
+			Assert vec, "(TVec4.SubtractVecNew) @vec is Null!"
 			
-			Return New TVec3.Create(m_x - vec.m_x, m_y - vec.m_y, m_z - vec.m_z)
+			Return New TVec4.Create(m_x - vec.m_x, m_y - vec.m_y, m_z - vec.m_z, m_w - vec.m_w)
 			
 		End Method
 		
@@ -213,11 +211,12 @@ Type TVec3
 			bbdoc: Multiply this vector by the values given.
 			returns: Nothing.
 		End Rem
-		Method MultiplyParams(x:Float, y:Float, z:Float)
+		Method MultiplyParams(x:Float, y:Float, z:Float, w:Float)
 			
 			m_x:*x
 			m_y:*y
 			m_z:*z
+			m_w:*w
 			
 		End Method
 		
@@ -225,9 +224,9 @@ Type TVec3
 			bbdoc: Multiply this vector by the values given, and stuff the result into a new vector.
 			returns: A new vector for the result.
 		End Rem
-		Method MultiplyParamsNew:TVec3(x:Float, y:Float, z:Float)
+		Method MultiplyParamsNew:TVec4(x:Float, y:Float, z:Float, w:Float)
 			
-			Return New TVec3.Create(m_x * x, m_y * y, m_z * z)
+			Return New TVec4.Create(m_x * x, m_y * y, m_z * z, m_w * w)
 			
 		End Method
 		
@@ -236,13 +235,14 @@ Type TVec3
 			returns: Nothing.
 			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
-		Method MultiplyVec(vec:TVec3)
+		Method MultiplyVec(vec:TVec4)
 			
-			Assert vec, "(TVec3.MultiplyVec) @vec is Null!"
+			Assert vec, "(TVec4.MultiplyVec) @vec is Null!"
 			
 			m_x:*vec.m_x
 			m_y:*vec.m_y
 			m_z:*vec.m_z
+			m_w:*vec.m_w
 			
 		End Method
 		
@@ -251,11 +251,11 @@ Type TVec3
 			returns: A new vector for the result.
 			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
-		Method MultiplyVecNew:TVec3(vec:TVec3)
+		Method MultiplyVecNew:TVec4(vec:TVec4)
 			
-			Assert vec, "(TVec3.MultiplyVecNew) @vec is Null!"
+			Assert vec, "(TVec4.MultiplyVecNew) @vec is Null!"
 			
-			Return New TVec3.Create(m_x * vec.m_x, m_y * vec.m_y, m_z * vec.m_z)
+			Return New TVec4.Create(m_x * vec.m_x, m_y * vec.m_y, m_z * vec.m_z, m_w * vec.m_w)
 			
 		End Method
 		
@@ -271,6 +271,7 @@ Type TVec3
 				m_x:/scalar
 				m_y:/scalar
 				m_z:/scalar
+				m_w:/scalar
 				
 			End If
 			
@@ -281,14 +282,15 @@ Type TVec3
 			returns: A new vector for the result.
 			about: This will check if the divisor is zero.
 		End Rem
-		Method DivideParamsNew:TVec3(scalar:Float)
-			Local nvec:TVec3 = Copy()
+		Method DivideParamsNew:TVec4(scalar:Float)
+			Local nvec:TVec4 = Copy()
 			
 			If scalar <> 0
 				
 				nvec.m_x:/scalar
 				nvec.m_y:/scalar
 				nvec.m_z:/scalar
+				nvec.m_w:/scalar
 				
 			End If
 			
@@ -300,9 +302,9 @@ Type TVec3
 			bbdoc: Get the dot product of this vector and the given values.
 			returns: The dot product of this vector and the given values.
 		End Rem
-		Method DotProductParams:Float(x:Float, y:Float, z:Float)
+		Method DotProductParams:Float(x:Float, y:Float, z:Float, w:Float)
 			
-			Return m_x * x + m_y * y + m_z * z
+			Return m_x * x + m_y * y + m_z * z + m_w * w
 			
 		End Method
 		
@@ -311,11 +313,11 @@ Type TVec3
 			returns: The dot product of the two vectors.
 			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
-		Method DotProductVec:Float(vec:TVec3)
+		Method DotProductVec:Float(vec:TVec4)
 			
-			Assert vec, "(TVec3.DotProductVec) @vec is Null!"
+			Assert vec, "(TVec4.DotProductVec) @vec is Null!"
 			
-			Return m_x * vec.m_x + m_y * vec.m_y + m_z * vec.m_z
+			Return m_x * vec.m_x + m_y * vec.m_y + m_z * vec.m_z + m_w * vec.m_w
 			
 		End Method
 		
@@ -323,9 +325,9 @@ Type TVec3
 			bbdoc: Get this vector reflected upon the given values.
 			returns: A new vector that is the result of this vector reflecting off the given values.
 		End Rem
-		Method GetReflectedParamsNew:TVec3(x:Float, y:Float, z:Float)
+		Method GetReflectedParamsNew:TVec4(x:Float, y:Float, z:Float)
 			
-			Return GetReflectedVecNew(New TVec3.Create(x, y, z))
+			Return GetReflectedVecNew(New TVec4.Create(x, y, z))
 			
 		End Method
 		
@@ -334,11 +336,11 @@ Type TVec3
 			returns: A new vector that is the result of this vector reflecting off of @vec.
 			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
 		End Rem
-		Method GetReflectedVecNew:TVec3(vec:TVec3)
-			Local vecnormal:TVec3, clone:TVec3
+		Method GetReflectedVecNew:TVec4(vec:TVec4)
+			Local vecnormal:TVec4, clone:TVec4
 			Local dotp:Float
 			
-			Assert vec, "(TVec3.GetReflectedVecNew) @vec is Null!"
+			Assert vec, "(TVec4.GetReflectedVecNew) @vec is Null!"
 			
 			vecnormal = vec.NormalizeNew()
 			clone = Copy()
@@ -364,6 +366,7 @@ Type TVec3
 				m_x:/magn
 				m_y:/magn
 				m_z:/magn
+				m_W:/magn
 				
 			End If
 			
@@ -374,8 +377,8 @@ Type TVec3
 			returns: This vector normalized.
 			about: See also #Normalize.
 		End Rem
-		Method NormalizeNew:TVec3()
-			Local vector:TVec3 = Copy()
+		Method NormalizeNew:TVec4()
+			Local vector:TVec4 = Copy()
 			
 			vector.Normalize()
 			
@@ -389,67 +392,7 @@ Type TVec3
 		End Rem
 		Method GetMagnitude:Float()
 			
-			Return Sqr(m_x * m_x + m_y * m_y + m_z * m_z)
-			
-		End Method
-		
-		Rem
-			bbdoc: Make this vector the cross product of the given values and this vector (Self CrossProduct [@x, @y, @z]).
-			returns: Nothing.
-		End Rem
-		Method CrossProductParams(x:Float, y:Float, z:Float)
-			Local cpx:Float, cpy:Float, cpz:Float
-			
-			cpx = m_y * z - m_z * y
-			cpy = m_z * x - m_x * z
-			cpz = m_x * y - m_y * x
-			
-			m_x = cpx
-			m_y = cpy
-			m_z = cpz
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the cross product of this vector and the given values (Self CrossProduct [@x, @y, @z]).
-			returns: A new vector containing the result.
-		End Rem
-		Method CrossProductParamsNew:TVec3(x:Float, y:Float, z:Float)
-			
-			Return New TVec3.Create(m_y * z - m_z * y, m_z * x - m_x * z, m_x * y - m_y * x)
-			
-		End Method
-		
-		Rem
-			bbdoc: Make this vector the cross product of the given vector and this vector (Self CrossProduct @vec).
-			returns: Nothing.
-			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
-		End Rem
-		Method CrossProductVec(vec:TVec3)
-			Local cpx:Float, cpy:Float, cpz:Float
-			
-			Assert vec, "(TVec3.CrossProductVec) @vec is Null!"
-			
-			cpx = m_y * vec.m_z - m_z * vec.m_y
-			cpy = m_z * vec.m_x - m_x * vec.m_z
-			cpz = m_x * vec.m_y - m_y * vec.m_x
-			
-			m_x = cpx
-			m_y = cpy
-			m_z = cpz
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the cross product of this vector and the given vector (Self CrossProduct [@x, @y, @z]).
-			returns: A new vector containing the result.
-			about: Warning: An assert will be thrown if @vec is Null (only applies in Debug mode).
-		End Rem
-		Method CrossProductVecNew:TVec3(vec:TVec3)
-			
-			Assert vec, "(TVec3.CrossProductVecNew) @vec is Null!"
-			
-			Return New TVec3.Create(m_y * vec.m_z - m_z * vec.m_y, m_z * vec.m_x - m_x * vec.m_z, m_x * vec.m_y - m_y * vec.m_x)
+			Return Sqr(m_x * m_x + m_y * m_y + m_z * m_z + m_w * m_w)
 			
 		End Method
 		

@@ -28,11 +28,13 @@ bbdoc: The vector module
 End Rem
 Module duct.vector
 
-ModuleInfo "Version: 0.21"
+ModuleInfo "Version: 0.23"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "Author: Yahfree (most of TVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.23"
+ModuleInfo "History: Added TVec4 and changed Assert formats"
 ModuleInfo "History: Version 0.22"
 ModuleInfo "History: Added Assertions for vector <-> vector operations"
 ModuleInfo "History: Version 0.21"

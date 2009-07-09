@@ -86,7 +86,7 @@ Type TVec2
 		End Rem
 		Method SetVec(vec:TVec2)
 			
-			Assert vec, "[TVec2.SetVec] @vec is Null!"
+			Assert vec, "(TVec2.SetVec) @vec is Null!"
 			
 			m_x = vec.m_x
 			m_y = vec.m_y
@@ -158,7 +158,7 @@ Type TVec2
 		End Rem
 		Method AddVec(vec:TVec2)
 			
-			Assert vec, "[TVec2.AddVec] @vec is Null!"
+			Assert vec, "(TVec2.AddVec) @vec is Null!"
 			
 			m_x:+vec.m_x
 			m_y:+vec.m_y
@@ -172,7 +172,7 @@ Type TVec2
 		End Rem
 		Method AddVecNew:TVec2(vec:TVec2)
 			
-			Assert vec, "[TVec2.AddVecNew] @vec is Null!"
+			Assert vec, "(TVec2.AddVecNew) @vec is Null!"
 			
 			Return New TVec2.Create(m_x + vec.m_x, m_y + vec.m_y)
 			
@@ -206,7 +206,7 @@ Type TVec2
 		End Rem
 		Method SubtractVec(vec:TVec2)
 			
-			Assert vec, "[TVec2.SubtractVec] @vec is Null!"
+			Assert vec, "(TVec2.SubtractVec) @vec is Null!"
 			
 			m_x:-vec.m_x
 			m_y:-vec.m_y
@@ -220,7 +220,7 @@ Type TVec2
 		End Rem
 		Method SubtractVecNew:TVec2(vec:TVec2)
 			
-			Assert vec, "[TVec2.SubtractVecNew] @vec is Null!"
+			Assert vec, "(TVec2.SubtractVecNew) @vec is Null!"
 			
 			Return New TVec2.Create(m_x - vec.m_x, m_y - vec.m_y)
 			
@@ -254,7 +254,7 @@ Type TVec2
 		End Rem
 		Method MultiplyVec(vec:TVec2)
 			
-			Assert vec, "[TVec2.MultiplyVec] @vec is Null!"
+			Assert vec, "(TVec2.MultiplyVec) @vec is Null!"
 			
 			m_x:*vec.m_x
 			m_y:*vec.m_y
@@ -268,7 +268,7 @@ Type TVec2
 		End Rem
 		Method MultiplyVecNew:TVec2(vec:TVec2)
 			
-			Assert vec, "[TVec2.MultiplyVecNew] @vec is Null!"
+			Assert vec, "(TVec2.MultiplyVecNew) @vec is Null!"
 			
 			Return New TVec2.Create(m_x * vec.m_x, m_y * vec.m_y)
 			
@@ -326,7 +326,7 @@ Type TVec2
 		End Rem
 		Method DotProductVec:Float(vec:TVec2)
 			
-			Assert vec, "[TVec2.DotProductVec] @vec is Null!"
+			Assert vec, "(TVec2.DotProductVec) @vec is Null!"
 			
 			Return m_x * vec.m_x + m_y * vec.m_y
 			
@@ -349,7 +349,7 @@ Type TVec2
 		End Rem
 		Method GetAngleDiffVec:Float(vec:TVec2)
 			
-			Assert vec, "[TVec2.GetAngleDiffVec] @vec is Null!"
+			Assert vec, "(TVec2.GetAngleDiffVec) @vec is Null!"
 			
 			Return Abs(TrueMod(ATan2(m_y, m_x) + 180 - ATan2(vec.m_y, vec.m_x), 360) - 180)
 			
@@ -375,7 +375,7 @@ Type TVec2
 			Local clone:TVec2
 			Local dotp:Float
 			
-			Assert vec, "[TVec2.GetReflectedVecNew] @vec is Null!"
+			Assert vec, "(TVec2.GetReflectedVecNew) @vec is Null!"
 			
 			vecnormal = vec.NormalizeNew()
 			clone = Copy()
