@@ -9,68 +9,59 @@ Import brl.standardio
 
 Import duct.scriptparser
 
-
 Try
+	Local root:TSNode
 	
-	Local node:TSNode
+	root = TSNode.LoadScriptFromObject("test.script")
 	
-	node = TSNode.LoadScriptFromFile("test.script")
-	
-	If node <> Null
-	  Local output:String
+	If root <> Null
+		Local output:String, outstream:TStream
 		
-		output = NodeOutput(node)
+		output = NodeTypeOutput(root)
 		Print(output)
 		
-		Local outstream:TStream = WriteStream("compare.script")
-			node.WriteToStream(outstream)
+		outstream = WriteStream("compare.script")
+			root.WriteToStream(outstream)
 		outstream.Close()
 		
 	Else
-		
-		Print("Node is Null")
-		
+		Print("Root node is Null")
 	End If
 	
-Catch e:String
-	
-	Print("Caught exception: " + e)
-	
+Catch e:TSNodeException
+	Print("Caught exception: " + e.ToString())
 End Try
 
-
-Function NodeOutput:String(node:TSNode)
-  Local bld:String, child:Object, n:TSNode, iden:TIdentifier
+Function NodeTypeOutput:String(node:TSNode, prepend:String = "")
+	Local bld:String, child:Object, n:TSNode, iden:TIdentifier
 	
 	For child = EachIn node.GetChildren()
-		n = TSNode(child); iden = TIdentifier(child)
+		n = TSNode(child)
+		iden = TIdentifier(child)
 		
 		If n <> Null
-			bld:+"Name: '" + n.GetName() + "'~n"
-			bld:+NodeOutput(n)
-			
+			bld:+prepend + "'" + n.GetName() + "' {~n"
+			bld:+NodeTypeOutput(n, prepend + "~t")
+			bld:+prepend + "}~n"
 		Else If iden <> Null
-			bld:+iden.GetName() + " "
+			Local variable:TVariable
 			
-			For Local v:TVariable = EachIn iden.GetValues()
+			' iden.ReportType() will always be "identifier".. but why not?! :)
+			bld:+prepend + iden.ReportType() + " "
+			
+			For variable = EachIn iden.GetValues()
 				
-				If TStringVariable(v)
-					
-					bld:+"~q" + TStringVariable(v).Get() + "~q "
-					
-				Else If TIntVariable(v)
-					
-					bld:+TIntVariable(v).Get() + " "
-					
-				Else If TFloatVariable(v)
-					
-					bld:+TFloatVariable(v).Get() + " "
-					
-				Else If TEvalVariable(v)
-					
-					bld:+TEvalVariable(v).Get() + " "
-					
-				End If
+				' Use magic.
+				bld:+variable.ReportType() + " "
+				
+				' Deal with variables by-type
+				'If TStringVariable(variable)
+				'	bld:+"string "
+				'Else If TIntVariable(variable)
+				'	bld:+"int "
+				'Else If TFloatVariable(variable)
+				'	bld:+"float "
+				'End If
 				
 			Next
 			
@@ -83,7 +74,6 @@ Function NodeOutput:String(node:TSNode)
 	Return bld
 	
 End Function
-
 
 
 

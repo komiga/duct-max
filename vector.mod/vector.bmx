@@ -28,7 +28,7 @@ bbdoc: The vector module
 End Rem
 Module duct.vector
 
-ModuleInfo "Version: 0.23"
+ModuleInfo "Version: 0.24"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "Author: Yahfree (most of TVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
 ModuleInfo "License: MIT"

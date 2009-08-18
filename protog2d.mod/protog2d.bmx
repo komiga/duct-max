@@ -19,59 +19,50 @@ Rem
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE.
-	-----------------------------------------------------------------------------
-	
-	memcrypt.bmx (Contains: CryptStream(), )
-	
 End Rem
 
 SuperStrict
 
 Rem
-bbdoc: In-memory encryption module
+bbdoc: Protog OpenGL 2D graphics engine
 End Rem
-Module duct.memcrypt
+Module duct.protog2d
 
-ModuleInfo "Version: 0.03"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
-ModuleInfo "History: Version 0.03"
-ModuleInfo "History: Moved all code to the main source"
-ModuleInfo "History: General code cleanup"
-ModuleInfo "History: Version 0.02"
-ModuleInfo "History: Corrected usage of syntax (in Returns, Cases, News and Selects)"
-ModuleInfo "History: Version 0.01"
-ModuleInfo "History: Initial release"
+ModuleInfo "History: 0.2"
+ModuleInfo "History: Implemented TProtogFrameBuffer and most other types for shaders and materials"
+ModuleInfo "History: 0.1"
+ModuleInfo "History: Removed dependencies on brl.max2d and changed interface"
+ModuleInfo "History: Added pub.glew init calls and renamed several things"
+ModuleInfo "History: Code copied from http://www.blitzbasic.com/Community/posts.php?topic=85304"
+
+Import brl.standardio
+Import brl.ramstream
+
+Import pub.glew
+Import brl.Graphics
+Import brl.GLGraphics
+
+Import duct.etc
+Import duct.objectmap
+Import duct.objectio
+Import duct.vector
+
+' Included code
+Include "inc/types/protog.bmx"
+Include "inc/types/program.bmx"
+Include "inc/types/param.bmx"
+Include "inc/types/material.bmx"
+Include "inc/types/texture.bmx"
+Include "inc/types/fbo.bmx"
 
 
-' Used modules
-Import brl.stream
-Import brl.bank
-Import brl.bankstream
 
-Import duct.RC4
 
-Rem
-	bbdoc: Decrypt/Encrypt a stream.
-	returns: A BankStream containing the decrypted data, or Null if it failed to create a BankStream around @url.
-	about: @url can be a path or a Stream.<br />
-	You can use this to either encrypt or decrypt a stream.
-End Rem
-Function CryptStream:TBankStream(url:Object, key:String)
-	Local bstream:TBankStream = TBankStream(url)
-	
-	If bstream = Null
-		bstream = TBankStream.Create(TBank.Load(url))
-	End If
-	
-	If bstream <> Null
-		RC4_Bytes(bstream._bank.Lock(), bstream._bank.Capacity(), key)
-	End If
-	
-	Return bstream
-	
-End Function
+
 
 
 

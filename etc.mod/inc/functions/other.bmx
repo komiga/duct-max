@@ -34,7 +34,9 @@ Function WriteFileExplicitly:TStream(url:String)
 	Local stream:TStream, dir:String
 	
 	dir = ExtractDir(url)
-	CreateDir(dir, True)
+	If FileType(dir) = FILETYPE_NONE
+		CreateDir(dir, True)
+	End If
 	
 	stream = WriteFile(url)
 	
@@ -50,7 +52,9 @@ Function CreateFileExplicitly(url:String)
 	Local dir:String
 	
 	dir = ExtractDir(url)
-	CreateDir(dir, True)
+	If FileType(dir) = FILETYPE_NONE
+		CreateDir(dir, True)
+	End If
 	
 	CreateFile(url)
 	
@@ -63,18 +67,20 @@ End Rem
 Function CopyFileExplicitly:Int(from:String, _to:String)
 	Local dir:String
 	
-	If FileType(from) = FILETYPE_FILE
-		
-		dir = ExtractDir(_to)
+	' CopyFile does not call FixPath for some reason (but pretty much all other file functions do..)
+	FixPath(from)
+	FixPath(_to)
+	
+	dir = ExtractDir(_to)
+	If FileType(dir) = FILETYPE_NONE
 		CreateDir(dir, True)
+	End If
+	
+	CopyFile(from, _to)
+	
+	If FileType(_to) = FILETYPE_FILE
 		
-		CopyFile(from, _to)
-		
-		If FileType(_to) = FILETYPE_FILE
-			
-			Return True
-			
-		End If
+		Return True
 		
 	End If
 	
@@ -117,6 +123,48 @@ Function FileTimeWithFormat:String(path:String, format:String)
 	
 End Function
 
+Rem
+	bbdoc: Fix the endings for the path given.
+	returns: Nothing.
+	about: This will change "\" to "/" (at the end of the path), and will add "/" if no slash is at the end of the path given.<br />
+	If @remove_slash is True then any slash at the end of the path will be removed.
+End Rem
+Function FixPathEnding:String(path:String, remove_slash:Int = False)
+	Local lastchar:Int = path.Length - 1
+	
+	Repeat
+		If path[lastchar] = 92 Or path[lastchar] = 47
+			
+			path = path[..lastchar]
+			
+			lastchar = path.Length - 1
+			
+		Else
+			
+			Exit
+				
+		End If
+		
+	Forever
+	
+	If remove_slash = False
+		
+		' "\" = 92; "/" = 47
+		If path[lastchar] = 92
+			
+			Return path[..lastchar] + "/"
+			
+		Else If path[lastchar] <> 47
+			
+			Return path + "/"
+			
+		End If
+		
+	End If
+	
+	Return path
+	
+End Function
 
 
 

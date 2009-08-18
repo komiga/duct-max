@@ -622,7 +622,7 @@ Type TTileTexture
 			
 			glframe = TGLImageFrame(m_image.Frame(0))
 			
-			_TGLMax2DAssistant.EnableTex(glframe.name)
+			_TGLMax2DExtAssistant.EnableTex(glframe.name)
 			
 		End Method
 		

@@ -1,0 +1,19 @@
+
+name		"English"
+nativename	"English"
+
+"appname"	"Example"
+
+"blargh" {
+	
+	"hello_world"	"Hello World!"
+	
+	"greetings"		"Greetings!"
+	"goodbye"		"Goodbye!"
+	
+	more {
+		' Text names only have to be quoted if they contain whitespace!
+		rubbish "Rabbit!"
+	}
+}
+

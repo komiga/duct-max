@@ -28,10 +28,15 @@ bbdoc: Scriptparser module
 End Rem
 Module duct.scriptparser
 
-ModuleInfo "Version: 0.44"
+ModuleInfo "Version: 0.48"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.48"
+ModuleInfo "History: Eval variable identification changed to '/e:'"
+ModuleInfo "History: Removed support for the line-continuance feature ('/>>' in a script)"
+ModuleInfo "History: Revamped parser (now tokenized)"
+ModuleInfo "History: Changed type tabbing"
 ModuleInfo "History: Version 0.44"
 ModuleInfo "History: General code cleanup"
 ModuleInfo "History: Moved TSNode.LoadScriptFromStream().RawToVariable() to TVariable.RawToVariable()"
@@ -51,13 +56,31 @@ ModuleInfo "History: Initial release"
 
 
 ' Used modules
-Import duct.variables
-
+Import brl.ramstream
+Import brl.textstream
 Import brl.linkedlist
 Import brl.filesystem
 
+Import duct.variables
+
+Import cower.charset
+
 ' Included source code
 Include "inc/types/snode.bmx"
+Include "inc/types/parser.bmx"
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,0 +1,19 @@
+
+name		"Lojban"
+nativename	"jbobau"
+
+"appname"	"la mupli"
+
+"blargh" {
+	
+	"hello_world"	"coi be la .ert"
+	
+	"greetings"		"coi"
+	"goodbye"		"co'o"
+	
+	more {
+		' Text names only have to be quoted if they contain whitespace!
+		rubbish "la ractu"
+	}
+}
+

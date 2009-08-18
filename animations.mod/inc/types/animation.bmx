@@ -51,8 +51,8 @@ Type TAnimSequence
 			SetFrameCount(frames)
 			
 			SetFrameSize(framewidth, frameheight)
-			
-			SetImage(image)
+			 
+			SetImage(image, image_flags)
 			
 			Return Self
 			
@@ -209,7 +209,7 @@ Type TAnimSequence
 		Rem
 			bbdoc: Set the current drawing frame.
 			returns: Nothing.
-			about: @frame is zero based. @flipx and @flipy will flip the frame either horizontally or vertically, respectively, if they are True.
+			about: @frame is zero based. @flipx and @flipy will flip the frame horizontally or vertically, respectively, if they are True.
 		End Rem
 		Method SetDrawFrame(frame:Int, flipx:Int = False, flipy:Int = False)
 			Local iframe:TImageFrame, su0:Float, su1:Float, sv0:Float, sv1:Float

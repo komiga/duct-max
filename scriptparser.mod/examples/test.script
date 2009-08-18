@@ -1,34 +1,30 @@
-
 'String test..
-attr value1 "value two! /'/' lalala {}/>>"
+attr value1 "value two! '' lalala {}"
 
-namednode { 'Comment after node!
-	
-	data.zip\\sounds\intro.ogg 0 1 1 2 3 5 8 13 ' Take a guess on what those numbers are ;)
-	
+namednode { 'Comment after opening node
+	data.zip\\sounds\intro.ogg 0 1 1 2 3 5 8 13 ' Comment!
 }'Hello!
 
-'This is a comment!
-madness? "das cookie?" 'Another comment!
 
-{'Smells like trout up here
-	namelessnode this,is,sparta!'No space test!
-	echoes "/eval: a + b / 0.1392"
-} ' Hmm..
+{'Comment!
+	namelessnode this,is,sparta!'No space comment!
+	echoes "/e: a + b / 0.1392"
+} ' Comment!
 
-after periods.namespaces! '!!!! ('namespaces'.. if you will)
-
-Lets Make a superlong "SUPER LLONG!!/>>" identifier />>
- "More... and moreeee" 12145636 />>
-	463.023861
+test.some.struff largro(extera)
+"White-spaced identifier names" "Booyah!"
 
 SingleNode {First "single line test"}
-{ Second "single line test" }
+{ Second "single line test" .003 }
+
+"Node names can also be quoted!" {
+	Indeed
+}
 
 {
-	Named { Alloc}
-	Named2 { Make blubber}
-	{notnamed}
+	Named { Alloc 22}
+	Named2 { "Make cookies"}
+	{notnamed 84.002}
 }
 
 

@@ -28,10 +28,14 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.12"
+ModuleInfo "Version: 0.14"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.14"
+ModuleInfo "History: Added FixPathEnding()"
+ModuleInfo "History: Version 0.13"
+ModuleInfo "History: Fixed a few things in some file-operation functions"
 ModuleInfo "History: Version 0.12"
 ModuleInfo "History: General code cleanup"
 ModuleInfo "History: Version 0.11"

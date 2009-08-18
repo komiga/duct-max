@@ -30,34 +30,15 @@ Rem
 End Rem
 
 Rem
-	bbdoc: The DGraphics OpenGL driver identifier.
-End Rem
-Const DGFX_DRIVER_OGL:Int = 1
-Rem
-	bbdoc: The DGraphics Extended OpenGL driver identifier.
-End Rem
-Const DGFX_DRIVER_OGLEXT:Int = 2
-Rem
-	bbdoc: The DGraphics D3D7 driver identifier.
-End Rem
-Const DGFX_DRIVER_D3D7:Int = 3
-
-Rem
-	bbdoc: The DGraphics type.
+	bbdoc: DGraphics type (handles the Protog2D driver and graphical context).
 End Rem
 Type TDGraphics
 	
+	Field m_vsync:Int = -1
 	Field m_width:Int, m_height:Int, m_depth:Int, m_hertz:Int, m_flags:Int
-	Field m_driver:Int
-	Field m_m2d_gcontext:TMax2DGraphics
-	Field m_driver_context:TMax2DDriver
 	
-	' Casted helpers for rendering
-	Field m_driver_context_oglext:TGLMax2DExtDriver
-	Field m_driver_context_ogl:TGLMax2DDriver
-	?Win32
-		Field m_driver_context_d3d7:TD3D7Max2DDriver
-	?
+	Field m_gcontext:TProtog2DGraphics
+	Field m_driver_context:TProtog2DDriver
 		
 		Method New()
 		End Method
@@ -66,121 +47,104 @@ Type TDGraphics
 			bbdoc: Create a new DGraphics.
 			returns: The new DGraphics (itself).
 		End Rem
-		Method Create:TDGraphics(gdriver:Int, width:Int, height:Int, depth:Int = 0, hertz:Int = 60, flags:Int = 0, create_window:Int = True)
+		Method Create:TDGraphics(width:Int, height:Int, depth:Int = 0, hertz:Int = 60, flags:Int = 0, vsync:Int = -1, create_window:Int = True)
 			
-			SetWidth(width)
-			SetHeight(height)
+			SetWidth(width, False)
+			SetHeight(height, False)
 			
 			SetDepth(depth, False)
 			SetHertz(hertz, False)
 			SetFlags(flags, False)
 			
-			If SetDriver(gdriver, create_window) = True
-				
-				Return Self
-				
-			Else
-				
-				DebugLog("(TDGraphics.Create) Failed to set the driver!")
-				
-			End If
+			SetVSyncState(vsync)
 			
-			Return Null
+			SetDriver(create_window)
+			
+			Return Self
 			
 		End Method
 		
 		Rem
 			bbdoc: Set the driver for this DGraphics.
-			returns: True if the driver was set, or False if it was not (invalid driver).
+			returns: Nothing.
 		End Rem
-		Method SetDriver:Int(gdriver:Int, remake_gwindow:Int = True)
+		Method SetDriver(remake_gwindow:Int = True)
 			
-			m_driver = gdriver
-			
-			Select m_driver
-				Case DGFX_DRIVER_OGL
-					m_driver_context = GLMax2DDriver()
-					m_driver_context_ogl = TGLMax2DDriver(m_driver_context)
-					
-				Case DGFX_DRIVER_OGLEXT
-					m_driver_context = GLMax2DExtDriver()
-					m_driver_context_oglext = TGLMax2DExtDriver(m_driver_context)
-					
-				?Win32
-				Case DGFX_DRIVER_D3D7
-					m_driver_context = D3D7Max2DDriver()
-				?
-				
-				Default
-					Return False
-					
-			End Select
-			
-			SetGraphicsDriver(m_driver_context)
+			m_driver_context = TProtog2DDriver.GetInstance()
+			brl.Graphics.SetGraphicsDriver(m_driver_context)
 			
 			If remake_gwindow = True
-				StartGraphics()
+				Assert StartGraphics(), "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
 			End If
-			
-			Return True
 			
 		End Method
 		
 		Rem
 			bbdoc: Start the graphics window.
-			returns: Nothing.
+			returns: True if the graphics window was created, or False if it was not (invalid GraphicsMode).
 		End Rem
-		Method StartGraphics()
+		Method StartGraphics:Int()
+			If brl.Graphics.GraphicsModeExists(m_width, m_height, m_depth, m_hertz) = True
+				m_gcontext = TProtog2DGraphics(brl.Graphics.Graphics(m_width, m_height, m_depth, m_hertz, m_flags))
+				Return True
+			End If
 			
-			m_m2d_gcontext = TMax2DGraphics(Graphics(m_width, m_height, m_depth, m_hertz, m_flags))
-			
+			Return False
 		End Method
 		
 		'#region Field accessors
 		
 		Rem
-			bbdoc: Get the uncasted driver context.
+			bbdoc: Get the driver context.
 			returns: Nothing.
 		End Rem
-		Method GetDriverContextAbstract:TMax2DDriver()
-			
+		Method GetDriverContext:TProtog2DDriver()
 			Return m_driver_context
-			
 		End Method
 		
 		Rem
-			bbdoc: Get the current driver type (as an integer).
-			returns: The current driver for this DGraphics.
+			bbdoc: Set the vertical sync state.
+			returns: Nothing.
+			about: @sync can be either -1 (automatic, also the default), 0 (off) or 1 (on).
 		End Rem
-		Method GetDriverType:Int()
-			
-			Return m_driver
-			
+		Method SetVSyncState(sync:Int = -1)
+			Assert Not (sync < - 1 Or sync > 1), "(TDGraphics.SetVSyncState) @sync must be either -1, 0, or 1!!"
+			m_vsync = sync
+		End Method
+		
+		Rem
+			bbdoc: Get the vertical sync state.
+			returns: The current VSync state.
+			about: The return value will be either -1 (automatic), 0 (off) or 1 (on).
+		End Rem
+		Method GetVSyncState:Int()
+			Return m_vsync
 		End Method
 		
 		Rem
 			bbdoc: Set the dimensions for the graphics window.
 			returns: Nothing.
+			about: If @remake_gwindow is True, the graphics context will be automatically re-opened.
 		End Rem
 		Method SetDimensions(width:Int, height:Int, remake_gwindow:Int = True)
-			
 			SetWidth(width)
 			SetHeight(height)
 			
 			If remake_gwindow = True
 				StartGraphics()
 			End If
-			
 		End Method
 		
 		Rem
 			bbdoc: Set the width for the graphics window.
 			returns: Nothing.
+			about: If @remake_gwindow is True, the graphics context will be automatically re-opened.
 		End Rem
-		Method SetWidth(width:Int)
-			
+		Method SetWidth(width:Int, remake_gwindow:Int = True)
 			m_width = width
-			
+			If remake_gwindow = True
+				StartGraphics()
+			End If
 		End Method
 		
 		Rem
@@ -188,19 +152,19 @@ Type TDGraphics
 			returns: Get the width of the graphics window.
 		End Rem
 		Method GetWidth:Int()
-			
 			Return m_width
-			
 		End Method
 		
 		Rem
 			bbdoc: Set the height for the graphics window.
 			returns: Nothing.
+			about: If @remake_gwindow is True, the graphics context will be automatically re-opened.
 		End Rem
-		Method SetHeight(height:Int)
-			
+		Method SetHeight(height:Int, remake_gwindow:Int = True)
 			m_height = height
-			
+			If remake_gwindow = True
+				StartGraphics()
+			End If
 		End Method
 		
 		Rem
@@ -208,23 +172,20 @@ Type TDGraphics
 			returns: Get the height of the graphics window.
 		End Rem
 		Method GetHeight:Int()
-			
 			Return m_height
-			
 		End Method
 		
 		Rem
 			bbdoc: Set the depth for the graphics window.
 			returns: Nothing.
+			about: If @remake_gwindow is True, the graphics context will be automatically re-opened.
 		End Rem
 		Method SetDepth(depth:Int, remake_gwindow:Int = True)
-			
 			m_depth = depth
 			
 			If remake_gwindow = True
 				StartGraphics()
 			End If
-			
 		End Method
 		
 		Rem
@@ -232,23 +193,20 @@ Type TDGraphics
 			returns: The depth of the graphics window.
 		End Rem
 		Method GetDepth:Int()
-			
 			Return m_depth
-			
 		End Method
 		
 		Rem
 			bbdoc: Set the hertz for the graphics window.
 			returns: Nothing.
+			about: If @remake_gwindow is True, the graphics context will be automatically re-opened.
 		End Rem
 		Method SetHertz(hertz:Int, remake_gwindow:Int = True)
-			
 			m_hertz = hertz
 			
 			If remake_gwindow = True
 				StartGraphics()
 			End If
-			
 		End Method
 		
 		Rem
@@ -256,23 +214,20 @@ Type TDGraphics
 			returns: The hertz for the graphics window.
 		End Rem
 		Method GetHertz:Int()
-			
 			Return m_hertz
-			
 		End Method
 		
 		Rem
 			bbdoc: Set the flags for the graphics window.
 			returns: Nothing.
+			about: If @remake_gwindow is True, the graphics context will be automatically re-opened.
 		End Rem
 		Method SetFlags(flags:Int, remake_gwindow:Int = True)
-			
 			m_flags = flags
 			
 			If remake_gwindow = True
 				StartGraphics()
 			End If
-			
 		End Method
 		
 		Rem
@@ -280,41 +235,48 @@ Type TDGraphics
 			returns: The flags for the graphics window.
 		End Rem
 		Method GetFlags:Int()
-			
 			Return m_flags
-			
 		End Method
 		
 		Rem
 			bbdoc: Get the current graphics context.
 			returns: Nothing.
 		End Rem
-		Method GetGraphicsContext:TMax2DGraphics()
-			
-			Return m_m2d_gcontext
-			
+		Method GetGraphicsContext:TProtog2DGraphics()
+			Return m_gcontext
 		End Method
 		
 		'#end region (Field accessors)
+		
+		Rem
+			bbdoc: Close the graphical window.
+			returns: Nothing.
+		End Rem
+		Method Close()
+			'If m_driver_context <> Null
+				'm_driver_context.DestroyRenderBuffer()
+			'End If
+			'If m_gcontext <> Null
+			'	m_gcontext.Close()
+			'End If
+			
+			brl.Graphics.EndGraphics()
+		End Method
 		
 		Rem
 			bbdoc: Clear the screen.
 			Returns: Nothing.
 		End Rem
 		Method Cls()
-			
 			m_driver_context.Cls()
-			
 		End Method
 		
 		Rem
 			bbdoc: Flip the backbuffer.
 			returns: Nothing.
 		End Rem
-		Method Flip(sync:Int = -1)
-			
-			brl.Graphics.Flip(sync)
-			
+		Method Flip()
+			brl.Graphics.Flip(m_vsync)
 		End Method
 		
 End Type

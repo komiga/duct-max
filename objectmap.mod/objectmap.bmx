@@ -32,10 +32,12 @@ bbdoc: Objectmap module
 End Rem
 Module duct.objectmap
 
-ModuleInfo "Version: 0.07"
+ModuleInfo "Version: 0.1"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.1"
+ModuleInfo "History: Fixed Type formatting"
 ModuleInfo "History: Version 0.07"
 ModuleInfo "History: Moved all code to main source"
 ModuleInfo "History: General code cleanup"
@@ -53,120 +55,95 @@ Import brl.map
 
 Rem
 	bbdoc: The ObjectMap type.
-	about: This type is intended to be used abstractly, but still usable otherwise.
+	about: This type is intended to be used abstractly (extend it), but still usable otherwise.
 End Rem
 Type TObjectMap
 	
 	Field m_count:Int
 	Field m_map:TMap
 	
-		Method New()
-			
-			m_map = New TMap
-			
-		End Method
+	Method New()
+		m_map = New TMap
+	End Method
+	
+	Rem
+		bbdoc: Insert an object into the map.
+		returns: Nothing.
+		about: This method does not provide Null checking.
+	End Rem
+	Method _Insert(key:Object, value:Object)
+		m_map.Insert(key, value)
+		m_count:+1
+	End Method
+	
+	Rem
+		bbdoc: Remove a key from the map.
+		returns: True if the key was removed from the map, or False if it was not.
+		about: Count is lowered by 1 if the key was removed.
+	End Rem
+	Method _Remove:Int(key:Object)
+		If m_map.Remove(key) = True
+			m_count:-1
+			Return True
+		End If
 		
-		Rem
-		Method Create:TObjectMap()
-			
-			Return Self
-			
-		End Method
-		End Rem
-		
-		Rem
-			bbdoc: Insert an object into the map.
-			returns: Nothing.
-			about: This method does not provide Null checking.
-		End Rem
-		Method _Insert(key:Object, value:Object)
-			
-			m_map.Insert(key, value)
-			m_count:+1
-			
-		End Method
-		
-		Rem
-			bbdoc: Remove a key from the map.
-			returns: True if the key was removed from the map, or False if it was not.
-			about: Count is lowered by 1 if the key was removed.
-		End Rem
-		Method _Remove:Int(key:Object)
-			
-			If m_map.Remove(key) = True
-				
-				m_count:-1
-				Return True
-				
-			End If
-			
-			Return False
-			
-		End Method
-		
-		Rem
-			bbdoc: Get a value by its key.
-			returns: An object or Null (not found).
-		End Rem
-		Method _ValueByKey:Object(key:Object)
-			
-			If key = Null Then Return Null
+		Return False
+	End Method
+	
+	Rem
+		bbdoc: Get a value by its key.
+		returns: An object or Null (not found).
+	End Rem
+	Method _ValueByKey:Object(key:Object)
+		If key = Null
+			Return Null
+		Else
 			Return m_map.ValueForKey(key)
-			
-		End Method
-		
-		Rem
-			bbdoc: Check if a key is in the map.
-			returns: True if the key is in the map, or False if it is not.
-		End Rem
-		Method _Contains:Int(key:Object)
-			
-			Return m_map.Contains(key)
-			
-		End Method
-		
-		Rem
-			bbdoc: Clear the map.
-			returns: Nothing.
-			about: Count is zeroed.
-		End Rem
-		Method Clear()
-			
-			m_map.Clear()
-			m_count = 0
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the number of entries in the map.
-			returns: Nothing.
-		End Rem
-		Method Count:Int()
-			
-			Return m_count
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the value enumerator for the map.
-			returns: Nothing.
-		End Rem
-		Method ValueEnumerator:TMapEnumerator()
-			
-			Return m_map.Values()
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the key enumerator for the map.
-			returns: Nothing.
-		End Rem
-		Method KeyEnumerator:TMapEnumerator()
-			
-			Return m_map.Keys()
-			
-		End Method
-		
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Check if a key is in the map.
+		returns: True if the key is in the map, or False if it is not.
+	End Rem
+	Method _Contains:Int(key:Object)
+		Return m_map.Contains(key)
+	End Method
+	
+	Rem
+		bbdoc: Clear the map.
+		returns: Nothing.
+		about: Count is zeroed.
+	End Rem
+	Method Clear()
+		m_map.Clear()
+		m_count = 0
+	End Method
+	
+	Rem
+		bbdoc: Get the number of entries in the map.
+		returns: Nothing.
+	End Rem
+	Method Count:Int()
+		Return m_count
+	End Method
+	
+	Rem
+		bbdoc: Get the value enumerator for the map.
+		returns: Nothing.
+	End Rem
+	Method ValueEnumerator:TMapEnumerator()
+		Return m_map.Values()
+	End Method
+	
+	Rem
+		bbdoc: Get the key enumerator for the map.
+		returns: Nothing.
+	End Rem
+	Method KeyEnumerator:TMapEnumerator()
+		Return m_map.Keys()
+	End Method
+	
 End Type
 
 

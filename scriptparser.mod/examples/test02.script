@@ -1,0 +1,17 @@
+
+' No-preceding comment..
+iden variable
+abcd 102.23 2054 .245ello 23far choppers "'{} Enclosed string"' No-whitespace comment
+
+node1 {
+	data riddo 775 ' Whitespace-test comment
+	{enipt,epin} ' No-name node test
+	' Random comment
+	{ captain obvious }
+	"Epilouge"
+	"Special identifier name" "Magic."
+}
+
+node2 {
+	stuff goes here
+}

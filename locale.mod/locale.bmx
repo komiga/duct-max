@@ -19,59 +19,40 @@ Rem
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE.
-	-----------------------------------------------------------------------------
-	
-	memcrypt.bmx (Contains: CryptStream(), )
-	
 End Rem
 
 SuperStrict
 
 Rem
-bbdoc: In-memory encryption module
+bbdoc: Localization
 End Rem
-Module duct.memcrypt
+Module duct.locale
 
-ModuleInfo "Version: 0.03"
+ModuleInfo "Version: 0.1"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
-ModuleInfo "History: Version 0.03"
-ModuleInfo "History: Moved all code to the main source"
-ModuleInfo "History: General code cleanup"
-ModuleInfo "History: Version 0.02"
-ModuleInfo "History: Corrected usage of syntax (in Returns, Cases, News and Selects)"
-ModuleInfo "History: Version 0.01"
+ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
 
 ' Used modules
-Import brl.stream
-Import brl.bank
-Import brl.bankstream
+Import duct.etc
+Import duct.objectmap
+Import duct.scriptparser
+Import duct.variables
+Import duct.template
 
-Import duct.RC4
+' Included source code
+Include "inc/types/language.bmx"
+Include "inc/types/localization.bmx"
 
-Rem
-	bbdoc: Decrypt/Encrypt a stream.
-	returns: A BankStream containing the decrypted data, or Null if it failed to create a BankStream around @url.
-	about: @url can be a path or a Stream.<br />
-	You can use this to either encrypt or decrypt a stream.
-End Rem
-Function CryptStream:TBankStream(url:Object, key:String)
-	Local bstream:TBankStream = TBankStream(url)
-	
-	If bstream = Null
-		bstream = TBankStream.Create(TBank.Load(url))
-	End If
-	
-	If bstream <> Null
-		RC4_Bytes(bstream._bank.Lock(), bstream._bank.Capacity(), key)
-	End If
-	
-	Return bstream
-	
-End Function
+
+
+
+
+
+
 
 
 
