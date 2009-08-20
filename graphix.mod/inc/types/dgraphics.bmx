@@ -47,7 +47,7 @@ Type TDGraphics
 			bbdoc: Create a new DGraphics.
 			returns: The new DGraphics (itself).
 		End Rem
-		Method Create:TDGraphics(width:Int, height:Int, depth:Int = 0, hertz:Int = 60, flags:Int = 0, vsync:Int = -1, create_window:Int = True)
+		Method Create:TDGraphics(width:Int, height:Int, depth:Int = 0, hertz:Int = 60, flags:Int = GRAPHICS_BACKBUFFER | GRAPHICS_DEPTHBUFFER, vsync:Int = -1, create_window:Int = True)
 			
 			SetWidth(width, False)
 			SetHeight(height, False)
@@ -74,7 +74,9 @@ Type TDGraphics
 			brl.Graphics.SetGraphicsDriver(m_driver_context)
 			
 			If remake_gwindow = True
-				Assert StartGraphics(), "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
+				Local started:Int
+				started = StartGraphics()
+				Assert started, "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
 			End If
 			
 		End Method
@@ -84,12 +86,13 @@ Type TDGraphics
 			returns: True if the graphics window was created, or False if it was not (invalid GraphicsMode).
 		End Rem
 		Method StartGraphics:Int()
+			
 			If brl.Graphics.GraphicsModeExists(m_width, m_height, m_depth, m_hertz) = True
 				m_gcontext = TProtog2DGraphics(brl.Graphics.Graphics(m_width, m_height, m_depth, m_hertz, m_flags))
 				Return True
 			End If
 			
-			Return False
+			'Return False
 		End Method
 		
 		'#region Field accessors
@@ -131,7 +134,9 @@ Type TDGraphics
 			SetHeight(height)
 			
 			If remake_gwindow = True
-				StartGraphics()
+				Local started:Int
+				started = StartGraphics()
+				Assert started, "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
 			End If
 		End Method
 		
@@ -143,7 +148,9 @@ Type TDGraphics
 		Method SetWidth(width:Int, remake_gwindow:Int = True)
 			m_width = width
 			If remake_gwindow = True
-				StartGraphics()
+				Local started:Int
+				started = StartGraphics()
+				Assert started, "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
 			End If
 		End Method
 		
@@ -163,7 +170,9 @@ Type TDGraphics
 		Method SetHeight(height:Int, remake_gwindow:Int = True)
 			m_height = height
 			If remake_gwindow = True
-				StartGraphics()
+				Local started:Int
+				started = StartGraphics()
+				Assert started, "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
 			End If
 		End Method
 		
@@ -184,7 +193,9 @@ Type TDGraphics
 			m_depth = depth
 			
 			If remake_gwindow = True
-				StartGraphics()
+				Local started:Int
+				started = StartGraphics()
+				Assert started, "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
 			End If
 		End Method
 		
@@ -205,7 +216,9 @@ Type TDGraphics
 			m_hertz = hertz
 			
 			If remake_gwindow = True
-				StartGraphics()
+				Local started:Int
+				started = StartGraphics()
+				Assert started, "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
 			End If
 		End Method
 		
@@ -226,7 +239,9 @@ Type TDGraphics
 			m_flags = flags
 			
 			If remake_gwindow = True
-				StartGraphics()
+				Local started:Int
+				started = StartGraphics()
+				Assert started, "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
 			End If
 		End Method
 		

@@ -25,6 +25,7 @@ SingleNode {
 }
 
 {
+	NullStringTest 
 	
 	Named {
 		Alloc 22
@@ -35,6 +36,6 @@ SingleNode {
 	}
 	
 	{
-		notnamed 84002.0000
+		notnamed 84.0019989
 	}
 }

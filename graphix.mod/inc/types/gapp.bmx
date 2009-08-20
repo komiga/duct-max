@@ -41,11 +41,8 @@ Type TDGraphicsApp Extends TDApp
 			returns: The new DGraphicsApp (itself).
 		End Rem
 		Method Create:TDGraphicsApp()
-			
 			OnInit()
-			
 			Return Self
-			
 		End Method
 		
 		Rem
@@ -60,11 +57,9 @@ Type TDGraphicsApp Extends TDApp
 			about: This method should be overloaded and call back to its super OnExit method (the graphical context is closed by the first implementation).
 		End Rem
 		Method OnExit()
-			
 			If m_graphics <> Null
 				m_graphics.Close()
 			End If
-			
 		End Method
 		
 		Rem
@@ -91,9 +86,7 @@ Type TDGraphicsApp Extends TDApp
 			about: This will call OnExit.
 		End Rem
 		Method Shutdown()
-			
 			OnExit()
-			
 		End Method
 		
 End Type

@@ -28,10 +28,14 @@ bbdoc: Protog OpenGL 2D graphics engine
 End Rem
 Module duct.protog2d
 
-ModuleInfo "Version: 0.2"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: 0.3"
+ModuleInfo "History: Some formatting changes"
+ModuleInfo "History: Made TProtog2DDriver and TProtog2DGraphics independent of TGLGraphicsDriver and TGLGraphics (still uses the C code for them, though)"
+ModuleInfo "History: Implemented TProtogFont (single-surface font handler)"
 ModuleInfo "History: 0.2"
 ModuleInfo "History: Implemented TProtogFrameBuffer and most other types for shaders and materials"
 ModuleInfo "History: 0.1"
@@ -43,13 +47,16 @@ Import brl.standardio
 Import brl.ramstream
 
 Import pub.glew
+Import brl.pixmap
 Import brl.Graphics
 Import brl.GLGraphics
 
 Import duct.etc
+Import duct.intmap
 Import duct.objectmap
 Import duct.objectio
 Import duct.vector
+Import duct.scriptparser
 
 ' Included code
 Include "inc/types/protog.bmx"
@@ -58,28 +65,7 @@ Include "inc/types/param.bmx"
 Include "inc/types/material.bmx"
 Include "inc/types/texture.bmx"
 Include "inc/types/fbo.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Include "inc/types/font.bmx"
 
 
 

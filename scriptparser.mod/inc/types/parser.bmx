@@ -27,11 +27,9 @@ End Rem
 
 Private
 
-Extern "C"
-	
-	Function bbStringFromChar:String(char:Int)
-	
-End Extern
+'Extern "C"
+'	Function bbStringFromChar:String(char:Int)
+'End Extern
 
 ' Characters
 Const CHAR_EOF:Int = -1
@@ -64,17 +62,31 @@ Const CloseBraceToken:Int = 9
 
 Public
 
+Const SNPEncoding_Latin1:Int = 1
+Const SNPEncoding_UTF8:Int = 2
+Const SNPEncoding_UTF16BE:Int = 3
+Const SNPEncoding_UTF16LE:Int = 4
+
 Rem
 	bbdoc: #TSNodeParser script token.
 End Rem
 Type TSNodeToken
+	Const BUFFERINITIAL_SIZE:Int = 48
+	Const BUFFER_MULTIPLIER:Double = 1.75:Double
 	
 	Field m_type:Int = NoToken
-	Field m_data:String
-	
 	Field m_beg_line:Int, m_beg_col:Int
 	
+	Field m_buffer:Short Ptr = Null, m_bufSize:Int = 0, m_bufLen:Int = 0
+	Field m_bufS:String = Null
+	
 	Method New()
+	End Method
+	
+	Method Delete() NoDebug
+		If m_buffer <> Null
+			MemFree(m_buffer)
+		End If
 	End Method
 	
 	Rem
@@ -82,9 +94,7 @@ Type TSNodeToken
 		returns: Nothing.
 	End Rem
 	Method Init(toktype:Int)
-		
 		m_type = toktype
-		
 	End Method
 	
 	Rem
@@ -92,11 +102,8 @@ Type TSNodeToken
 		returns: The new TSNodeToken (itself).
 	End Rem
 	Method Create:TSNodeToken(toktype:Int)
-		
 		Init(toktype)
-		
 		Return Self
-		
 	End Method
 	
 	Rem
@@ -104,19 +111,29 @@ Type TSNodeToken
 		returns: Nothing.
 	End Rem
 	Method AddChar(char:Int)
+		If m_buffer = Null
+			m_bufSize = BUFFERINITIAL_SIZE
+			m_buffer = Short Ptr(MemAlloc(m_bufSize * 2))
+			m_bufLen = 0
+		Else If m_bufLen = m_bufSize
+			Local newsize:Int = Ceil(m_bufSize * BUFFER_MULTIPLIER)
+			If newSize < m_bufLen
+				newSize = Ceil(m_bufLen * BUFFER_MULTIPLIER)
+			EndIf
+			
+			Local temp:Short Ptr = Short Ptr(MemAlloc(newSize * 2))
+			If temp = Null
+				Throw(New TSNodeException.Create(TSNodeException.MemoryAllocationError, "TSNodeParser.AddChar()", "Unable to allocate buffer of size " + (newSize * 2) + " bytes"))
+			EndIf
+			
+			m_bufSize = newSize
+			MemCopy(temp, m_buffer, m_bufLen * 2)
+			MemFree(m_buffer)
+			m_buffer = temp
+		End If
 		
-		m_data:+bbStringFromChar(char)
-		
-	End Method
-	
-	Rem
-		bbdoc: Add a string to the token.
-		returns: Nothing.
-	End Rem
-	Method AddString(str:String)
-		
-		m_data:+str
-		
+		m_buffer[m_bufLen] = char
+		m_bufLen:+1
 	End Method
 	
 	Rem
@@ -124,9 +141,7 @@ Type TSNodeToken
 		returns: The data of the token as an integer.
 	End Rem
 	Method AsInt:Int()
-		
-		Return m_data.ToInt()
-		
+		Return AsString().ToInt()
 	End Method
 	
 	Rem
@@ -134,9 +149,7 @@ Type TSNodeToken
 		returns: The data of the token as a float.
 	End Rem
 	Method AsFloat:Float()
-		
-		Return m_data.ToFloat()
-		
+		Return AsString().ToFloat()
 	End Method
 	
 	Rem
@@ -144,9 +157,21 @@ Type TSNodeToken
 		returns: The data of the token as a double.
 	End Rem
 	Method AsDouble:Double()
-		
-		Return m_data.ToDouble()
-		
+		Return AsString().ToDouble()
+	End Method
+	
+	Rem
+		bbdoc: Convert the token's data to a string.
+		returns: The data of the token as a string.
+	End Rem
+	Method AsString:String()
+		If m_bufS <> Null And (m_buffer = Null Or m_bufS.Length = m_bufLen)
+			Return m_bufS
+		End If
+		m_bufS = String.FromShorts(m_buffer, m_bufLen)
+		MemFree(m_buffer)
+		m_buffer = Null
+		Return m_bufS
 	End Method
 	
 	Rem
@@ -154,10 +179,8 @@ Type TSNodeToken
 		returns: Nothing.
 	End Rem
 	Method SetBeginningPosition(beginning_line:Int, beginning_col:Int)
-		
 		m_beg_line = beginning_line
 		m_beg_col = beginning_col
-		
 	End Method
 	
 	Rem
@@ -165,9 +188,7 @@ Type TSNodeToken
 		returns: The line and character positions as a report.
 	End Rem
 	Method LineRep:String()
-		
 		Return "line: " + String(m_beg_line) + ", char: " + String(m_beg_col)
-		
 	End Method
 	
 	Rem
@@ -179,24 +200,20 @@ Type TSNodeToken
 		Select m_type
 			Case NoToken
 				Return "NoToken"
-				
 			Case StringToken
 				Return "StringToken"
 			Case QuotedStringToken
 				Return "QuotedStringToken"
-				
 			Case NumberToken
 				Return "NumberToken"
 			Case DigitToken
 				Return "DigitToken"
-				
 			Case CommentToken
 				Return "CommentToken"
 			Case EOFToken
 				Return "EOFToken"
 			Case EOLToken
 				Return "EOLToken"
-				
 			Case OpenBraceToken
 				Return "OpenBraceToken"
 			Case CloseBraceToken
@@ -236,7 +253,7 @@ Type TSNodeParser
 		returns: Nothing.
 		about: @data can be either a TStream or String (in which case it must be the location of a file).
 	End Rem
-	Method InitWithStream(url:Object, encoding:Int = TTextStream.UTF8)
+	Method InitWithStream(url:Object, encoding:Int = SNPEncoding_UTF8)
 		Local ustream:TStream
 		
 		ustream = ReadStream(url)
@@ -257,7 +274,7 @@ Type TSNodeParser
 		bbdoc: Initiate the parser with a string containing the script.
 		returns: Nothing.
 	End Rem
-	Method InitWithString(data:String, encoding:Int = TTextStream.UTF8)
+	Method InitWithString(data:String, encoding:Int = SNPEncoding_UTF8)
 		Local ramstream:TRamStream
 		
 		Assert data, "(duct.scriptparser.TSNodeParser) @data is Null!"
@@ -279,9 +296,7 @@ Type TSNodeParser
 		returns: Nothing.
 	End Rem
 	Method SetHandler(handler:TSNodeParserHandler)
-		
 		m_handler = handler
-		
 	End Method
 	
 	Rem
@@ -311,21 +326,15 @@ Type TSNodeParser
 	Method NextChar:Int()
 		
 		If m_curchar = CHAR_NEWLINE
-			
 			m_line:+1
 			m_col = 0
-			
 		End If
 		
 		If m_stream.Eof() = False
-			
 			m_curchar = m_stream.ReadChar()
 			m_col:+1
-			
 		Else
-			
 			m_curchar = CHAR_EOF
-			
 		End If
 		
 		If m_curchar = CHAR_CARRIAGERETURN
@@ -341,13 +350,9 @@ Type TSNodeParser
 		returns: Nothing.
 	End Rem
 	Method SkipWhitespace() NoDebug
-		
 		While m_curchar <> CHAR_EOF And m_whitespaceset.Contains(m_curchar) = True
-			
 			NextChar()
-			
 		Wend
-		
 	End Method
 	
 	Rem
@@ -355,14 +360,10 @@ Type TSNodeParser
 		returns: Nothing.
 	End Rem
 	Method SkipToEOL() NoDebug
-		
 		' Changed to just check for ~n, as eolset now contains ~r
 		While m_curchar <> CHAR_EOF And m_curchar <> CHAR_NEWLINE 'And m_eolset.Contains(m_curchar) = False
-			
 			NextChar()
-			
 		Wend
-		
 	End Method
 	
 	Rem
@@ -377,22 +378,16 @@ Type TSNodeParser
 		Select m_curchar
 			Case CHAR_QUOTE
 				m_token.m_type = QuotedStringToken
-				
 			Case CHAR_SINGLEQUOTE
 				m_token.m_type = CommentToken
-				
 			Case CHAR_EOF
 				m_token.m_type = EOFToken
-				
 			Case CHAR_NEWLINE
 				m_token.m_type = EOLToken
-				
 			Case CHAR_DECIMALPOINT
 				m_token.m_type = DigitToken
-				
 			Case CHAR_OPENBRACE
 				m_token.m_type = OpenBraceToken
-				
 			Case CHAR_CLOSEBRACE
 				m_token.m_type = CloseBraceToken
 				
@@ -423,27 +418,20 @@ Type TSNodeParser
 			Case QuotedStringToken
 				ReadQuotedStringToken()
 				NextChar()
-				
 			Case StringToken
 				ReadStringToken()
-				
 			Case NumberToken
 				ReadNumberToken()
-				
 			Case DigitToken
 				NextChar()
 				ReadDigitToken()
-				
 			Case CommentToken
 				SkipToEOL()
 				'NextChar() ' Bad to get the next char, as it could be the EOL needed to terminate the current identifier
-				
 			Case OpenBraceToken, CloseBraceToken
 				NextChar()
-				
 			Case EOLToken
 				NextChar()
-				
 			Case EOFToken
 				' Do nothing
 				
@@ -453,7 +441,7 @@ Type TSNodeParser
 		End Select
 		
 		'If tktype <> m_token.TypeToString()
-		'	DebugLog("(TSNodeParser.ReadToken()) " + tktype + " -> " + m_token.TypeToString() + " ~q" + m_token.m_data + "~q")
+		'	DebugLog("(TSNodeParser.ReadToken()) " + tktype + " -> " + m_token.TypeToString() + " ~q" + m_token.ToString() + "~q")
 		'End If
 		
 		m_handler.HandleToken(m_token)
@@ -481,6 +469,7 @@ Type TSNodeParser
 				If m_numberset.Contains(m_curchar) = True
 					m_token.AddChar(m_curchar)
 				Else If m_curchar = CHAR_DECIMALPOINT
+					m_token.AddChar(m_curchar)
 					NextChar()
 					m_token.m_type = DigitToken
 					ReadDigitToken()
@@ -578,7 +567,6 @@ Type TSNodeParser
 			Select m_curchar
 				Case CHAR_EOF
 					Throw(New TSNodeException.Create(TSNodeException.ParserError, "TSNodeParser.ReadQuotedStringToken()", "Encountered EOF whilst reading quoted string", m_token, Self))
-					
 				Case CHAR_QUOTE
 					Exit
 					
@@ -602,9 +590,7 @@ Type TSNodeParser
 		returns: The line and character positions as a report.
 	End Rem
 	Method LineRep:String()
-		
 		Return "line: " + String(m_line) + ", char: " + String(m_col)
-		
 	End Method
 	
 	Rem
@@ -612,9 +598,7 @@ Type TSNodeParser
 		returns: The line and character positions as a report.
 	End Rem
 	Function fLineRep:String(line:Int, char:Int)
-		
 		Return "line: " + String(line) + ", char: " + String(char)
-		
 	End Function
 	
 End Type
@@ -630,18 +614,14 @@ Type TSNodeParserHandler Abstract
 	Field m_currentiden:TIdentifier
 	
 	Method New()
-		
 		m_parser = New TSNodeParser
 		m_parser.SetHandler(Self)
-		
 	End Method
 	
 	Method Clean()
-		
 		m_rootnode = Null
 		m_currentnode = Null
 		m_currentiden = Null
-		
 	End Method
 	
 	Rem
@@ -649,21 +629,17 @@ Type TSNodeParserHandler Abstract
 		returns: Nothing.
 	End Rem
 	Method Process()
-		
 		m_rootnode = New TSNode.Create(Null, Null)
 		m_currentnode = m_rootnode
 		
 		While m_parser.Parse() = True
-			
 			'DebugLog("(TSNodeParserHandler.Process())")
 			'HandleToken(m_parser.m_token)
-			
 		Wend
 		
 		If m_currentnode <> m_rootnode
 			Throw(New TSNodeException.Create(TSNodeException.HierarchyError, "TSNodeParserHandler.Process()", "The current node does not match the root node (current=~q" + m_currentnode.GetName() + "~q)"))
 		End If
-		
 	End Method
 	
 	Rem
@@ -677,30 +653,22 @@ Type TSNodeParserHandler Abstract
 		returns: The root node from the parsed script.
 		about: The @obj parameter is expected to either be a path to a file or a TStream.
 	End Rem
-	Method ProcessFromObject:TSNode(obj:Object, encoding:Int = TTextStream.UTF8)
-		
+	Method ProcessFromObject:TSNode(obj:Object, encoding:Int = SNPEncoding_UTF8)
 		m_parser.InitWithStream(obj, encoding)
-		
 		Clean()
 		Process()
-		
 		Return m_rootnode
-		
 	End Method
 	
 	Rem
 		bbdoc: Process a script from the given String (contains the script source, not the path to the file containing the script source).
 		returns: The root node from the parsed script.
 	End Rem
-	Method ProcessFromString:TSNode(data:String, encoding:Int = TTextStream.UTF8)
-		
+	Method ProcessFromString:TSNode(data:String, encoding:Int = SNPEncoding_UTF8)
 		m_parser.InitWithString(data, encoding)
-		
 		Clean()
 		Process()
-		
 		Return m_rootnode
-		
 	End Method
 	
 End Type
@@ -717,17 +685,17 @@ Type TSNodeDefaultParserHandler Extends TSNodeParserHandler
 	Method HandleToken(token:TSNodeToken)
 		
 		'DebugLog("(TSNodeDefaultParserHandler.HandleToken())")
-		'DebugLog(Token.TypeToString() + " " + Token.LineRep() + ": ~q" + Token.m_data + "~q curchar: ~q" + Chr(m_parser.m_curchar) + "~q")
+		'DebugLog(token.TypeToString() + " " + token.LineRep() + ": ~q" + token.AsString() + "~q curchar: ~q" + Chr(m_parser.m_curchar) + "~q")
 		
 		Select token.m_type
 			Case StringToken, QuotedStringToken
 				If m_currentiden = Null
-					m_currentiden = New TIdentifier.CreateByData(token.m_data)
+					m_currentiden = New TIdentifier.CreateByData(token.AsString())
 				Else
-					If token.m_data.StartsWith("/e:")
-						m_currentiden.AddValue(New TEvalVariable.Create(Null, token.m_data[3..]))
+					If token.AsString().StartsWith("/e:")
+						m_currentiden.AddValue(New TEvalVariable.Create(Null, token.m_bufs[3..]))
 					Else
-						m_currentiden.AddValue(New TStringVariable.Create(Null, token.m_data))
+						m_currentiden.AddValue(New TStringVariable.Create(Null, token.m_bufs))
 					End If
 				End If
 				
@@ -773,7 +741,6 @@ Type TSNodeDefaultParserHandler Extends TSNodeParserHandler
 				
 			Case CommentToken
 				'Do nothing..
-				
 			Case EOLToken, EOFToken
 				If m_currentiden <> Null
 					m_currentnode.AddIdentifier(m_currentiden)
@@ -796,6 +763,7 @@ Type TSNodeException
 	
 	Const ParserError:Int = 1
 	Const HierarchyError:Int = 2
+	Const MemoryAllocationError:Int = 3
 	
 	Field m_error:Int, m_reporter:String
 	Field m_message:String
@@ -809,15 +777,12 @@ Type TSNodeException
 		returns: The new TSNodeException (itself).
 	End Rem
 	Method Create:TSNodeException(error:Int, reporter:String, message:String, token:TSNodeToken = Null, parser:TSNodeParser = Null)
-		
 		m_error = error
 		m_reporter = reporter
 		m_message = message
 		m_token = token
 		m_parser = parser
-		
 		Return Self
-		
 	End Method
 	
 	Rem
@@ -849,7 +814,6 @@ Type TSNodeException
 		Select error
 			Case ParserError
 				Return "ParserError"
-				
 			Case HierarchyError
 				Return "HierarchyError"
 				

@@ -25,14 +25,15 @@ SuperStrict
 
 Rem
 bbdoc: Extended graphics module
-about: This module needs a large amount of work.
 End Rem
 Module duct.graphix
 
-ModuleInfo "Version: 0.13"
+ModuleInfo "Version: 0.14"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.14"
+ModuleInfo "History: Changed some formatting"
 ModuleInfo "History: Version 0.13"
 ModuleInfo "History: Removed dependencies on any Max2D-related stuff (this module is entirely Protog2D now)"
 ModuleInfo "History: Version 0.12"

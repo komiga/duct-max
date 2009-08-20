@@ -1,17 +1,12 @@
 
-' duct.template test01
+' Templates test
 
 SuperStrict
 
-
 Framework brl.blitz
-
 Import brl.standardio
 
-Import duct.template
-Import duct.variablemap
 Import duct.scriptparser
-
 
 Local tpl_test01:TTemplate = New TTemplate.Create(["test01", "testalt01"], [[TV_INTEGER], [TV_STRING], [TV_FLOAT], [TV_EVAL] ])
 Local tpl_test02:TTemplate = New TTemplate.Create(["Test02", "TestAlt02"], [[TV_INTEGER, TV_STRING, TV_FLOAT, TV_EVAL] ], True)
@@ -26,7 +21,7 @@ Local root:TSNode
 
 Try
 	
-	root = TSNode.LoadScriptFromFile("testscript.scc")
+	root = TSNode.LoadScriptFromObject("templates.scc")
 	
 	If root <> Null
 	  Local pass:Int, identifier:TIdentifier

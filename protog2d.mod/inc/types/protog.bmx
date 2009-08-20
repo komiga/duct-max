@@ -28,6 +28,17 @@ Rem
 	
 End Rem
 
+Extern
+	Function bbGLGraphicsShareContexts()
+	Function bbGLGraphicsGraphicsModes(buf:Byte Ptr, size:Int)
+	Function bbGLGraphicsAttachGraphics:Byte Ptr(widget:Int, flags:Int)
+	Function bbGLGraphicsCreateGraphics:Byte Ptr(width:Int, height:Int, depth:Int, hertz:Int, flags:Int)
+	Function bbGLGraphicsGetSettings:Int(context:Byte Ptr, width:Int Var, height:Int Var, depth:Int Var, hertz:Int Var, flags:Int Var)
+	Function bbGLGraphicsClose(context:Byte Ptr)
+	Function bbGLGraphicsSetGraphics(context:Byte Ptr)
+	Function bbGLGraphicsFlip(sync:Int)
+End Extern
+
 Rem
 	bbdoc: Masking blend.
 	about: Pixels will only be drawn if their alpha component is greater than 0.5.
@@ -57,7 +68,9 @@ Const BLEND_SHADE:Int = 5
 Rem
 	bbdoc: Protog2D graphics.
 End Rem
-Type TProtog2DGraphics Extends TGLGraphics
+Type TProtog2DGraphics Extends TGraphics
+	
+	Field m_context:Byte Ptr
 	
 	Rem
 		bbdoc: Get the driver for the TProtog2DGraphics.
@@ -65,8 +78,7 @@ Type TProtog2DGraphics Extends TGLGraphics
 		about: NOTE: This is the same as calling #{TProtog2DDriver.GetInstance}()
 	End Rem
 	Method Driver:TProtog2DDriver()
-		Assert _context
-		
+		Assert m_context
 		Return TProtog2DDriver.GetInstance()
 	End Method
 	
@@ -75,7 +87,14 @@ Type TProtog2DGraphics Extends TGLGraphics
 		returns: Nothing (values are passed back via the parameters).
 	End Rem
 	Method GetSettings(width:Int Var, height:Int Var, depth:Int Var, hertz:Int Var, flags:Int Var)
-		Super.GetSettings(width, height, depth, hertz, flags)
+		Assert m_context
+		Local w:Int, h:Int, d:Int, r:Int, f:Int
+		bbGLGraphicsGetSettings(m_context, w, h, d, r, f)
+		width = w
+		height = h
+		depth = d
+		hertz = r
+		flags = f
 	End Method
 	
 	Rem
@@ -83,7 +102,10 @@ Type TProtog2DGraphics Extends TGLGraphics
 		returns: Nothing.
 	End Rem
 	Method Close()
-		Super.Close()
+		If m_context <> Null
+			bbGLGraphicsClose(m_context)
+			m_context = Null
+		End If
 	End Method
 	
 End Type
@@ -92,7 +114,7 @@ Rem
 	bbdoc: Protog2D graphics driver.
 	about: This is an automatically created singleton type (do not create any instances of it).
 End Rem
-Type TProtog2DDriver Extends TGLGraphicsDriver
+Type TProtog2DDriver Extends TGraphicsDriver
 	Const GL_BGR:Int = $80E0
 	Const GL_BGRA:Int = $80E1
 	Const GL_CLAMP_TO_EDGE:Int = $812F
@@ -110,8 +132,9 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 	Global m_gwidth:Int, m_gheight:Int
 	
 	Global m_renderbuffer:TProtogFrameBuffer, m_renderbuffer_bound:Int
+	Global m_renderbuffer_texture:Int
 	
-	'#region Global-based stuffs
+'#region Global-based stuffs
 	
 	Rem
 		bbdoc: Get the singleton instance for the Protog2D driver.
@@ -167,16 +190,28 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		
 	End Function
 	
-	'#end region (Global-based stuffs)
+'#end region (Global-based stuffs)
 	
-	'#region Extended methods
+'#region Extended methods
 	
 	Rem
 		bbdoc: Get the graphics modes that can be used for a graphical context.
 		returns: Nothing.
 	End Rem
 	Method GraphicsModes:TGraphicsMode[] ()
-		Return Super.GraphicsModes()
+		Local buf:Int[4096]
+		Local count:Int = bbGLGraphicsGraphicsModes(buf, 1024)
+		Local modes:TGraphicsMode[count], p:Int Ptr = buf
+		For Local i:Int = 0 Until count
+			Local t:TGraphicsMode = New TGraphicsMode
+			t.width = p[0]
+			t.height = p[1]
+			t.depth = p[2]
+			t.hertz = p[3]
+			modes[i] = t
+			p:+4
+		Next
+		Return modes
 	End Method
 	
 	Rem
@@ -185,16 +220,9 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		about: NOTE: This method is used internally by BlitzMax's graphics system, you probably won't need to touch this.
 	End Rem
 	Method AttachGraphics:TProtog2DGraphics(widget:Int, flags:Int)
-		Local gcontext:TGLGraphics, pcontext:TProtog2DGraphics
-		
-		gcontext = Super.AttachGraphics(widget, flags)
-		
-		' Silly hack, if possible remove the context switching and stop using the super method.
-		pcontext = New TProtog2DGraphics
-		pcontext._context = gcontext._context
-		
-		Return pcontext
-		
+		Local gc:TProtog2DGraphics = New TProtog2DGraphics
+		gc.m_context = bbGLGraphicsAttachGraphics(widget, flags)
+		Return gc
 	End Method
 	
 	Rem
@@ -203,16 +231,9 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		about: NOTE: This method is used internally by BlitzMax's graphics system, you probably won't need to touch this.
 	End Rem
 	Method CreateGraphics:TProtog2DGraphics(width:Int, height:Int, depth:Int, hertz:Int, flags:Int)
-		Local gcontext:TGLGraphics, pcontext:TProtog2DGraphics
-		
-		gcontext = Super.CreateGraphics(width, height, depth, hertz, flags)
-		
-		' Silly hack, if possible remove the context switching and stop using the super method.
-		pcontext = New TProtog2DGraphics
-		pcontext._context = gcontext._context
-		
-		Return pcontext
-		
+		Local gc:TProtog2DGraphics = New TProtog2DGraphics
+		gc.m_context = bbGLGraphicsCreateGraphics(width, height, depth, hertz, flags)
+		Return gc
 	End Method
 	
 	Method SetGraphics(gcontext:TGraphics)
@@ -221,19 +242,27 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		
 		If gcontext = Null
 			'TMax2DGraphics.ClearCurrent()
-			Super.SetGraphics(Null)
+			'Super.SetGraphics(Null)
+			bbGLGraphicsSetGraphics(Null)
 		Else
 			Local p2d_gcontext:TProtog2DGraphics = TProtog2DGraphics(gcontext)
 			Assert p2d_gcontext, "(duct.protog2d.TProtog2DDriver.SetGraphics) Graphics context is not a Protog2DGraphics instance"
 			
-			Super.SetGraphics(p2d_gcontext)
+			'Super.SetGraphics(p2d_gcontext)
+			
+			Local context:Byte Ptr
+			If p2d_gcontext <> Null
+				context = p2d_gcontext.m_context
+			End If
+			bbGLGraphicsSetGraphics(context)
+			
 			ResetGLContext(p2d_gcontext)
 			'm2d_gcontext.MakeCurrent()
 		End If
 		
 	End Method
 	
-	'#end region (Extended methods)
+'#end region (Extended methods)
 	
 	Rem
 		bbdoc: Reset the OpenGL context.
@@ -268,6 +297,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		BindRenderBuffer()
 		
 		m_renderbuffer.AttachTexture(0, New TGLTexture.CreateFromSize(m_gwidth, m_gheight, TEXTURE_RECTANGULAR), True)
+		m_renderbuffer_texture = m_renderbuffer.m_colorbuffers[0].m_handle
 		
 		'DebugLog("(TProtog2DDriver.ResetGLContext) renderbuffer = " + m_renderbuffer + " renderbuffer_texture = " + m_renderbuffer_texture + "~n~t~t" + ..
 		'		"gwidth = " + m_gwidth + " gheight = " + m_gheight)
@@ -276,7 +306,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		
 	End Method
 	
-	'#region Renderbuffer
+'#region Renderbuffer
 	
 	Rem
 		bbdoc: Destroy the renderbuffer.
@@ -285,6 +315,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 	Method DestroyRenderBuffer()
 		m_renderbuffer.Destroy()
 		m_renderbuffer = Null
+		m_renderbuffer_texture = -1
 	End Method
 	
 	Rem
@@ -324,7 +355,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		End If
 		
 		SetBlend(BLEND_SOLID)
-		EnableTexture(m_renderbuffer.m_colorbuffers[0].m_handle)
+		EnableTexture(m_renderbuffer_texture)
 		
 		glColor4f(1.0, 1.0, 1.0, 1.0)
 		
@@ -345,9 +376,9 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		
 	End Method
 	
-	'#end region (Renderbuffer)
+'#end region (Renderbuffer)
 	
-	'#region State functions
+'#region State functions
 	
 	Rem
 		bbdoc: Draw the render buffer, and flip the backbuffer.
@@ -359,7 +390,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		'DebugLog("(TProtog2DDriver.Flip)")
 		
 		DrawRenderBuffer()
-		Super.Flip(sync)
+		bbGLGraphicsFlip(sync)
 		
 	End Method
 	
@@ -484,7 +515,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		glClear(GL_COLOR_BUFFER_BIT)
 	End Method
 	
-	'#end region (State functions)
+'#end region (State functions)
 	
 	Rem
 	Method Plot(x:Float, y:Float)
@@ -566,7 +597,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 	End Method
 	End Rem
 	
-	'#region Pixmaps
+'#region Pixmaps
 	
 	Rem
 		bbdoc: Draw the given pixmap at the position given.
@@ -608,7 +639,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		
 	End Method
 	
-	'#end region (Pixmaps)
+'#end region (Pixmaps)
 	
 	Rem
 		bbdoc: Bind the given texture handle.
@@ -645,7 +676,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		End If
 	End Function
 	
-	'#region Texture initiation stuffs
+'#region Texture initiation stuffs
 	
 	Function CreateTex:Int(width:Int, height:Int, flags:Int)
 		Local name:Int
@@ -755,7 +786,7 @@ Type TProtog2DDriver Extends TGLGraphicsDriver
 		
 	End Function
 	
-	'#end region (Texture initiation stuffs)
+'#end region (Texture initiation stuffs)
 	
 End Type
 
@@ -770,50 +801,6 @@ End Function
 
 TProtog2DDriver.InitGlobal()
 SetGraphicsDriver(Protog2DDriver())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

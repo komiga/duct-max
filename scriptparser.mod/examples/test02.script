@@ -13,5 +13,6 @@ node1 {
 }
 
 node2 {
+	NullStringTest ""
 	stuff goes here
 }

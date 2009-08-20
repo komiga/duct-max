@@ -180,7 +180,7 @@ Type TGLTexture
 		TProtog2DDriver.BindTexture(m_handle)
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the UV mapping vector for this GLTexture.
@@ -201,7 +201,7 @@ Type TGLTexture
 		Return m_uv
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
 End Type
 
@@ -221,11 +221,12 @@ Type TProtogTexture
 	Rem
 		bbdoc: Create a ProtogTexture.
 		returns: The new ProtogTexture (itself).
+		about: If @upload is True the pixmap will be uploaded to OpenGL (creates the GL texture).
 	End Rem
-	Method Create:TProtogTexture(pixmap:TPixmap, flags:Int)
+	Method Create:TProtogTexture(pixmap:TPixmap, flags:Int, upload:Int = True)
 		
 		m_flags = flags
-		SetPixmap(pixmap, True)
+		SetPixmap(pixmap, upload)
 		
 		Return Self
 		
@@ -239,7 +240,33 @@ Type TProtogTexture
 		m_gltexture = New TGLTexture.CreateFromPixmap(m_pixmap, m_flags)
 	End Method
 	
-	'#region Field accessors
+'#region Data handlers
+	
+	Rem
+		bbdoc: Serialize the texture into the given stream.
+		returns: Nothing.
+	End Rem
+	Method Serialize(stream:TStream)
+		stream.WriteInt(m_flags)
+		TPixmapIO.Write(m_pixmap, stream)
+	End Method
+	
+	Rem
+		bbdoc: Deserialize a texture from the given stream.
+		returns: The deserialized texture (itself).
+		about: If @upload is True the pixmap will be uploaded (the GL texture will be created for the ProtogTexture).
+	End Rem
+	Method DeSerialize:TProtogTexture(stream:TStream, upload:Int = True)
+		m_flags = stream.ReadInt()
+		SetPixmap(TPixmapIO.Read(stream), upload)
+		
+		Return Self
+		
+	End Method
+	
+'#end region (Data handlers)
+	
+'#region Field accessors
 	
 	Rem
 		bbdoc: Get the width of the texture.
@@ -282,9 +309,7 @@ Type TProtogTexture
 		m_height = m_pixmap.height
 		
 		If upload = True
-			
 			UploadPixmap()
-			
 		End If
 		
 	End Method
@@ -297,7 +322,7 @@ Type TProtogTexture
 		Return m_pixmap
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
 End Type
 
@@ -323,8 +348,9 @@ Type TProtogAnimTexture
 	Rem
 		bbdoc: Create a new ProtogAnimTexture.
 		returns: The new ProtogAnimTexture (itself).
+		about: If @upload is True the pixmap will be uploaded to OpenGL (creates the GL texture).
 	End Rem
-	Method Create:TProtogAnimTexture(pixmap:TPixmap, startframe:Int, framecount:Int, frame_width:Float, frame_height:Float, flags:Int)
+	Method Create:TProtogAnimTexture(pixmap:TPixmap, startframe:Int, framecount:Int, frame_width:Float, frame_height:Float, flags:Int, upload:Int = True)
 		
 		m_flags = flags
 		
@@ -332,7 +358,7 @@ Type TProtogAnimTexture
 		SetFrameCount(framecount)
 		SetFrameSize(frame_width, frame_height)
 		
-		SetPixmap(pixmap, True)
+		SetPixmap(pixmap, upload)
 		
 		RecalculateFrames()
 		
@@ -408,7 +434,7 @@ Type TProtogAnimTexture
 		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Get the width of the texture.
@@ -559,9 +585,9 @@ Type TProtogAnimTexture
 		Return m_frame_height
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
-	'#region Data handlers
+'#region Data handlers
 	
 	Rem
 		bbdoc: Serialize the texture to a stream.
@@ -577,6 +603,7 @@ Type TProtogAnimTexture
 		stream.WriteFloat(m_frame_height)
 		
 		If writepixmap = True
+			stream.WriteInt(m_flags)
 			TPixmapIO.Write(m_pixmap, stream)
 		End If
 		
@@ -585,7 +612,8 @@ Type TProtogAnimTexture
 	Rem
 		bbdoc: Deserialize a texture from the given stream.
 		returns: The deserialized texture (itself).
-		about: If @readpixmap is True, this method will attempt to read and set a pixmap from the stream.
+		about: If @readpixmap is True, this method will attempt to read and set a pixmap from the stream.<br />
+		If @upload is True the pixmap will be uploaded (the GL texture will be created for the ProtogAnimTexture).
 	End Rem
 	Method DeSerialize:TProtogAnimTexture(stream:TStream, readpixmap:Int = True)
 		
@@ -596,6 +624,7 @@ Type TProtogAnimTexture
 		m_frame_height = stream.ReadFloat()
 		
 		If readpixmap = True
+			m_flags = stream.ReadInt()
 			SetPixmap(TPixmapIO.Read(stream), True)
 		End If
 		
@@ -603,155 +632,9 @@ Type TProtogAnimTexture
 		
 	End Method
 	
-	'#end region
+'#end region
 	
 End Type
-
-Rem
-Type TGLImageFrame Extends TImageFrame
-	
-	Field u0:Float, v0:Float, u1:Float, v1:Float
-	Field name:Int, seq:Int
-	
-	Method New()
-		
-		seq = GraphicsSeq
-		
-	End Method
-	
-	Method Delete()
-		
-		If seq <> 0
-			
-			If seq = GraphicsSeq
-				glDeleteTextures(1, Varptr(name))
-			End If
-			
-			seq = 0
-			
-		End If
-		
-	End Method
-	
-	Method Draw(x0:Float, y0:Float, x1:Float, y1:Float, tx:Float, ty:Float)
-		
-		Assert seq = GraphicsSeq Else "Image does not exist"
-		
-		_TGLMax2DExtAssistant.EnableTex(name)
-		glBegin(GL_QUADS)
-			glTexCoord2f(u0, v0)
-			glVertex2f(x0 * ix + y0 * iy + tx, x0 * jx + y0 * jy + ty)
-			glTexCoord2f(u1, v0)
-			glVertex2f(x1 * ix + y0 * iy + tx, x1 * jx + y0 * jy + ty)
-			glTexCoord2f(u1, v1)
-			glVertex2f(x1 * ix + y1 * iy + tx, x1 * jx + y1 * jy + ty)
-			glTexCoord2f(u0, v1)
-			glVertex2f(x0 * ix + y1 * iy + tx, x0 * jx + y1 * jy + ty)
-		glEnd()
-		
-	End Method
-	
-	Function CreateFromPixmap:TGLImageFrame(src:TPixmap, flags:Int)
-		Local tex_w:Int = src.width
-		Local tex_h:Int = src.height
-		
-		'determine tex size
-		_TGLMax2DExtAssistant.AdjustTexSize(tex_w, tex_h)
-		
-		'make sure pixmap fits texture
-		Local width:Int = Min(src.width, tex_w)
-		Local height:Int = Min(src.height, tex_h)
-		If src.width <> width Or src.height <> height
-			src = ResizePixmap(src, width, height)
-		End If
-		
-		'create texture pixmap
-		Local tex:TPixmap = src
-		
-		'"smear" right/bottom edges if necessary
-		If width < tex_w Or height < tex_h
-			
-			tex = TPixmap.Create(tex_w, tex_h, PF_RGBA8888)
-			
-			tex.Paste(src, 0, 0)
-			
-			If width < tex_w
-				
-				tex.Paste(src.Window(width - 1, 0, 1, height), width, 0)
-				
-			End If
-			
-			If height < tex_h
-				
-				tex.Paste(src.Window(0, height - 1, width, 1), 0, height)
-				
-				If width < tex_w
-					tex.Paste(src.Window(width - 1, height - 1, 1, 1), width, height)
-				End If
-				
-			End If
-			
-		Else
-			
-			If tex.format <> PF_RGBA8888
-				tex = tex.Convert(PF_RGBA8888)
-			End If
-			
-		End If
-		
-		'create tex
-		Local name:Int = _TGLMax2DExtAssistant.CreateTex(tex_w, tex_h, flags)
-		
-		'upload it
-		_TGLMax2DExtAssistant.UploadTex(tex, flags)
-		
-		'done!
-		Local frame:TGLImageFrame = New TGLImageFrame
-		frame.name = name
-		frame.u1 = Float(width) / Float(tex_w)
-		frame.v1 = Float(height) / Float(tex_h)
-		
-		Return frame
-		
-	End Function
-	
-End Type
-End Rem
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

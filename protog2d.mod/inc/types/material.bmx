@@ -44,11 +44,8 @@ Type TGLMaterial Extends TObjectMap
 		returns: The new material (itself).
 	End Rem
 	Method Create:TGLMaterial(name:String = Null)
-		
 		SetName(name)
-		
 		Return Self
-		
 	End Method
 	
 	'#region Collections

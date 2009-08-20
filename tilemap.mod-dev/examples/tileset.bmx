@@ -12,7 +12,6 @@ Import brl.bmploader
 
 Import duct.TileMap
 Import duct.memcrypt
-Import duct.template
 Import duct.scriptparser
 
 AppTitle = "resourceset builder"

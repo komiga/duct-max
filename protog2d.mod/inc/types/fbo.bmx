@@ -66,6 +66,7 @@ Type TProtogFrameBuffer
 				' Delete the framebuffer
 				glDeleteFramebuffersEXT(1, Varptr(m_handle))
 				m_handle = -1
+				m_seq = 0
 			End If
 		End Method
 		
@@ -92,7 +93,7 @@ Type TProtogFrameBuffer
 			returns: Nothing.
 		End Rem
 		Method Bind()
-			If m_handle <> - 1
+			If m_handle <> - 1 And m_seq = GraphicsSeq
 				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_handle)
 			End If
 		End Method
@@ -136,6 +137,8 @@ Type TProtogFrameBuffer
 			
 			Assert index > - 1 And index < 4,  ..
 				"(duct.Protog2D.TProtogFrameBuffer.AttachTexture) @index (=" + String(index) + ") is not within bounds! (it must be 0-3)"
+			
+			Assert texture, "(duct.Protog2D.TProtogFrameBuffer.AttachTexture) @texture is Null!"
 			
 			If m_colorbuffers[index] = Null Or override = True
 				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + index, GL_TEXTURE_2D, texture.m_handle, 0)

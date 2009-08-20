@@ -41,27 +41,10 @@ Import duct.etc
 Import duct.objectmap
 Import duct.scriptparser
 Import duct.variables
-Import duct.template
 
 ' Included source code
 Include "inc/types/language.bmx"
 Include "inc/types/localization.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

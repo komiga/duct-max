@@ -1,0 +1,51 @@
+
+'Template testing script
+
+'Pass
+TeSt01 100 "Did I pass?" 12.95432 "/e:a + b"
+TeStAlT01 100 "Did I pass?" 12.95432 "/e:a + b"
+
+'Fail
+test01 "ab" "Fail?" 12.95432 "/e:a + b"
+testalt01 "ab" "Fail?" 12.95432 "/e:a + b"
+
+'Pass
+Test02 anythinggoes!
+TestAlt02 anythinggoes!
+
+'Fail
+test02 "I've buggered it, haven't I?"
+tEstALT02 "blarrgh!"
+
+'Pass
+test03 "Flexibility!" blab 12 352 423.8240 "/e:a + b"
+
+'Fail
+test03 123123 "Whoops.." brokended "/e:a + b" 1451 0.002
+
+'Pass
+test04 "/e:a + b" 1 2 3
+
+'Fail
+TESt04 "I'm supposed to be an evaluation variable!" 1 2 3
+
+'Pass
+test05 "/e:a + b" 1 "Hello World!" somethingwashere 1200 0.004
+
+'Fail
+TeST05 "/e:a + b" 34 "So far so good.." "/e:a + b" "<< doh.."
+
+'Pass
+test06 101.112233 "Cookies." 101 99.99999
+
+'Fail
+TeSt06 242.930333 "/e:a + b"
+
+'Pass (07)
+CreamFilling 12345 "Run!"
+
+'Pass (07)
+TimeWillTell 123141 "Or will it?"
+
+'Fail (07)
+NameIsGood 1010001.0 13411

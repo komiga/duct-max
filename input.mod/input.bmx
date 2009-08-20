@@ -51,7 +51,6 @@ Import brl.keycodes
 
 Import duct.etc
 Import duct.scriptparser
-Import duct.template
 
 
 ' Included code

@@ -21,45 +21,13 @@ Rem
 	THE SOFTWARE.
 	-----------------------------------------------------------------------------
 	
-	template.bmx (Contains: TTemplate, )
+	snode.bmx (Contains: TTemplate, )
 	
 End Rem
 
-SuperStrict
 
 Rem
-bbdoc: Script node templating
-End Rem
-Module duct.template
-
-ModuleInfo "Version: 0.15"
-ModuleInfo "Copyright: Tim Howard"
-ModuleInfo "License: MIT"
-
-ModuleInfo "History: Version 0.15"
-ModuleInfo "History: Fixed some formatting and some other squabble"
-ModuleInfo "History: Version 0.14"
-ModuleInfo "History: Moved TV_* constants to duct.variablemap"
-ModuleInfo "History: Version 0.13"
-ModuleInfo "History: Added error checking in TTemplate.DeSerialize() and TTemplate.Serialize()"
-ModuleInfo "History: Added error checking for Null template idens (the template name check will pass for any identifier name, if the iden array is Null)"
-ModuleInfo "History: Version 0.12"
-ModuleInfo "History: Modified: TTemplate now supports multiple identifier names"
-ModuleInfo "History: Corrected usage of syntax (in Returns, Cases, News and Selects)"
-ModuleInfo "History: Version 0.11"
-ModuleInfo "History: Initial release"
-
-
-' Used modules
-Import brl.stream
-
-Import duct.etc
-Import duct.variables
-Import duct.scriptparser
-
-
-Rem
-	bbdoc: #{TIdentifier} template (provides a sort of validation for different formats).
+	bbdoc: #TIdentifier template (provides a sort of validation for different formats).
 End Rem
 Type TTemplate
 	
@@ -213,9 +181,7 @@ Type TTemplate
 		If tmpsize > 0
 			
 			For i = 0 To tmpsize - 1
-				
 				WriteNString(stream, m_iden[i])
-				
 			Next
 			
 		End If
@@ -229,9 +195,7 @@ Type TTemplate
 		If tmpsize > 0
 			
 			For i = 0 To tmpsize - 1
-				
 				stream.WriteInt(m_infinitism[i])
-				
 			Next
 			
 		End If
@@ -248,9 +212,7 @@ Type TTemplate
 				stream.WriteInt(varray.Length)
 				
 				For ix = 0 To varray.Length - 1
-					
 					stream.WriteInt(varray[ix])
-					
 				Next
 				
 			Next
@@ -272,9 +234,7 @@ Type TTemplate
 			m_iden = New String[tmpsize]
 			
 			For i = 0 To tmpsize - 1
-				
 				m_iden[i] = ReadNString(stream, 768)
-				
 			Next
 			
 		End If
@@ -289,9 +249,7 @@ Type TTemplate
 			m_infinitism = New Int[tmpsize]
 			
 			For i = 0 To tmpsize - 1
-				
 				m_infinitism[i] = stream.ReadInt()
-				
 			Next
 			
 		End If
@@ -309,9 +267,7 @@ Type TTemplate
 				varray = New Int[stream.ReadInt()]
 				
 				For ix = 0 To varray.Length - 1
-					
 					varray[ix] = stream.ReadInt()
-					
 				Next
 				
 				m_vars[i] = varray
@@ -365,9 +321,7 @@ Type TTemplate
 						End Select
 						
 					Else
-						
 						DebugLog("TTemplate.ValidateIdentifier() WARNING: cmpvar is Null (at index " + i + ", likely unable to convert object to TVariable)")
-						
 					End If
 					
 				Next
@@ -410,9 +364,7 @@ Type TTemplate
 			End If
 			
 		Else
-			
 			DebugLog("TTemplate.ValidateIdentifier(); Identifier is Null")
-			
 		End If
 		
 		Return False
@@ -490,28 +442,3 @@ Type TTemplate
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

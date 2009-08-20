@@ -39,15 +39,11 @@ Type TGLSLProgram
 	Field m_material:TGLMaterial, m_params:TGLSLParamMap
 	
 		Method New()
-			
 			m_params = New TGLSLParamMap.Create()
-			
 		End Method
 		
 		Method Delete()
-			
 			Destroy()
-			
 		End Method
 		
 		Rem
@@ -99,19 +95,14 @@ Type TGLSLProgram
 					Select utype
 						Case GL_FLOAT
 							param = m_material.GetFloatParam(sname)
-							
 						Case GL_FLOAT_VEC2
 							param = m_material.GetVec2Param(sname)
-							
 						Case GL_FLOAT_VEC3
 							param = m_material.GetVec3Param(sname)
-							
 						Case GL_FLOAT_VEC4
 							param = m_material.GetVec4Param(sname)
-							
 						'Case GL_FLOAT_MAT4
 						'	...
-						
 						Case GL_SAMPLER_2D', GL_SAMPLER_2D_RECT_ARB
 							param = m_material.GetTextureParam(sname)
 							unit:+1
@@ -122,9 +113,7 @@ Type TGLSLProgram
 					End Select
 					
 					If param = Null
-						
 						Throw("(duct.protog2d.TGLSLProgram.CreateFromSources) Failed to retrieve parameter of type " + String(utype))
-						
 					End If
 					
 					'CParam * p = CParam::ForName(name)
@@ -139,16 +128,13 @@ Type TGLSLProgram
 				'CheckGL()
 				
 			Else
-				
 				Throw("(duct.protog2d.TGLSLProgram.CreateFromSources) Failed to create shader, either one of the shader sources or the material is Null~n" + ..
 					"~t['@vert_source=Null'~t= " + String(vert_source = Null) + "~n" + ..
 					"~t'@frag_source=Null'~t= " + String(frag_source = Null) + "~n" + ..
 					"~t'@material=Null'~t=" + String(material = Null) + "]")
-				
 			End If
 			
 			Return Self
-			
 		End Method
 		
 		Rem
@@ -158,12 +144,9 @@ Type TGLSLProgram
 		End Rem
 		Method CreateFromSourceFiles:TGLSLProgram(vert_url:Object, frag_url:Object, material:TGLMaterial)
 			Local vert_source:String, frag_source:String
-			
 			vert_source = TShaderAssist.SourceFromFile(vert_url)
 			frag_source = TShaderAssist.SourceFromFile(frag_url)
-			
 			Return CreateFromSources(vert_source, frag_source, material)
-			
 		End Method
 		
 		Rem
@@ -173,11 +156,8 @@ Type TGLSLProgram
 		End Rem
 		Method CreateFromDualSource:TGLSLProgram(source:String, material:TGLMaterial)
 			Local vert_source:String, frag_source:String
-			
 			TShaderAssist.SplitDualShaderSource(source, vert_source, frag_source)
-			
 			Return CreateFromSources(vert_source, frag_source, material)
-			
 		End Method
 		
 		Rem
@@ -187,11 +167,8 @@ Type TGLSLProgram
 		End Rem
 		Method CreateFromDualFile:TGLSLProgram(url:Object, material:TGLMaterial)
 			Local vert_source:String, frag_source:String
-			
 			TShaderAssist.SplitDualShaderFile(url, vert_source, frag_source)
-			
 			Return CreateFromSources(vert_source, frag_source, material)
-			
 		End Method
 		
 		Rem
@@ -199,14 +176,10 @@ Type TGLSLProgram
 			returns: Nothing.
 		End Rem
 		Method Destroy()
-			
 			If m_handle <> 0
-				
 				glDeleteProgram(m_handle)
 				m_handle = 0
-				
 			End If
-			
 		End Method
 		
 		Rem
@@ -214,9 +187,7 @@ Type TGLSLProgram
 			returns: Nothing.
 		End Rem
 		Method Activate()
-			
 			glUseProgram(m_handle)
-			
 		End Method
 		
 		Rem
@@ -224,9 +195,7 @@ Type TGLSLProgram
 			returns: Nothing.
 		End Rem
 		Method Deactivate()
-			
 			glUseProgram(0)
-			
 		End Method
 		
 		'#region Field accessors
@@ -235,9 +204,7 @@ Type TGLSLProgram
 			returns: Nothing.
 		End Rem
 		Method GetIntParameter:Int(param:Int, data:Int Ptr)
-			
 			glGetProgramiv(m_handle, param, data)
-			
 		End Method
 		
 		Rem
@@ -245,9 +212,7 @@ Type TGLSLProgram
 			returns: The handle for the program.
 		End Rem
 		Method GetHandle:Int()
-			
 			Return m_handle
-			
 		End Method
 		
 		Rem
@@ -255,9 +220,7 @@ Type TGLSLProgram
 			returns: The material for the program.
 		End Rem
 		Method GetMaterial:TGLMaterial()
-			
 			Return m_material
-			
 		End Method
 		
 		'#end region (Field accessors)
@@ -270,9 +233,7 @@ Type TGLSLProgram
 				name exists (or the name is prepended by "gl_" - which is reserved for internal use by OpenGL).
 		End Rem
 		Method GetAttribLocationFromName:Int(name:String)
-			
 			glGetAttribLocation(m_handle, name.ToCString())
-			
 		End Method
 		
 		Rem
@@ -281,9 +242,7 @@ Type TGLSLProgram
 				name exists (or the name is prepended by "gl_" - which is reserved for internal use by OpenGL).
 		End Rem
 		Method GetUniformLocationFromName:Int(name:String)
-			
 			Return glGetUniformLocation(m_handle, name.ToCString())
-			
 		End Method
 		
 		'#end region (Uniform/Attribute handlers)
@@ -360,7 +319,6 @@ Type TShaderAssist
 		Local csource:Byte Ptr = shader_source.ToCString()
 		
 		shader = glCreateShader(shader_type)
-		
 		glShaderSource(shader, 1, Varptr(csource), Null)
 		glCompileShader(shader)
 		
@@ -368,7 +326,6 @@ Type TShaderAssist
 		
 		If status = False
 			Local stream:TRamStream, n:Int
-			
 			Print("Shader source:")
 			stream = CreateRamStream(shader_source, shader_source.Length, True, False)
 			While stream.Eof() = False
@@ -376,10 +333,8 @@ Type TShaderAssist
 				n:+1
 			Wend
 			stream.Close()
-			
 			Throw("(duct.protog2d.CompileShader) Failed to compile shader~n" + ..
 					"Infolog:~n" + ShaderInfoLog(shader))
-			
 		End If
 		
 		Return shader
@@ -392,11 +347,8 @@ Type TShaderAssist
 	End Rem
 	Function ShaderInfoLog:String(shader:Int)
 		Local buf:Byte[2048]
-		
 		glGetShaderInfoLog(shader, 2047, Null, buf)
-		
 		Return String.FromBytes(buf, 2047)
-		
 	End Function
 	
 	Rem
@@ -409,15 +361,11 @@ Type TShaderAssist
 		stream = ReadStream(url)
 		
 		If stream <> Null
-			
 			While stream.Eof() = False
 				source:+stream.ReadLine() + "~n"
 			Wend
-			
 			stream.Close()
-			
 			Return source
-			
 		Else
 			Throw("(duct.protog2d.SourceFromFile) Failed to open source file: " + url.ToString())
 		End If
@@ -434,50 +382,30 @@ Type TShaderAssist
 		Local stream:TRamStream, temp:String
 		
 		If source <> Null
-			
 			stream = CreateRamStream(source, source.Length, True, False)
-			
 			While stream.Eof() = False
-				
 				temp = stream.ReadLine()
-				
 				If temp.Find("//@common") = 0
-					
 					set = 0
-					
 				Else If temp.Find("//@vertex") = 0
-					
 					set = 1
-					
 				Else If temp.Find("//@fragment") = 0
-					
 					set = 2
-					
 				Else If set = 0
-					
 					common_source:+temp + "~n"
-					
 				Else If set = 1
-					
 					vert_source:+temp + "~n"
-					
 				Else If set = 2
-					
 					frag_source:+temp + "~n"
-					
 				End If
-				
 			Wend
 			
 			stream.Close()
 			
 			vert_source = common_source + vert_source
 			frag_source = common_source + frag_source
-			
 		Else
-			
 			Throw("(duct.protog2d.SplitDualShaderSource) Failed to split shader source, @source = Null")
-			
 		End If
 		
 	End Function
@@ -489,11 +417,8 @@ Type TShaderAssist
 	End Rem
 	Function SplitDualShaderFile(url:Object, vert_source:String Var, frag_source:String Var)
 		Local source:String
-		
 		source = SourceFromFile(url)
-		
 		SplitDualShaderSource(source, vert_source, frag_source)
-		
 	End Function
 	
 End Type

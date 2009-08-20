@@ -38,11 +38,8 @@ Type TDColor
 			returns: The new DColor (itself).
 		End Rem
 		Method Create:TDColor(r:Int, g:Int, b:Int)
-			
 			Set(r, g, b)
-			
 			Return Self
-			
 		End Method
 		
 		Rem
@@ -50,11 +47,9 @@ Type TDColor
 			returns: Nothing.
 		End Rem
 		Method Set(r:Int, g:Int, b:Int)
-			
 			m_red = r
 			m_green = g
 			m_blue = b
-			
 		End Method
 		
 		Rem
@@ -62,11 +57,9 @@ Type TDColor
 			returns: Nothing (the variables are passed back through the parameters).
 		End Rem
 		Method Get(r:Int Var, g:Int Var, b:Int Var)
-			
 			r = m_red
 			g = m_green
 			b = m_blue
-			
 		End Method
 		
 End Type

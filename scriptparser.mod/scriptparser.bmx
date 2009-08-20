@@ -28,10 +28,18 @@ bbdoc: Scriptparser module
 End Rem
 Module duct.scriptparser
 
-ModuleInfo "Version: 0.48"
+ModuleInfo "Version: 0.49"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.49"
+ModuleInfo "History: Added parser encoding constants"
+ModuleInfo "History: Changed TSNodeToken to use a buffer"
+ModuleInfo "History: Fixed digit reading (never added the decimal point)"
+ModuleInfo "History: Fixed the templates example"
+ModuleInfo "History: Added GetIdentifierByTemplate to TSNode"
+ModuleInfo "History: Moved duct.template here (needed to use the TTemplate type in the TSNode type)"
+ModuleInfo "History: Changed some formatting"
 ModuleInfo "History: Version 0.48"
 ModuleInfo "History: Eval variable identification changed to '/e:'"
 ModuleInfo "History: Removed support for the line-continuance feature ('/>>' in a script)"
@@ -68,6 +76,7 @@ Import cower.charset
 ' Included source code
 Include "inc/types/snode.bmx"
 Include "inc/types/parser.bmx"
+Include "inc/types/template.bmx"
 
 
 

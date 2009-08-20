@@ -44,24 +44,20 @@ Type TGLParam Abstract
 		returns: The new GLParam (itself).
 	End Rem
 	Method _Init(name:String)
-		
 		m_name = name
-		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Get the param's name.
 		returns: The name of the param.
 	End Rem
 	Method GetName:String()
-		
 		Return m_name
-		
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
@@ -86,24 +82,19 @@ Type TGLFloatParam Extends TGLParam
 		returns: The new parameter (itself).
 	End Rem
 	Method Create:TGLFloatParam(name:String, value:Float)
-		
 		_Init(name)
 		Set(value)
-		
 		Return Self
-		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the float value for this parameter.
 		returns: Nothing.
 	End Rem
 	Method Set(value:Float)
-		
 		m_value = value
-		
 	End Method
 	
 	Rem
@@ -111,21 +102,17 @@ Type TGLFloatParam Extends TGLParam
 		returns: The float value for this parameter.
 	End Rem
 	Method Get:Float()
-		
 		Return m_value
-		
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
 	End Rem
 	Method ParamType:String()
-		
 		Return "Float"
-		
 	End Method
 	
 End Type
@@ -145,24 +132,19 @@ Type TGLTextureParam Extends TGLParam
 		returns: The new parameter (itself).
 	End Rem
 	Method Create:TGLTextureParam(name:String, texture:TProtogTexture)
-		
 		_Init(name)
 		Set(texture)
-		
 		Return Self
-		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the texture for this parameter.
 		returns: Nothing.
 	End Rem
 	Method Set(texture:TProtogTexture)
-		
 		m_texture = texture
-		
 	End Method
 	
 	Rem
@@ -170,21 +152,17 @@ Type TGLTextureParam Extends TGLParam
 		returns: The texture for this parameter.
 	End Rem
 	Method Get:TProtogTexture()
-		
 		Return m_texture
-		
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
 	End Rem
 	Method ParamType:String()
-		
 		Return "Texture"
-		
 	End Method
 	
 End Type
@@ -204,24 +182,19 @@ Type TGLVec2Param Extends TGLParam
 		returns: The new parameter (itself).
 	End Rem
 	Method Create:TGLVec2Param(name:String, vector:TVec2)
-		
 		_Init(name)
 		Set(vector)
-		
 		Return Self
-		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the vector for this parameter.
 		returns: Nothing.
 	End Rem
 	Method Set(vector:TVec2)
-		
 		m_vector = vector
-		
 	End Method
 	
 	Rem
@@ -229,21 +202,17 @@ Type TGLVec2Param Extends TGLParam
 		returns: The vector for this parameter.
 	End Rem
 	Method Get:TVec2()
-		
 		Return m_vector
-		
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
 	End Rem
 	Method ParamType:String()
-		
 		Return "Vec2"
-		
 	End Method
 	
 End Type
@@ -263,24 +232,19 @@ Type TGLVec3Param Extends TGLParam
 		returns: The new parameter (itself).
 	End Rem
 	Method Create:TGLVec3Param(name:String, vector:TVec3)
-		
 		_Init(name)
 		Set(vector)
-		
 		Return Self
-		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the vector for this parameter.
 		returns: Nothing.
 	End Rem
 	Method Set(vector:TVec3)
-		
 		m_vector = vector
-		
 	End Method
 	
 	Rem
@@ -288,21 +252,17 @@ Type TGLVec3Param Extends TGLParam
 		returns: The vector for this parameter.
 	End Rem
 	Method Get:TVec3()
-		
 		Return m_vector
-		
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
 	End Rem
 	Method ParamType:String()
-		
 		Return "Vec3"
-		
 	End Method
 	
 End Type
@@ -322,24 +282,19 @@ Type TGLVec4Param Extends TGLParam
 		returns: The new parameter (itself).
 	End Rem
 	Method Create:TGLVec4Param(name:String, vector:TVec4)
-		
 		_Init(name)
 		Set(vector)
-		
 		Return Self
-		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the vector for this parameter.
 		returns: Nothing.
 	End Rem
 	Method Set(vector:TVec4)
-		
 		m_vector = vector
-		
 	End Method
 	
 	Rem
@@ -347,21 +302,17 @@ Type TGLVec4Param Extends TGLParam
 		returns: The vector for this parameter.
 	End Rem
 	Method Get:TVec4()
-		
 		Return m_vector
-		
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
 	End Rem
 	Method ParamType:String()
-		
 		Return "Vec4"
-		
 	End Method
 	
 End Type
@@ -385,18 +336,13 @@ Type TGLSLParam Extends TGLParam
 		returns: The new GLSLParam (itself).
 	End Rem
 	Method Create:TGLSLParam(name:String, param:TGLParam, location:Int, utype:Int, size:Int, unit:Int)
-		
 		_Init(name)
-		
 		m_param = param
-		
 		m_location = location
 		m_utype = utype
 		m_size = size
 		m_unit = unit
-		
 		Return Self
-		
 	End Method
 	
 	Rem
@@ -409,20 +355,15 @@ Type TGLSLParam Extends TGLParam
 			Case GL_FLOAT
 				'glUniform1fv(m_location, _param.Count(), Varptr(TGLFloatParam(m_param).m_value)))
 				glUniform1f(m_location, TGLFloatParam(m_param).m_value)
-				
 			Case GL_FLOAT_VEC2
 				glUniform2fv(m_location, 1, Varptr(TGLVec2Param(m_param).m_vector.m_x))
-				
 			Case GL_FLOAT_VEC3
 				glUniform3fv(m_location, 1, Varptr(TGLVec3Param(m_param).m_vector.m_x))
-				
 			Case GL_FLOAT_VEC4
 				glUniform4fv(m_location, 1, Varptr(TGLVec4Param(m_param).m_vector.m_x))
-				
 			'Case GL_FLOAT_MAT4
 			'	Local n:Int = _param.Count() / 16
 			'	glUniformMatrix4fv(_glloc, n, GL_FALSE, _param.FloatValue())
-			'	
 			Case GL_SAMPLER_2D', GL_SAMPLER_2D_RECT_ARB
 				glUniform1i(m_location, m_unit)
 				glActiveTexture(GL_TEXTURE0 + m_unit)
@@ -456,21 +397,17 @@ Type TGLSLParamMap Extends TObjectMap
 		returns: The new GLSLParamMap (itself).
 	End Rem
 	Method Create:TGLSLParamMap()
-		
 		Return Self
-		
 	End Method
 	
-	'#region Collections
+'#region Collections
 	
 	Rem
 		bbdoc: Insert a parameter into the map.
 		returns: Nothing.
 	End Rem
 	Method Insert(param:TGLSLParam)
-		
 		_Insert(param.m_name, param)
-		
 	End Method
 	
 	Rem
@@ -478,9 +415,7 @@ Type TGLSLParamMap Extends TObjectMap
 		returns: True if the parameter was removed, or False if it was not removed (does not exist in map).
 	End Rem
 	Method Remove:Int(param_name:String)
-		
 		Return _Remove(param_name)
-		
 	End Method
 	
 	Rem
@@ -488,12 +423,10 @@ Type TGLSLParamMap Extends TObjectMap
 		returns: True if the parameter is in the map, or False if it is not in the map.
 	End Rem
 	Method Contains:Int(param_name:String)
-		
 		Return _Contains(param_name)
-		
 	End Method
 	
-	'#end region (Collections)
+'#end region (Collections)
 	
 End Type
 
