@@ -601,6 +601,14 @@ Type TSNodeParser
 		Return "line: " + String(line) + ", char: " + String(char)
 	End Function
 	
+	Rem
+		bbdoc: Close the file handles.
+		returns: Nothing.
+	End Rem
+	Method CloseHandles()
+		m_stream.Close()
+	End Method
+	
 End Type
 
 Rem
@@ -657,6 +665,7 @@ Type TSNodeParserHandler Abstract
 		m_parser.InitWithStream(obj, encoding)
 		Clean()
 		Process()
+		m_parser.CloseHandles()
 		Return m_rootnode
 	End Method
 	
@@ -668,6 +677,7 @@ Type TSNodeParserHandler Abstract
 		m_parser.InitWithString(data, encoding)
 		Clean()
 		Process()
+		m_parser.CloseHandles()
 		Return m_rootnode
 	End Method
 	

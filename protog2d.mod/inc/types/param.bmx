@@ -21,7 +21,7 @@ Rem
 	THE SOFTWARE.
 	-----------------------------------------------------------------------------
 	
-	param.bmx (Contains: TGLParam, TGLFloatParam, TGLTextureParam, TGLVec2Param, TGLVec3Param, TGLVec4Param, TGLSLParam, TGLSLParamMap, )
+	param.bmx (Contains: TProtogParam, TProtogIntParam, TProtogFloatParam, TProtogTextureParam, TProtogVec2Param, TProtogVec3Param, TProtogVec4Param, TProtogShaderParam, TProtogShaderParamMap, )
 	
 	TODO:
 		
@@ -29,19 +29,20 @@ Rem
 End Rem
 
 Rem
-	bbdoc: High-level wrapper for shader uniforms.<br />
-	about: Extending types: #{TGLFloatParam}, #{TGLTextureParam}, #{TGLVec2Param}, #{TGLVec3Param}, #{TGLVec4Param}).
+	bbdoc: Named parameters for #TProtogMaterial.
+	about: Extending types: #TProtogFloatParam, #TProtogTextureParam, #TProtogVec2Param, #TProtogVec3Param, #TProtogVec4Param, #TProtogShaderParam).
 End Rem
-Type TGLParam Abstract
+Type TProtogParam Abstract
 	
+	'Field m_changed:Int = False
 	Field m_name:String
 	
 	Method New()
 	End Method
 	
 	Rem
-		bbdoc: Create a new GLParam.
-		returns: The new GLParam (itself).
+		bbdoc: Create a new TProtogParam.
+		returns: The new TProtogParam (itself).
 	End Rem
 	Method _Init(name:String)
 		m_name = name
@@ -57,7 +58,41 @@ Type TGLParam Abstract
 		Return m_name
 	End Method
 	
+	'Rem
+	'	bbdoc: Set the parameter's value-changed state.
+	'	returns: Nothing.
+	'	about: @changed is used in #TProtogShaderParam to re-grab the value's pointer.
+	'End Rem
+	'Method SetChanged(changed:Int)
+	'	m_changed = changed
+	'End Method
+	
+	'Rem
+	'	bbdoc: Get the parameter's value-changed status.
+	'	returns: Nothing.
+	'	about: @changed is used in #TProtogShaderParam to re-grab the value's pointer.
+	'End Rem
+	'Method GetChanged:Int()
+	'	Return m_changed
+	'End Method
+	
 '#end region (Field accessors)
+	
+'#region Shader
+	
+	Rem
+		bbdoc: Get the pointer to the value's first field in the param.
+		returns: A pointer to the parameter's value.
+	End Rem
+	Method GetPointer:Byte Ptr() Abstract
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int() Abstract
+	
+'#end region (Shader)
 	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
@@ -68,9 +103,79 @@ Type TGLParam Abstract
 End Type
 
 Rem
-	bbdoc: Float parameter (for #{TGLMaterial}).
+	bbdoc: Int parameter.
 End Rem
-Type TGLFloatParam Extends TGLParam
+Type TProtogIntParam Extends TProtogParam
+	
+	Field m_value:Int
+	
+	Method New()
+	End Method
+	
+	Rem
+		bbdoc: Create a new TProtogIntParam.
+		returns: The new parameter (itself).
+	End Rem
+	Method Create:TProtogIntParam(name:String, value:Int)
+		_Init(name)
+		Set(value)
+		Return Self
+	End Method
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Set the integer value for this parameter.
+		returns: Nothing.
+	End Rem
+	Method Set(value:Int)
+		m_value = value
+	End Method
+	
+	Rem
+		bbdoc: Get the integer value for this parameter.
+		returns: The integer value for this parameter.
+	End Rem
+	Method Get:Int()
+		Return m_value
+	End Method
+	
+'#end region (Field accessors)
+	
+'#region Shader
+	
+	Rem
+		bbdoc: Get the pointer to the value's first field in the param.
+		returns: A pointer to the parameter's value.
+	End Rem
+	Method GetPointer:Byte Ptr()
+		Return Varptr(m_value)
+	End Method
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int()
+		Return 1
+	End Method
+	
+'#end region (Shader)
+	
+	Rem
+		bbdoc: Get the string definition of this parameter type.
+		returns: The string definition of this parameter type.
+	End Rem
+	Method ParamType:String()
+		Return "Int"
+	End Method
+	
+End Type
+
+Rem
+	bbdoc: Float parameter.
+End Rem
+Type TProtogFloatParam Extends TProtogParam
 	
 	Field m_value:Float
 	
@@ -78,10 +183,10 @@ Type TGLFloatParam Extends TGLParam
 	End Method
 	
 	Rem
-		bbdoc: Create a new GLFloatParam.
+		bbdoc: Create a new TProtogFloatParam.
 		returns: The new parameter (itself).
 	End Rem
-	Method Create:TGLFloatParam(name:String, value:Float)
+	Method Create:TProtogFloatParam(name:String, value:Float)
 		_Init(name)
 		Set(value)
 		Return Self
@@ -107,6 +212,26 @@ Type TGLFloatParam Extends TGLParam
 	
 '#end region (Field accessors)
 	
+'#region Shader
+	
+	Rem
+		bbdoc: Get the pointer to the value's first field in the param.
+		returns: A pointer to the parameter's value.
+	End Rem
+	Method GetPointer:Byte Ptr()
+		Return Varptr(m_value)
+	End Method
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int()
+		Return 1
+	End Method
+	
+'#end region (Shader)
+	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
@@ -118,9 +243,9 @@ Type TGLFloatParam Extends TGLParam
 End Type
 
 Rem
-	bbdoc: #{TGLTexture} parameter (for #{TGLMaterial}).
+	bbdoc: #TProtogTexture parameter.
 End Rem
-Type TGLTextureParam Extends TGLParam
+Type TProtogTextureParam Extends TProtogParam
 	
 	Field m_texture:TProtogTexture
 	
@@ -128,10 +253,10 @@ Type TGLTextureParam Extends TGLParam
 	End Method
 	
 	Rem
-		bbdoc: Create a new GLTextureParam.
+		bbdoc: Create a new TProtogTextureParam.
 		returns: The new parameter (itself).
 	End Rem
-	Method Create:TGLTextureParam(name:String, texture:TProtogTexture)
+	Method Create:TProtogTextureParam(name:String, texture:TProtogTexture)
 		_Init(name)
 		Set(texture)
 		Return Self
@@ -144,6 +269,9 @@ Type TGLTextureParam Extends TGLParam
 		returns: Nothing.
 	End Rem
 	Method Set(texture:TProtogTexture)
+		'If m_texture <> texture
+		'	SetChanged(True)
+		'End If
 		m_texture = texture
 	End Method
 	
@@ -157,6 +285,29 @@ Type TGLTextureParam Extends TGLParam
 	
 '#end region (Field accessors)
 	
+'#region Shader
+	
+	Rem
+		bbdoc: Get the pointer to the value's first field in the param.
+		returns: A pointer to the parameter's value.
+	End Rem
+	Method GetPointer:Byte Ptr()
+		If m_texture.m_gltexture <> Null
+			Return Varptr(m_texture.m_gltexture.m_handle)
+		End If
+		Return Null
+	End Method
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int()
+		Return 1
+	End Method
+	
+'#end region (Shader)
+	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
@@ -168,9 +319,82 @@ Type TGLTextureParam Extends TGLParam
 End Type
 
 Rem
-	bbdoc: #{TVec2} paramter (for #{TGLMaterial}).
+	bbdoc: #TProtogColor parameter.
 End Rem
-Type TGLVec2Param Extends TGLParam
+Type TProtogColorParam Extends TProtogParam
+	
+	Field m_color:TProtogColor
+	
+	Method New()
+	End Method
+	
+	Rem
+		bbdoc: Create a new TProtogColorParam.
+		returns: The new parameter (itself).
+	End Rem
+	Method Create:TProtogColorParam(name:String, color:TProtogColor)
+		_Init(name)
+		Set(color)
+		Return Self
+	End Method
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Set the color for this parameter.
+		returns: Nothing.
+	End Rem
+	Method Set(color:TProtogColor)
+		'If m_color <> color
+		'	SetChanged(True)
+		'End If
+		m_color = color
+	End Method
+	
+	Rem
+		bbdoc: Get the color for this parameter.
+		returns: The color for this parameter.
+	End Rem
+	Method Get:TProtogColor()
+		Return m_color
+	End Method
+	
+'#end region (Field accessors)
+	
+'#region Shader
+	
+	Rem
+		bbdoc: Get the pointer to the value's first field in the param.
+		returns: A pointer to the parameter's value.
+	End Rem
+	Method GetPointer:Byte Ptr()
+		Return Varptr(m_color.m_red)
+	End Method
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int()
+		Return 1
+	End Method
+	
+'#end region (Shader)
+	
+	Rem
+		bbdoc: Get the string definition of this parameter type.
+		returns: The string definition of this parameter type.
+	End Rem
+	Method ParamType:String()
+		Return "Color"
+	End Method
+	
+End Type
+
+Rem
+	bbdoc: #TVec2 parameter.
+End Rem
+Type TProtogVec2Param Extends TProtogParam
 	
 	Field m_vector:TVec2
 	
@@ -178,10 +402,10 @@ Type TGLVec2Param Extends TGLParam
 	End Method
 	
 	Rem
-		bbdoc: Create a new GLVec2Param.
+		bbdoc: Create a new TProtogVec2Param.
 		returns: The new parameter (itself).
 	End Rem
-	Method Create:TGLVec2Param(name:String, vector:TVec2)
+	Method Create:TProtogVec2Param(name:String, vector:TVec2)
 		_Init(name)
 		Set(vector)
 		Return Self
@@ -194,6 +418,9 @@ Type TGLVec2Param Extends TGLParam
 		returns: Nothing.
 	End Rem
 	Method Set(vector:TVec2)
+		'If m_vector <> vector
+		'	SetChanged(True)
+		'End If
 		m_vector = vector
 	End Method
 	
@@ -207,6 +434,26 @@ Type TGLVec2Param Extends TGLParam
 	
 '#end region (Field accessors)
 	
+'#region Shader
+	
+	Rem
+		bbdoc: Get the pointer to the value's first field in the param.
+		returns: A pointer to the parameter's value.
+	End Rem
+	Method GetPointer:Byte Ptr()
+		Return Varptr(m_vector.m_x)
+	End Method
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int()
+		Return 1
+	End Method
+	
+'#end region (Shader)
+	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
@@ -218,9 +465,88 @@ Type TGLVec2Param Extends TGLParam
 End Type
 
 Rem
-	bbdoc: #{TVec3} paramter (for #{TGLMaterial}).
+	bbdoc: #TVec2 array parameter.
 End Rem
-Type TGLVec3Param Extends TGLParam
+Type TProtogVec2ArrayParam Extends TProtogParam
+	
+	Field m_vectors:TVec2[]
+	
+	Method New()
+	End Method
+	
+	Rem
+		bbdoc: Create a new TProtogVec2ArrayParam.
+		returns: The new parameter (itself).
+	End Rem
+	Method Create:TProtogVec2ArrayParam(name:String, vectors:TVec2[])
+		_Init(name)
+		Set(vectors)
+		Return Self
+	End Method
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Set the vector array for this parameter.
+		returns: Nothing.
+	End Rem
+	Method Set(vectors:TVec2[])
+		'If m_vectors <> vectors
+		'	SetChanged(True)
+		'End If
+		m_vectors = vectors
+	End Method
+	
+	Rem
+		bbdoc: Get the vector array for this parameter.
+		returns: The vector array for this parameter.
+	End Rem
+	Method Get:TVec2[] ()
+		Return m_vectors
+	End Method
+	
+'#end region (Field accessors)
+	
+'#region Shader
+	
+	Rem
+		bbdoc: Get the pointer to the value's first field in the param.
+		returns: A pointer to the parameter's value.
+	End Rem
+	Method GetPointer:Byte Ptr()
+		If m_vectors <> Null
+			Return Varptr(m_vectors[0].m_x)
+		End If
+		Return Null
+	End Method
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int()
+		If m_vectors <> Null
+			Return m_vectors.Length
+		End If
+		Return 0
+	End Method
+	
+'#end region (Shader)
+	
+	Rem
+		bbdoc: Get the string definition of this parameter type.
+		returns: The string definition of this parameter type.
+	End Rem
+	Method ParamType:String()
+		Return "Vec2Array"
+	End Method
+	
+End Type
+
+Rem
+	bbdoc: #TVec3 parameter (for #TProtogMaterial).
+End Rem
+Type TProtogVec3Param Extends TProtogParam
 	
 	Field m_vector:TVec3
 	
@@ -228,10 +554,10 @@ Type TGLVec3Param Extends TGLParam
 	End Method
 	
 	Rem
-		bbdoc: Create a new GLVec3Param.
+		bbdoc: Create a new TProtogVec3Param.
 		returns: The new parameter (itself).
 	End Rem
-	Method Create:TGLVec3Param(name:String, vector:TVec3)
+	Method Create:TProtogVec3Param(name:String, vector:TVec3)
 		_Init(name)
 		Set(vector)
 		Return Self
@@ -244,6 +570,9 @@ Type TGLVec3Param Extends TGLParam
 		returns: Nothing.
 	End Rem
 	Method Set(vector:TVec3)
+		'If m_vector <> vector
+		'	SetChanged(True)
+		'End If
 		m_vector = vector
 	End Method
 	
@@ -257,6 +586,26 @@ Type TGLVec3Param Extends TGLParam
 	
 '#end region (Field accessors)
 	
+'#region Shader
+	
+	Rem
+		bbdoc: Get the pointer to the value's first field in the param.
+		returns: A pointer to the parameter's value.
+	End Rem
+	Method GetPointer:Byte Ptr()
+		Return Varptr(m_vector.m_x)
+	End Method
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int()
+		Return 1
+	End Method
+	
+'#end region (Shader)
+	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
@@ -268,9 +617,9 @@ Type TGLVec3Param Extends TGLParam
 End Type
 
 Rem
-	bbdoc: #{TVec4} paramter (for #{TGLMaterial}).
+	bbdoc: #TVec4 parameter (for #TProtogMaterial).
 End Rem
-Type TGLVec4Param Extends TGLParam
+Type TProtogVec4Param Extends TProtogParam
 	
 	Field m_vector:TVec4
 	
@@ -278,10 +627,10 @@ Type TGLVec4Param Extends TGLParam
 	End Method
 	
 	Rem
-		bbdoc: Create a new GLVec4Param.
+		bbdoc: Create a new TProtogVec4Param.
 		returns: The new parameter (itself).
 	End Rem
-	Method Create:TGLVec4Param(name:String, vector:TVec4)
+	Method Create:TProtogVec4Param(name:String, vector:TVec4)
 		_Init(name)
 		Set(vector)
 		Return Self
@@ -294,6 +643,9 @@ Type TGLVec4Param Extends TGLParam
 		returns: Nothing.
 	End Rem
 	Method Set(vector:TVec4)
+		'If m_vector <> vector
+		'	SetChanged(True)
+		'End If
 		m_vector = vector
 	End Method
 	
@@ -307,6 +659,26 @@ Type TGLVec4Param Extends TGLParam
 	
 '#end region (Field accessors)
 	
+'#region Shader
+	
+	Rem
+		bbdoc: Get the pointer to the value's first field in the param.
+		returns: A pointer to the parameter's value.
+	End Rem
+	Method GetPointer:Byte Ptr()
+		Return Varptr(m_vector.m_x)
+	End Method
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int()
+		Return 1
+	End Method
+	
+'#end region (Shader)
+	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
@@ -318,24 +690,30 @@ Type TGLVec4Param Extends TGLParam
 End Type
 
 Rem
-	bbdoc: The wrapper parameter type for #{TGLSLProgram}.
-	about: This type is primarely used internally (you will likely never need to use this).
+	bbdoc: The wrapper parameter type for #TProtogShader.
+	about: This type is primarily used internally (you will likely never need to use this).
 End Rem
-Type TGLSLParam Extends TGLParam
+Type TProtogShaderParam Extends TProtogParam
 	
-	Field m_param:TGLParam
+	Const m_vectype:Int = 1
+	Const m_colortype:Int = 2
+	
+	Field m_param:TProtogParam
 	
 	Field m_location:Int, m_utype:Int
 	Field m_size:Int, m_unit:Int
+	
+	'Field m_pcount:Int = 1
+	'Field m_pointer:Byte Ptr = Null
 	
 	Method New()
 	End Method
 	
 	Rem
-		bbdoc: Create a new GLSLParam.
-		returns: The new GLSLParam (itself).
+		bbdoc: Create a new TProtogShaderParam.
+		returns: The new TProtogShaderParam (itself).
 	End Rem
-	Method Create:TGLSLParam(name:String, param:TGLParam, location:Int, utype:Int, size:Int, unit:Int)
+	Method Create:TProtogShaderParam(name:String, param:TProtogParam, location:Int, utype:Int, size:Int, unit:Int)
 		_Init(name)
 		m_param = param
 		m_location = location
@@ -345,58 +723,176 @@ Type TGLSLParam Extends TGLParam
 		Return Self
 	End Method
 	
+'#region Shader
+	
+	'Rem
+	'	bbdoc: Validate the param.
+	'	returns: Nothing.
+	'	about: This will grab the param's pointer for uniform binding.
+	'End Rem
+	'Method Validate()
+	'	If m_param.GetChanged() = True
+	'		m_pointer = m_param.GetPointer()
+	'		m_pcount = m_param.GetValueCount()
+	'		m_param.SetChanged(False)
+	'	End If
+	'End Method
+	
 	Rem
-		bbdoc: Bind the GLSLParam.
+		bbdoc: Bind the TProtogShaderParam.
 		returns: Nothing.
 	End Rem
 	Method Bind()
+		Local pointer:Byte Ptr, count:Int
 		
-		Select m_utype
-			Case GL_FLOAT
-				'glUniform1fv(m_location, _param.Count(), Varptr(TGLFloatParam(m_param).m_value)))
-				glUniform1f(m_location, TGLFloatParam(m_param).m_value)
-			Case GL_FLOAT_VEC2
-				glUniform2fv(m_location, 1, Varptr(TGLVec2Param(m_param).m_vector.m_x))
-			Case GL_FLOAT_VEC3
-				glUniform3fv(m_location, 1, Varptr(TGLVec3Param(m_param).m_vector.m_x))
-			Case GL_FLOAT_VEC4
-				glUniform4fv(m_location, 1, Varptr(TGLVec4Param(m_param).m_vector.m_x))
-			'Case GL_FLOAT_MAT4
-			'	Local n:Int = _param.Count() / 16
-			'	glUniformMatrix4fv(_glloc, n, GL_FALSE, _param.FloatValue())
-			Case GL_SAMPLER_2D', GL_SAMPLER_2D_RECT_ARB
-				glUniform1i(m_location, m_unit)
-				glActiveTexture(GL_TEXTURE0 + m_unit)
-				TGLTextureParam(m_param).m_texture.m_gltexture.Bind()
-				
-		End Select
+		pointer = m_param.GetPointer()
+		count = m_param.GetValueCount()
+		'DebugLog("(TProtogShaderParam.Bind) pointer = " + Int(pointer) + " count = " + count + " m_utype = " + m_utype + " m_param.GetName() = " + m_param.GetName())
+		If pointer <> Null And count > 0
+			Select m_utype
+				Case GL_INT
+					glUniform1iv(m_location, count, Int Ptr(pointer))
+				Case GL_FLOAT
+					glUniform1fv(m_location, count, Float Ptr(pointer))
+				Case GL_FLOAT_VEC2
+					glUniform2fv(m_location, count, Float Ptr(pointer))
+				Case GL_FLOAT_VEC3
+					glUniform3fv(m_location, count, Float Ptr(pointer))
+				Case GL_FLOAT_VEC4
+					glUniform4fv(m_location, count, Float Ptr(pointer))
+				'Case GL_FLOAT_MAT4
+				'	Local n:Int = m_param.ValueCount() / 16
+				'	glUniformMatrix4fv(m_location, n, GL_FALSE, m_pointer)
+				Case GL_SAMPLER_2D, GL_SAMPLER_2D_RECT_ARB
+					If count > 1
+						'Local index:Int
+						'For index = 0 To count - 1
+						'	glUniform1i(m_location, m_unit)
+						'	glActiveTexture(GL_TEXTURE0 + m_unit)
+						'	TProtogTextureParam(m_param).m_texture.Bind()
+						'Next
+						DebugLog("(TProtogShaderParam.Bind) Uniform texture arrays are not supported")
+					Else
+						Local gltex:TGLTexture
+						
+						gltex = TProtogTextureParam(m_param).m_texture.m_gltexture
+						If gltex <> Null
+							glUniform1i(m_location, m_unit)
+							glActiveTexture(GL_TEXTURE0 + m_unit)
+							gltex.Bind(True)
+							glActiveTexture(GL_TEXTURE0)
+						Else
+							Throw("(TProtogShaderParam.Bind) Unable to bind texture for parameter, Null texture! (" + m_name + ")")
+						End If
+					End If
+					
+				Default
+					Throw("(TProtogShaderParam.Bind) Failed to recognize parameter type; m_utype = " + m_utype)
+			End Select
+		End If
 		
 	End Method
+	
+	Rem
+		bbdoc: Unbind the TProtogShaderParam.
+		returns: Nothing.
+	End Rem
+	Method Unbind()
+		Local pointer:Byte Ptr, count:Int
+		
+		pointer = m_param.GetPointer()
+		count = m_param.GetValueCount()
+		'DebugLog("(TProtogShaderParam.Unbind) pointer = " + Int(pointer) + " count = " + count + " m_utype = " + m_utype + " m_param.GetName() = " + m_param.GetName())
+		If pointer <> Null And count > 0
+			Select m_utype
+				Case GL_INT
+					'glUniform1iv(m_location, count, Int Ptr(pointer))
+				Case GL_FLOAT
+					'glUniform1fv(m_location, count, Float Ptr(pointer))
+				Case GL_FLOAT_VEC2
+					'glUniform2fv(m_location, count, Float Ptr(pointer))
+				Case GL_FLOAT_VEC3
+					'glUniform3fv(m_location, count, Float Ptr(pointer))
+				Case GL_FLOAT_VEC4
+					'glUniform4fv(m_location, count, Float Ptr(pointer))
+				'Case GL_FLOAT_MAT4
+				'	Local n:Int = m_param.ValueCount() / 16
+				'	glUniformMatrix4fv(m_location, n, GL_FALSE, m_pointer)
+				Case GL_SAMPLER_2D, GL_SAMPLER_2D_RECT_ARB
+					If count > 1
+						'Local index:Int
+						'For index = 0 To count - 1
+						'	glUniform1i(m_location, m_unit)
+						'	glActiveTexture(GL_TEXTURE0 + m_unit)
+						'	TProtogTextureParam(m_param).m_texture.Bind()
+						'Next
+						DebugLog("(TProtogShaderParam.Unbind) Uniform texture arrays are not supported")
+					Else
+						Local gltex:TGLTexture
+						
+						gltex = TProtogTextureParam(m_param).m_texture.m_gltexture
+						If gltex <> Null
+							glActiveTexture(GL_TEXTURE0 + m_unit)
+							gltex.Unbind()
+							glActiveTexture(GL_TEXTURE0)
+						Else
+							Throw("(TProtogShaderParam.UnBind) Unable to bind texture for parameter, Null texture! (" + m_name + ")")
+						End If
+					End If
+					
+				Default
+					Throw("(TProtogShaderParam.Unbind) Failed to recognize parameter type; m_utype = " + m_utype)
+			End Select
+		End If
+		
+	End Method
+	
+	Rem
+		bbdoc: Not in use for this type.
+		returns: Null.
+	End Rem
+	Method GetPointer:Byte Ptr()
+		Return Null
+	End Method
+	
+	Rem
+		bbdoc: Get the number of indices in the param's value.
+		returns: The number of indices for the param's value.
+	End Rem
+	Method GetValueCount:Int()
+		Return 1
+	End Method
+	
+'#end region (Shader)
 	
 	Rem
 		bbdoc: Get the string definition of this parameter type.
 		returns: The string definition of this parameter type.
 	End Rem
 	Method ParamType:String()
-		Return "GLSLParam"
+		Return "ShaderParam"
+	End Method
+	
+	Method ToString:String()
+		Return "m_name = " + m_name + " m_location = " + m_location + " m_utype = " + m_utype + " m_size = " + m_size + " m_unit = " + m_unit
 	End Method
 	
 End Type
 
 Rem
-	bbdoc: #{TGLSLParam} collection map.
+	bbdoc: #TProtogShaderParam collection map.
 	about: This type is primarely used internally (you will likely never need to use this).
 End Rem
-Type TGLSLParamMap Extends TObjectMap
+Type TProtogShaderParamMap Extends TObjectMap
 	
 	Method New()
 	End Method
 	
 	Rem
-		bbdoc: Create a new GLSLParamMap.
-		returns: The new GLSLParamMap (itself).
+		bbdoc: Create a new TProtogShaderParamMap.
+		returns: The new TProtogShaderParamMap (itself).
 	End Rem
-	Method Create:TGLSLParamMap()
+	Method Create:TProtogShaderParamMap()
 		Return Self
 	End Method
 	
@@ -406,7 +902,7 @@ Type TGLSLParamMap Extends TObjectMap
 		bbdoc: Insert a parameter into the map.
 		returns: Nothing.
 	End Rem
-	Method Insert(param:TGLSLParam)
+	Method Insert(param:TProtogShaderParam)
 		_Insert(param.m_name, param)
 	End Method
 	

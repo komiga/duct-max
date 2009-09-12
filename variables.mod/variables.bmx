@@ -34,10 +34,14 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.15"
+ModuleInfo "Version: 0.16"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.16"
+ModuleInfo "History: Added SetAmbiguous to all TVariable types"
+ModuleInfo "History: Added option to always use quoting with TStringVariables (on by default)"
+ModuleInfo "History: Fixed TStringVariable.ConvToString returning of Null strings"
 ModuleInfo "History: Version 0.15"
 ModuleInfo "History: Change the Create method definition for easier use"
 ModuleInfo "History: Changed the '/eval::' recognizer to '/e:' (as per SNode format change)"
@@ -120,6 +124,11 @@ Type TVariable Abstract
 	Method GetName:String()
 		Return m_name
 	End Method
+	
+	Rem
+		bbdoc: Base method for setting the value of the variable to the given string (conversion).
+	End Rem
+	Method SetAmbiguous(value:String) Abstract
 	
 	Rem
 		bbdoc: Base method for converting variable data to a script-ready string.
@@ -287,6 +296,8 @@ Rem
 End Rem
 Type TStringVariable Extends TVariable
 	
+	Global m_alwaysusequotes:Int = True
+	
 	Field m_value:String
 	
 	Rem
@@ -318,12 +329,21 @@ Type TStringVariable Extends TVariable
 	End Method
 	
 	Rem
+		bbdoc: Set the value of the TStringVariable to the given string (ambiguous).
+		returns: Nothing.
+		about: For this type, this method is no different than calling #Set.
+	End Rem
+	Method SetAmbiguous(value:String)
+		m_value = value
+	End Method
+	
+	Rem
 		bbdoc: Convert the variable to a String.
 		returns: A String representation of the variable.
 		about: This function is for script output, for in-code use see #ValueAsString.
 	End Rem
 	Method ConvToString:String()
-		If m_value.Contains("~t") Or m_value.Contains(" ")
+		If m_alwaysusequotes = True Or m_value.Contains("~t") Or m_value.Contains(" ") Or m_value = Null
 			Return "~q" + m_value + "~q"
 		Else
 			Return m_value
@@ -439,6 +459,14 @@ Type TFloatVariable Extends TVariable
 	End Rem
 	Method Get:Float()
 		Return m_value
+	End Method
+	
+	Rem
+		bbdoc: Set the value of the variable to the given string (ambiguous).
+		returns: Nothing.
+	End Rem
+	Method SetAmbiguous(value:String)
+		m_value = Float(value)
 	End Method
 	
 	Rem
@@ -575,6 +603,14 @@ Type TIntVariable Extends TVariable
 	End Method
 	
 	Rem
+		bbdoc: Set the value of the variable to the given string (ambiguous).
+		returns: Nothing.
+	End Rem
+	Method SetAmbiguous(value:String)
+		m_value = Int(value)
+	End Method
+	
+	Rem
 		bbdoc: Convert the variable to a String.
 		returns: A string representation of the variable.
 		about: This function is for script output, for in-code use see #ValueAsString.
@@ -692,6 +728,15 @@ Type TEvalVariable Extends TVariable
 	End Rem
 	Method Get:String()
 		Return m_value
+	End Method
+	
+	Rem
+		bbdoc: Set the value of the variable to the given string (ambiguous).
+		returns: Nothing.
+		about: For this type, this method is no different than calling #Set.
+	End Rem
+	Method SetAmbiguous(value:String)
+		m_value = value
 	End Method
 	
 	Rem
@@ -828,6 +873,14 @@ Type TIdentifier Extends TVariable
 	End Rem
 	Method GetValues:TList()
 		Return m_values
+	End Method
+	
+	Rem
+		bbdoc: Deprecated for this type.
+		returns: Nothing.
+		about: This does nothing.
+	End Rem
+	Method SetAmbiguous(value:String)
 	End Method
 	
 	Rem

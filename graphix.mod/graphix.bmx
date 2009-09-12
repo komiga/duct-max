@@ -28,10 +28,14 @@ bbdoc: Extended graphics module
 End Rem
 Module duct.graphix
 
-ModuleInfo "Version: 0.14"
+ModuleInfo "Version: 0.15"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.15"
+ModuleInfo "History: Changed TDGraphicsApp to be extension-safe, removed dependency on Protog2D (TDProtogGraphicsApp is in Protog2D now)"
+ModuleInfo "History: Changed some more formatting"
+ModuleInfo "History: Removed TDEntity and TDColor (types now handled by Protog2D)"
 ModuleInfo "History: Version 0.14"
 ModuleInfo "History: Changed some formatting"
 ModuleInfo "History: Version 0.13"
@@ -47,35 +51,11 @@ ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial version"
 
 ' Used modules
-Import brl.Graphics
-
-Import duct.protog2d
-
 Import duct.app
-Import duct.objectmap
-'Import duct.animations
-Import duct.vector
 
 
 ' Included code
-Include "inc/types/dgraphics.bmx"
-Include "inc/types/entity.bmx"
 Include "inc/types/gapp.bmx"
-Include "inc/types/etc.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

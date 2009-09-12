@@ -33,13 +33,11 @@ Rem
 	about: If this flag is set to a texture, the pixmap data will be mipmapped upon generating the texture.
 End Rem
 Const TEXTURE_MIPMAP:Int = 1
-
 Rem
 	bbdoc: The texture filter flag.
 	about: If this flag is set to a texture, the pixmap data will be filtered upon generating the texture.
 End Rem
 Const TEXTURE_FILTER:Int = 2
-
 Rem
 	bbdoc: The rectangular texture flag.
 	about: If this flag is set to a texture, the pixmap uploaded to the texture will be left as-is (instead of being power-of-two'd -- the normal behavior of textures).
@@ -47,15 +45,56 @@ End Rem
 Const TEXTURE_RECTANGULAR:Int = 4
 
 Rem
-	bbdoc: This wraps OpenGL texture handles (names) in a high-level type.
+	bbdoc: Texture format A8.
+End Rem
+Const FORMAT_A8:Int = 1
+Rem
+	bbdoc: Texture format I8.
+End Rem
+Const FORMAT_I8:Int = 2
+Rem
+	bbdoc: Texture format L8.
+End Rem
+Const FORMAT_L8:Int = 3
+Rem
+	bbdoc: Texture format LA8.
+End Rem
+Const FORMAT_LA8:Int = 4
+Rem
+	bbdoc: Texture format RGB8.
+End Rem
+Const FORMAT_RGB8:Int = 5
+Rem
+	bbdoc: Texture format RGBA8.
+End Rem
+Const FORMAT_RGBA8:Int = 6
+Rem
+	bbdoc: Texture format RGB10A2.
+End Rem
+Const FORMAT_RGB10A2:Int = 7
+Rem
+	bbdoc: Texture format RGBA16F.
+End Rem
+Const FORMAT_RGBA16F:Int = 8
+Rem
+	bbdoc: Texture format DEPTH.
+End Rem
+Const FORMAT_DEPTH:Int = 9
+
+Rem
+	bbdoc: OpenGL texture handle (name) wrapper.
 End Rem
 Type TGLTexture
 	
+	Field m_format:Int
+	
 	Field m_handle:Int, m_seq:Int
+	Field m_target:Int
+	
 	Field m_uv:TVec4
 	
 	Method New()
-		m_uv = New TVec4
+		m_uv = New TVec4.Create(0.0, 0.0, 1.0, 1.0)
 		m_seq = GraphicsSeq
 	End Method
 	
@@ -64,24 +103,23 @@ Type TGLTexture
 	End Method
 	
 	Method Destroy()
-		
 		If m_handle <> 0 And m_seq = GraphicsSeq
 			glDeleteTextures(1, Varptr(m_handle))
 			m_handle = 0
 			m_seq = 0
+			m_target = 0
 		End If
-		
 	End Method
 	
 	Rem
 		bbdoc: Create a new GLTexture from the OpenGL texture handle given.
 		returns: The new GLTexture (itself).
 	End Rem
-	Method CreateFromHandle:TGLTexture(handle:Int, uv:TVec4)
+	Method CreateFromHandle:TGLTexture(handle:Int, uv:TVec4, format:Int = FORMAT_RGBA8, target:Int)
 		m_handle = handle
-		' Unsure of the original meaning! (absence issue)
-		m_uv = uv
-		
+		m_uv = uv.Copy()
+		m_format = format
+		m_target = target
 		Return Self
 	End Method
 	
@@ -89,32 +127,41 @@ Type TGLTexture
 		bbdoc: Create the texture from the size given.
 		returns: Nothing.
 	End Rem
-	Method CreateFromSize:TGLTexture(width:Int, height:Int, flags:Int)
+	Method CreateFromSize:TGLTexture(width:Int, height:Int, flags:Int, format:Int = FORMAT_RGBA8)
 		Local texture_width:Int, texture_height:Int
 		
 		texture_width = width
 		texture_height = height
 		
+		m_format = format
+		If flags & TEXTURE_RECTANGULAR
+			m_target = GL_TEXTURE_RECTANGLE_EXT
+			'm_format = FORMAT_RGBA8 'FORMAT_RGBA16F
+		Else
+			m_target = GL_TEXTURE_2D
+			'm_format = FORMAT_RGBA8
+		End If
+		
 		If flags & TEXTURE_RECTANGULAR = False
-			TProtog2DDriver.AdjustTexSize(texture_width, texture_height)
-			m_uv.m_y = Float(Min(width, texture_width)) / Float(texture_width)
+			AdjustTexSize(texture_width, texture_height)
+			m_uv.m_z = Float(Min(width, texture_width)) / Float(texture_width)
 			m_uv.m_w = Float(Min(height, texture_height)) / Float(texture_height)
 		Else
-			m_uv.m_y = Float(texture_width)
+			m_uv.m_z = Float(texture_width)
 			m_uv.m_w = Float(texture_height)
 		End If
 		
-		m_handle = TProtog2DDriver.CreateTex(texture_width, texture_height, flags)
+		m_handle = GenTexture(texture_width, texture_height, m_target, m_format, flags)
+		TProtog2DDriver.UnbindTextureTarget(m_target)
 		
 		Return Self
-		
 	End Method
 	
 	Rem
 		bbdoc: Create a GLTexture from the given pixmap.
 		returns: The new GLTexture (itself).
 	End Rem
-	Method CreateFromPixmap:TGLTexture(pixmap:TPixmap, flags:Int)
+	Method CreateFromPixmap:TGLTexture(pixmap:TPixmap, flags:Int, format:Int = FORMAT_RGBA8)
 		Local texture_pixmap:TPixmap
 		Local texture_width:Int, texture_height:Int
 		
@@ -122,10 +169,19 @@ Type TGLTexture
 		texture_width = pixmap.width
 		texture_height = pixmap.height
 		
+		m_format = format
+		If flags & TEXTURE_RECTANGULAR
+			m_target = GL_TEXTURE_RECTANGLE_EXT
+			'm_format = FORMAT_RGBA8 'FORMAT_RGBA16F
+		Else
+			m_target = GL_TEXTURE_2D
+			'm_format = FORMAT_RGBA8
+		End If
+		
 		If flags & TEXTURE_RECTANGULAR = False
 			
 			' Adjust the pixmap's size (to the next power-of-two)
-			TProtog2DDriver.AdjustTexSize(texture_width, texture_height)
+			AdjustTexSize(texture_width, texture_height)
 			
 			' Make sure pixmap fits the texture
 			Local width:Int = Min(pixmap.width, texture_width)
@@ -154,30 +210,59 @@ Type TGLTexture
 				
 			End If
 			
-			m_uv.m_y = Float(width) / Float(texture_width)
+			m_uv.m_z = Float(width) / Float(texture_width)
 			m_uv.m_w = Float(height) / Float(texture_height)
-			
 		Else
-			m_uv.m_y = Float(texture_width)
+			m_uv.m_z = Float(texture_width)
 			m_uv.m_w = Float(texture_height)
 		End If
 		
 		' Create the handle
-		m_handle = TProtog2DDriver.CreateTex(texture_width, texture_height, flags)
+		m_handle = GenTexture(texture_width, texture_height, m_target, m_format, flags)
 		
 		' Upload the pixmap to the new handle
-		TProtog2DDriver.UploadTex(texture_pixmap, flags)
+		UploadTex(texture_pixmap, m_target, m_format, flags)
+		TProtog2DDriver.UnbindTextureTarget(m_target)
 		
 		Return Self
-		
 	End Method
 	
 	Rem
 		bbdoc: Bind the texture.
 		returns: Nothing.
 	End Rem
-	Method Bind()
-		TProtog2DDriver.BindTexture(m_handle)
+	Method Bind(enabletarget:Int = True)
+		TProtog2DDriver.BindTexture(Self, enabletarget)
+		'glBindTexture(GL_TEXTURE_2D, m_handle)
+		'TProtog2DDriver.CheckForErrors("GLTexture.Bind::end")
+	End Method
+	
+	Rem
+		bbdoc: Unbind the texture's target.
+		returns: Nothing.
+	End Rem
+	Method Unbind()
+		TProtog2DDriver.UnbindTextureTarget(m_target)
+	End Method
+	
+	Rem
+		bbdoc: Render the texture (does not bind the texture).
+		returns: Nothing.
+	End Rem
+	Method Render(quad:TVec4, flipped:Int = False)
+		glBegin(GL_QUADS)
+			If flipped = False
+				glTexCoord2f(m_uv.m_x, m_uv.m_y) ; glVertex2f(quad.m_x, quad.m_y)
+				glTexCoord2f(m_uv.m_z, m_uv.m_y) ; glVertex2f(quad.m_z, quad.m_y)
+				glTexCoord2f(m_uv.m_z, m_uv.m_w) ; glVertex2f(quad.m_z, quad.m_w)
+				glTexCoord2f(m_uv.m_x, m_uv.m_w) ; glVertex2f(quad.m_x, quad.m_w)
+			Else If flipped = True
+				glTexCoord2f(m_uv.m_x, m_uv.m_w) ; glVertex2f(quad.m_x, quad.m_y)
+				glTexCoord2f(m_uv.m_z, m_uv.m_w) ; glVertex2f(quad.m_z, quad.m_y)
+				glTexCoord2f(m_uv.m_z, m_uv.m_y) ; glVertex2f(quad.m_z, quad.m_w)
+				glTexCoord2f(m_uv.m_x, m_uv.m_y) ; glVertex2f(quad.m_x, quad.m_w)
+			End If
+		glEnd()
 	End Method
 	
 '#region Field accessors
@@ -203,6 +288,203 @@ Type TGLTexture
 	
 '#end region (Field accessors)
 	
+'#region Initiation
+	
+	Rem
+		bbdoc: Generate the texture and set parameters.
+		returns: The texture's handle (aka name).
+	End Rem
+	Function GenTexture:Int(width:Int, height:Int, target:Int, format:Int, flags:Int)
+		Local name:Int
+		
+		glGenTextures(1, Varptr(name))
+		TProtog2DDriver.BindTextureHandle(target, name)
+		
+		' Set texture parameters
+		glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+		glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+		If flags & TEXTURE_FILTER
+			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+			If flags & TEXTURE_MIPMAP
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+			Else
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+			End If
+		Else
+			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+			If flags & TEXTURE_MIPMAP
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST)
+			Else
+				glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+			End If
+		End If
+'		TProtog2DDriver.CheckForErrors("GenTexture::2")
+'		If flags & TEXTURE_MIPMAP
+'			Local mip_level:Int, intformat:Int
+'			Repeat
+'				glTexImage2D(target, mip_level, intformat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Null)
+'				If Not (flags & TEXTURE_MIPMAP) Exit
+'				If width = 1 And height = 1 Then Exit
+'				If width > 1 Then width:/2
+'				If height > 1 Then height:/2
+'				
+'				mip_level:+1
+'			Forever
+'		End If
+		
+		'DebugLog("(TGLTexture.GenTexture) format = " + format + " target = " + target + " width = " + width + " height = " + height)
+		glTexImage2D(target, 0, FormatToInternalFormat(format), width, height, 0, FormatToDataFormat(format), GL_UNSIGNED_BYTE, Null)
+		
+		TProtog2DDriver.CheckForErrors("GenTexture::end")
+		Return name
+	End Function
+	
+	Rem
+		bbdoc: Upload the given pixmap to the bound texture.
+		returns: Nothing.
+	End Rem
+	Function UploadTex(pixmap:TPixmap, target:Int, format:Int, flags:Int)
+		Local mip_level:Int
+		
+		Assert FormatToDataFormat(format) = GL_RGBA, "(TProtogTexture.UploadTex) Cannot use format other than GL_RGBA for uploading"
+		
+		If pixmap.format <> PF_RGBA8888
+			pixmap = pixmap.Convert(PF_RGBA8888)
+		End If
+		
+		Repeat
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, pixmap.pitch / BytesPerPixel[pixmap.format])
+			glTexSubImage2D(target, mip_level, 0, 0, pixmap.width, pixmap.height, GL_RGBA, GL_UNSIGNED_BYTE, pixmap.pixels)
+			
+			If flags & TEXTURE_MIPMAP = False
+				Exit
+			End If
+			
+			If pixmap.width > 1 And pixmap.height > 1
+				pixmap = ResizePixmap(pixmap, pixmap.width / 2, pixmap.height / 2)
+			Else If pixmap.width > 1
+				pixmap = ResizePixmap(pixmap, pixmap.width / 2, pixmap.height)
+			Else If pixmap.height > 1
+				pixmap = ResizePixmap(pixmap, pixmap.width, pixmap.height / 2)
+			Else
+				Exit
+			End If
+			
+			mip_level:+1
+		Forever
+		
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0)
+		TProtog2DDriver.CheckForErrors("UploadTex::end")
+		
+	End Function
+	
+	Rem
+		bbdoc: Adjust the given texture size.
+		returns: Nothing, @width and @height are changed.
+	End Rem
+	Function AdjustTexSize(width:Int Var, height:Int Var)
+		width = Pow2Size(width)
+		height = Pow2Size(height)
+		
+		width = Max(1, width)
+		width = Min(width, TProtog2DDriver.GetMaxTextureSize())
+		height = Max(1, height)
+		height = Min(height, TProtog2DDriver.GetMaxTextureSize())
+	End Function
+	
+'#end region (Initiation)
+	
+'#region Format
+	
+	Rem
+		bbdoc: Get the internal (OpenGL) format for the given texture format.
+		returns: The internal format for the given texture format.
+	End Rem
+	Function FormatToInternalFormat:Int(format:Int)
+		Select format
+			Case FORMAT_A8
+				Return GL_ALPHA8
+			Case FORMAT_I8
+				Return GL_INTENSITY8
+			Case FORMAT_L8
+				Return GL_LUMINANCE8
+			Case FORMAT_LA8
+				Return GL_LUMINANCE8_ALPHA8
+			Case FORMAT_RGB8
+				Return GL_RGB8
+			Case FORMAT_RGBA8
+				Return GL_RGBA8
+			Case FORMAT_RGB10A2
+				Return GL_RGB10_A2
+			Case FORMAT_RGBA16F
+				Return GL_RGBA16F_ARB
+			Case FORMAT_DEPTH
+				Return GL_DEPTH_COMPONENT
+		End Select
+		
+		Return 0
+	End Function
+	
+	Rem
+		bbdoc: Get the data (image/pixmap) format for the given texture format.
+		returns: The data format for the given texture format.
+	End Rem
+	Function FormatToDataFormat:Int(format:Int)
+		Select format
+			Case FORMAT_A8
+				Return GL_ALPHA
+			Case FORMAT_I8
+				Return GL_INTENSITY
+			Case FORMAT_L8
+				Return GL_LUMINANCE
+			Case FORMAT_LA8
+				Return GL_LUMINANCE_ALPHA
+			Case FORMAT_RGB8
+				Return GL_RGB
+			Case FORMAT_RGBA8
+				Return GL_RGBA
+			Case FORMAT_RGB10A2
+				Return GL_RGBA
+			Case FORMAT_RGBA16F
+				Return GL_RGBA
+			Case FORMAT_DEPTH
+				Return GL_DEPTH_COMPONENT
+		End Select
+		
+		Return 0
+	End Function
+	
+	Rem
+		bbdoc: Get the number of bytes-per-texel for the given texture format.
+		returns: The number of bytes that fit into a texel for the given texture format.
+	End Rem
+	Function FormatBytesPerTexel:Int(format:Int)
+		Select format
+			Case FORMAT_A8
+				Return 1
+			Case FORMAT_I8
+				Return 1
+			Case FORMAT_L8
+				Return 1
+			Case FORMAT_LA8
+				Return 2
+			Case FORMAT_RGB8
+				Return 3
+			Case FORMAT_RGBA8
+				Return 4
+			Case FORMAT_RGB10A2
+				Return 4
+			Case FORMAT_RGBA16F
+				Return 8
+			Case FORMAT_DEPTH
+				Return 0
+		End Select
+		
+		Return 0
+	End Function
+	
+'#end region (Format)
+	
 End Type
 
 Rem
@@ -218,18 +500,39 @@ Type TProtogTexture
 	Method New()
 	End Method
 	
+'#region Constructors and deconstructor
+	
 	Rem
-		bbdoc: Create a ProtogTexture.
-		returns: The new ProtogTexture (itself).
+		bbdoc: Create a TProtogTexture.
+		returns: The new TProtogTexture (itself).
 		about: If @upload is True the pixmap will be uploaded to OpenGL (creates the GL texture).
 	End Rem
 	Method Create:TProtogTexture(pixmap:TPixmap, flags:Int, upload:Int = True)
-		
 		m_flags = flags
 		SetPixmap(pixmap, upload)
-		
 		Return Self
-		
+	End Method
+	
+	Rem
+		bbdoc: Create a TProtogTexture with the given TGLTexture.
+		returns: The new TProtogTexture (itself).
+	End Rem
+	Method CreateFromGLTexture:TProtogTexture(texture:TGLTexture, flags:Int)
+		m_flags = flags
+		m_gltexture = texture
+		Return Self
+	End Method
+	
+	Rem
+		bbdoc: Create a TProtogTexture with the given size.
+		returns: The new TProtogTexture (itself).
+	End Rem
+	Method CreateFromSize:TProtogTexture(width:Int, height:Int, flags:Int, format:Int = FORMAT_RGBA8)
+		m_flags = flags
+		m_width = width
+		m_height = height
+		m_gltexture = New TGLTexture.CreateFromSize(width, height, flags, format)
+		Return Self
 	End Method
 	
 	Rem
@@ -239,6 +542,49 @@ Type TProtogTexture
 	Method UploadPixmap()
 		m_gltexture = New TGLTexture.CreateFromPixmap(m_pixmap, m_flags)
 	End Method
+	
+	Rem
+		bbdoc: Destroy the texture.
+		returns: Nothing.
+	End Rem
+	Method Destroy()
+		m_pixmap = Null
+		If m_gltexture <> Null
+			m_gltexture.Destroy()
+		End If
+		m_width = 0; m_height = 0
+		m_flags = 0
+	End Method
+	
+'#end region (Constructors and deconstructor)
+	
+'#region OpenGL
+	
+	Rem
+		bbdoc: Bind the texture.
+		returns: Nothing.
+	End Rem
+	Method Bind(enabletarget:Int = True)
+		m_gltexture.Bind(enabletarget)
+	End Method
+	
+	Rem
+		bbdoc: Unbind the texture's target.
+		returns: Nothing.
+	End Rem
+	Method Unbind()
+		m_gltexture.Unbind()
+	End Method
+	
+	Rem
+		bbdoc: Render the texture to the given rectangle (does not bind the texture).
+		returns: Nothing.
+	End Rem
+	Method Render(quad:TVec4, flipped:Int = False)
+		m_gltexture.Render(quad, flipped)
+	End Method
+	
+'#region (OpenGL)
 	
 '#region Data handlers
 	
@@ -259,9 +605,7 @@ Type TProtogTexture
 	Method DeSerialize:TProtogTexture(stream:TStream, upload:Int = True)
 		m_flags = stream.ReadInt()
 		SetPixmap(TPixmapIO.Read(stream), upload)
-		
 		Return Self
-		
 	End Method
 	
 '#end region (Data handlers)
@@ -298,13 +642,11 @@ Type TProtogTexture
 		about: If @upload is True (the default value), the new pixmap will be uploaded to OpenGL.
 	End Rem
 	Method SetPixmap(pixmap:TPixmap, upload:Int = True)
-		
 		Assert pixmap, "(duct.protog2d.TProtogTexture.SetPixmap) Null pixmaps are not allowed!"
 		
 		m_pixmap = pixmap
 		
 		m_gltexture = Null
-		
 		m_width = m_pixmap.width
 		m_height = m_pixmap.height
 		
@@ -370,7 +712,7 @@ Type TProtogAnimTexture
 		bbdoc: Set the current frame for the animation.
 		returns: Nothing.
 		about: If @force is True, the current frame will be set regardless if it is 
-			already the current frame (useful if you just recalculated the frames or changed some UVs).
+		already the current frame (useful if you just recalculated the frames or changed some UVs).
 	End Rem
 	Method SetCurrentFrame(frame:Int, force:Int = False)
 		If m_currentframe <> frame Or force = True
@@ -381,9 +723,7 @@ Type TProtogAnimTexture
 	
 	Rem
 		bbdoc: Recalculate the frame coordinates.
-		returns: Nothing.
-		about: NOTE: If the current frame is no longer valid (higher than the 
-			new frame count) the current frame will be set to the highest frame.
+		returns: Nothing
 	End Rem
 	Method RecalculateFrames()
 		Local tx:Float, ty:Float, x_cells:Int
@@ -414,9 +754,10 @@ Type TProtogAnimTexture
 			
 		Next
 		
-		' Reset the current drawframe to the first frame if the current frame is no longer valid
-		If m_currentframe > m_framecount - 1
-			SetCurrentFrame(m_framecount - 1)
+		If HasFrame(m_currentframe) = True
+			SetCurrentFrame(m_currentframe, True)
+		Else
+			SetCurrentFrame(0, True)
 		End If
 		
 	End Method
@@ -429,10 +770,28 @@ Type TProtogAnimTexture
 		If frame > - 1 And frame < m_framecount
 			Return True
 		End If
-		
 		Return False
-		
 	End Method
+	
+'#region OpenGL
+	
+	Rem
+		bbdoc: Bind the current texture.
+		returns: Nothing.
+	End Rem
+	Method Bind()
+		m_gltexture.Bind()
+	End Method
+	
+	Rem
+		bbdoc: Unbind the current texture's target.
+		returns: Nothing.
+	End Rem
+	Method Unbind()
+		m_gltexture.Unbind()
+	End Method
+	
+'#region (OpenGL)
 	
 '#region Field accessors
 	
@@ -471,24 +830,20 @@ Type TProtogAnimTexture
 	Rem
 		bbdoc: Set the pixmap for the texture.
 		returns: Nothing.
-		about: If @upload is True (the default value), the new pixmap will be uploaded to OpenGL.<br />
+		about: If @upload is True (the default value), the new pixmap will be uploaded to OpenGL.<br/>
 			NOTE: You will need to call #RecalculateFrames if the new pixmap data is not the same size/etc.
 	End Rem
 	Method SetPixmap(pixmap:TPixmap, upload:Int = True)
-		
 		Assert pixmap, "(duct.protog2d.TProtogAnimTexture.SetPixmap) Null pixmaps are not allowed!"
 		
 		m_pixmap = pixmap
-		
 		m_gltexture = Null
-		
 		m_width = m_pixmap.width
 		m_height = m_pixmap.height
 		
 		If upload = True
 			UploadPixmap()
 		End If
-		
 	End Method
 	
 	Rem
@@ -595,10 +950,8 @@ Type TProtogAnimTexture
 		about: If @writepixmap is True, the texture's pixmap will be written to the stream (replicate behavior in #DeSerialize).
 	End Rem
 	Method Serialize(stream:TStream, writepixmap:Int = True)
-		
 		stream.WriteInt(m_framecount)
 		stream.WriteInt(m_startframe)
-		
 		stream.WriteFloat(m_frame_width)
 		stream.WriteFloat(m_frame_height)
 		
@@ -606,20 +959,17 @@ Type TProtogAnimTexture
 			stream.WriteInt(m_flags)
 			TPixmapIO.Write(m_pixmap, stream)
 		End If
-		
 	End Method
 	
 	Rem
 		bbdoc: Deserialize a texture from the given stream.
 		returns: The deserialized texture (itself).
-		about: If @readpixmap is True, this method will attempt to read and set a pixmap from the stream.<br />
+		about: If @readpixmap is True, this method will attempt to read and set a pixmap from the stream.<br/>
 		If @upload is True the pixmap will be uploaded (the GL texture will be created for the ProtogAnimTexture).
 	End Rem
 	Method DeSerialize:TProtogAnimTexture(stream:TStream, readpixmap:Int = True)
-		
 		m_framecount = stream.ReadInt()
 		m_startframe = stream.ReadInt()
-		
 		m_frame_width = stream.ReadFloat()
 		m_frame_height = stream.ReadFloat()
 		
@@ -627,9 +977,7 @@ Type TProtogAnimTexture
 			m_flags = stream.ReadInt()
 			SetPixmap(TPixmapIO.Read(stream), True)
 		End If
-		
 		Return Self
-		
 	End Method
 	
 '#end region

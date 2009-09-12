@@ -32,10 +32,13 @@ bbdoc: Abstract path keeping/provider module
 End Rem
 Module duct.pathing
 
-ModuleInfo "Version: 0.12"
+ModuleInfo "Version: 0.13"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.13"
+ModuleInfo "History: Added note about the new paths via nodes option in TPathProvider.Create"
+ModuleInfo "History: Changed: TPathProvider.LoadFromNode returns itself"
 ModuleInfo "History: Version 0.12"
 ModuleInfo "History: Changed formatting"
 ModuleInfo "History: Version 0.11"
@@ -64,6 +67,7 @@ Type TPathProvider Extends TObjectMap
 	Rem
 		bbdoc: Create a PathProvider.
 		returns: The new PathProvider (itself).
+		about: See #SetNewNodePathsOption for more information on the @option_newnodepaths parameter.
 	End Rem
 	Method Create:TPathProvider(option_newnodepaths:Int = False)
 		SetNewNodePathsOption(option_newnodepaths)
@@ -204,7 +208,7 @@ Type TPathProvider Extends TObjectMap
 		bbdoc: Load the Provider's Paths from a node.
 		returns: Nothing.
 	End Rem
-	Method LoadFromNode(node:TSNode)
+	Method LoadFromNode:TPathProvider(node:TSNode)
 		Local iden:TIdentifier, path:TPath
 		
 		For iden = EachIn node.GetChildren()
@@ -222,7 +226,7 @@ Type TPathProvider Extends TObjectMap
 				End If
 			End If
 		Next
-		
+		Return Self
 	End Method
 	
 	Rem
@@ -251,7 +255,7 @@ Type TPath
 	Rem
 		bbdoc: Path template (for SNodes) (example data: <b>setpath</b> <i>or</i> <b>path</b> "logs" "struct\logs\").
 	End Rem
-	Global template:TTemplate = New TTemplate.Create(["setpath", "path"], [[TV_STRING], [TV_STRING] ])
+	Global m_template:TTemplate = New TTemplate.Create(["setpath", "path"], [[TV_STRING], [TV_STRING] ])
 	
 	Field m_name:String, m_location:String
 	
@@ -331,7 +335,7 @@ Type TPath
 	End Rem
 	Method ToIdentifier:TIdentifier()
 		Local iden:TIdentifier
-		iden = New TIdentifier.CreateByData(template.GetIden()[0])
+		iden = New TIdentifier.CreateByData(m_template.GetIden()[0])
 		iden.AddValue(New TStringVariable.Create(Null, GetName()))
 		iden.AddValue(New TStringVariable.Create(Null, GetLocation()))
 		Return iden
@@ -354,7 +358,7 @@ Type TPath
 		returns: True if the given identifier matches the Path's template, or False if it does not.
 	End Rem
 	Function ValidateIdentifier:Int(identifier:TIdentifier)
-		Return template.ValidateIdentifier(identifier)
+		Return m_template.ValidateIdentifier(identifier)
 	End Function
 	
 End Type

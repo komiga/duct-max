@@ -1,7 +1,7 @@
 
 Rem
 	example01.bmx
-	Tests the basics of the GLMax2D Extended driver.
+	Tests the basics of the Protog2D driver.
 End Rem
 
 SuperStrict
@@ -15,22 +15,21 @@ Import brl.bmploader
 Import brl.jpgloader
 Import brl.pngloader
 
-Import duct.graphix
 Import duct.protog2d
 
 Global mainapp:MyGraphicsApp = New MyGraphicsApp.Create()
-
 mainapp.Run()
+End
 
-Type MyGraphicsApp Extends TDGraphicsApp
+Type MyGraphicsApp Extends TDProtogGraphicsApp
 	
 	Field m_gdriver:TProtog2DDriver
+	Field m_mvisible:Int = True
 	Field m_font:TProtogFont
-	Field m_mouse:TVec2, m_mvisible:Int = True
-	Field m_text:String
+	Field m_color_white:TProtogColor, m_color_grey:TProtogColor
+	Field m_testtext:TProtogTextEntity, m_infotext:TProtogTextEntity
 	
 	Method New()
-		m_mouse = New TVec2
 	End Method
 	
 	Method Create:MyGraphicsApp()
@@ -39,22 +38,41 @@ Type MyGraphicsApp Extends TDGraphicsApp
 	End Method
 	
 	Method OnInit()
-		
-		m_graphics = New TDGraphics.Create(800, 600, 0, 60,, 0, False)
+		m_graphics = New TDProtogGraphics.Create(800, 600, 0, 60,, 0, False)
 		If m_graphics.StartGraphics() = False
 			Print("Failed to open graphics mode!")
 			End
 		End If
+		m_gdriver = m_graphics.GetDriverContext()
+		m_gdriver.SetRenderBufferOnFlip(False)
+		m_gdriver.UnbindRenderBuffer()
 		
-		m_gdriver = m_graphics.m_driver_context
-		
+		InitResources()
+		InitEntities()
+	End Method
+	
+	Method InitResources()
+		m_color_white = New TProtogColor.Create()
+		m_color_grey = New TProtogColor.Create(0.6, 0.6, 0.6)
 		m_font = New TProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
-		m_text = LoadText("text.txt")
+	End Method
+	
+	Method InitEntities()
+		m_testtext = New TProtogTextEntity.Create(LoadText("text.txt"), m_font, New TVec2, New TProtogColor.Create(0.2, 0.5, 0.8))
 		
+		m_infotext = New TProtogTextEntity.Create("fps: {fps} - vsync: {vsync} - mvisible: {mvisible}~n" + ..
+			"~tControls: F1 - vsync on/off~n" + ..
+			"~tSpace - mouse visibility~n" + ..
+			"~tRight click - vertical centering~n" + ..
+			"~tLeft click - horizontal centering",  ..
+		m_font, New TVec2.Create(2.0, 2.0), m_color_grey)
+		
+		m_infotext.SetupReplacer()
+		m_infotext.SetReplacementByName("vsync", m_graphics.GetVSyncState())
+		m_infotext.SetReplacementByName("mvisible", m_mvisible)
 	End Method
 	
 	Method Run()
-		
 		m_gdriver.SetBlend(BLEND_ALPHA)
 		While KeyDown(KEY_ESCAPE) = False And AppTerminate() = False
 			m_graphics.Cls()
@@ -63,28 +81,26 @@ Type MyGraphicsApp Extends TDGraphicsApp
 			Render()
 			
 			m_graphics.Flip()
-			Delay(1)
+			Delay(2)
 		Wend
 		
 		Shutdown()
-		
 	End Method
 	
 	Method Render()
-		m_gdriver.SetDrawingColor(0.6, 0.6, 0.6)
-		m_font.DrawString("FPS: " + TFPSCounter.GetFPS() + ", " + m_graphics.GetVSyncState() + ", " + m_mvisible + "~n" + ..
-		"Controls: F1 - vsync on/off, Space - mouse visibility, Right click - vertical centering, Left click - horizontal centering", New TVec2.Create(2.0, 2.0))
-		
-		m_gdriver.SetDrawingColor(0.2, 0.5, 0.8)
-		m_font.DrawString(m_text, m_mouse, MouseDown(MOUSE_LEFT), MouseDown(MOUSE_RIGHT))
+		m_infotext.Render()
+		m_testtext.Render()
 	End Method
 	
 	Method Update()
-		m_mouse.Set(MouseX(), MouseY())
+		m_testtext.SetPositionParams(Float(MouseX()), Float(MouseY()))
+		
 		TFPSCounter.Update()
+		m_infotext.SetReplacementByName("fps", TFPSCounter.GetFPS())
 		
 		If KeyHit(KEY_F1) = True
 			m_graphics.SetVSyncState(m_graphics.GetVSyncState() ~1)
+			m_infotext.SetReplacementByName("vsync", m_graphics.GetVSyncState())
 		End If
 		
 		If KeyHit(KEY_SPACE) = True
@@ -94,44 +110,31 @@ Type MyGraphicsApp Extends TDGraphicsApp
 				ShowMouse()
 			End If
 			m_mvisible:~1
+			m_infotext.SetReplacementByName("mvisible", m_mvisible)
 		End If
+		
+		If KeyHit(KEY_A) = True
+			m_gdriver.m_renderbuffer.m_glbuffers[0] = GL_COLOR_ATTACHMENT0_EXT + 1
+			m_gdriver.m_renderbuffer.m_glbuffers[1] = GL_COLOR_ATTACHMENT0_EXT + 0
+			m_gdriver.m_renderbuffer.Bind()
+		End If
+		If KeyHit(KEY_B) = True
+			m_gdriver.m_renderbuffer.m_glbuffers[0] = GL_COLOR_ATTACHMENT0_EXT + 1
+			m_gdriver.m_renderbuffer.m_glbuffers[1] = GL_COLOR_ATTACHMENT0_EXT + 0
+			m_gdriver.m_renderbuffer.Bind()
+		End If
+		
+		m_testtext.SetHCentering(MouseDown(MOUSE_LEFT))
+		m_testtext.SetVCentering(MouseDown(MOUSE_RIGHT))
+		
 	End Method
 	
 	Method OnExit()
 		' The super OnExit method will destroy the graphical context
 		Super.OnExit()
-		
-		m_mouse = Null
-		
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

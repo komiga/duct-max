@@ -24,15 +24,18 @@ End Rem
 SuperStrict
 
 Rem
-bbdoc: The vector module
+bbdoc: Vector module
 End Rem
 Module duct.vector
 
-ModuleInfo "Version: 0.24"
+ModuleInfo "Version: 0.25"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "Author: Yahfree (most of TVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.25"
+ModuleInfo "History: Added DeSerialize and Serialize methods to all vector types"
+ModuleInfo "History: Changed formatting"
 ModuleInfo "History: Version 0.24"
 ModuleInfo "History: Whoops! Forgot to include vec4.bmx, also found and corrected a slight documentation issue"
 ModuleInfo "History: Version 0.23"
@@ -51,17 +54,14 @@ ModuleInfo "History: Formaterized and modified from Yahfree's code (http://www.b
 
 ' Used modules
 Import brl.math
+Import brl.stream
 
 Private
 
 Function TrueMod:Float(val:Float, modul:Short)
-	
 	val:Mod modul
-	
 	If val < 0 Then val:+modul
-	
 	Return val
-	
 End Function
 
 Public
@@ -70,19 +70,6 @@ Public
 Include "inc/types/vec2.bmx"
 Include "inc/types/vec3.bmx"
 Include "inc/types/vec4.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

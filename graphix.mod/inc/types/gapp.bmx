@@ -26,80 +26,62 @@ Rem
 End Rem
 
 Rem
-	bbdoc: The DGraphicsApp type.
-	about: Wrapper type for graphical applications (extend this).
+	bbdoc: Wrapper type for graphical applications (extend this).
 End Rem
 Type TDGraphicsApp Extends TDApp
 	
-	Field m_graphics:TDGraphics
-		
-		Method New()
-		End Method
-		
-		Rem
-			bbdoc: Create a new DGraphicsApp.
-			returns: The new DGraphicsApp (itself).
-		End Rem
-		Method Create:TDGraphicsApp()
-			OnInit()
-			Return Self
-		End Method
-		
-		Rem
-			bbdoc: This method is called when the DGraphicsApp is initialized.
-			returns: Nothing.
-		End Rem
-		Method OnInit() Abstract
-		
-		Rem
-			bbdoc: This method is called when the DGraphicsApp is shutdown.
-			returns: Nothing.
-			about: This method should be overloaded and call back to its super OnExit method (the graphical context is closed by the first implementation).
-		End Rem
-		Method OnExit()
-			If m_graphics <> Null
-				m_graphics.Close()
-			End If
-		End Method
-		
-		Rem
-			bbdoc: Run the DGraphicsApp.
-			returns: Nothing.
-		End Rem
-		Method Run() Abstract
-		
-		Rem
-			bbdoc: Do any rendering.
-			returns: Nothing.
-		End Rem
-		Method Render() Abstract
-		
-		Rem
-			bbdoc: Do logic updates (fps, mouse & keyboard input, etc).
-			returns: Nothing.
-		End Rem
-		Method Update() Abstract
-		
-		Rem
-			bbdoc: Shutdown the DGraphicsApp.
-			returns: Nothing.
-			about: This will call OnExit.
-		End Rem
-		Method Shutdown()
-			OnExit()
-		End Method
-		
+	Method New()
+	End Method
+	
+	Rem
+		bbdoc: Create a new TDGraphicsApp.
+		returns: The new TDGraphicsApp (itself).
+	End Rem
+	Method Create:TDGraphicsApp()
+		OnInit()
+		Return Self
+	End Method
+	
+	Rem
+		bbdoc: This method is called when the TDGraphicsApp is initialized.
+		returns: Nothing.
+	End Rem
+	Method OnInit() Abstract
+	
+	Rem
+		bbdoc: This method is called when the TDGraphicsApp is shutdown.
+		returns: Nothing.
+	End Rem
+	Method OnExit() Abstract
+	
+	Rem
+		bbdoc: Run the TDGraphicsApp.
+		returns: Nothing.
+	End Rem
+	Method Run() Abstract
+	
+	Rem
+		bbdoc: Do any rendering.
+		returns: Nothing.
+	End Rem
+	Method Render() Abstract
+	
+	Rem
+		bbdoc: Do logic updates (fps, mouse & keyboard input, etc).
+		returns: Nothing.
+	End Rem
+	Method Update() Abstract
+	
+	Rem
+		bbdoc: Shutdown the TDGraphicsApp.
+		returns: Nothing.
+		about: This will call OnExit.
+	End Rem
+	Method Shutdown()
+		OnExit()
+	End Method
+	
 End Type
-
-
-
-
-
-
-
-
-
-
 
 
 

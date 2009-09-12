@@ -124,15 +124,21 @@ Type TProtog2DDriver Extends TGraphicsDriver
 	Global m_glewinitiated:Int = False
 	Global m_gl_maxtexturesize:Int
 	
-	Global m_drawcolor:TVec4 = New TVec4.Create(1.0, 1.0, 1.0, 1.0)
-	
 	Global m_state_blend:Int
-	Global m_boundtexture:Int, m_state_tex2denabled:Int
 	
-	Global m_gwidth:Int, m_gheight:Int
+	Global m_windowsize:TVec2 = New TVec2
+	Global m_viewportpos:TVec2 = New TVec2, m_viewportsize:TVec2 = New TVec2
 	
-	Global m_renderbuffer:TProtogFrameBuffer, m_renderbuffer_bound:Int
-	Global m_renderbuffer_texture:Int
+	Global m_color_curr:TProtogColor = New TProtogColor.Create()
+	Global m_color_cls:TProtogColor = New TProtogColor.Create(0.0, 0.0, 0.0, 1.0)
+	
+	Global m_activetexture:TGLTexture
+	
+	Global m_rendertexture:TProtogTexture', m_accumtexture1:TProtogTexture
+	Global m_renderbuffer:TProtogFrameBuffer, m_onflip_renderbuffer:Int = True
+	
+	Global m_renderpasses:TListEx = New TListEx
+	Global m_use_renderpasses:Int = True
 	
 '#region Global-based stuffs
 	
@@ -168,26 +174,11 @@ Type TProtog2DDriver Extends TGraphicsDriver
 	End Function
 	
 	Rem
-		bbdoc: Check the FRAMEBUFFER_EXT status.
-		returns: True if the extension is supported, False if it is not, or -1 if the status was unknown (also *not* supported).
-	End Rem 
-	Function CheckFrameBufferStatus:Int()
-		Local status:Int
-		
-		status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)
-		Select status
-			Case GL_FRAMEBUFFER_COMPLETE_EXT
-				Return True
-				
-			Case GL_FRAMEBUFFER_UNSUPPORTED_EXT
-				Return False
-				
-			Default
-				DebugLog("(TProtog2DDriver.CheckFrameBufferStatus) Unknown FBO_EXT status (status = " + status + ")")
-				Return - 1
-				
-		End Select
-		
+		bbdoc: Get the maximum texture size.
+		returns: The maximum texture size, according to OpenGL.
+	End Rem
+	Function GetMaxTextureSize:Int()
+		Return m_gl_maxtexturesize
 	End Function
 	
 '#end region (Global-based stuffs)
@@ -236,19 +227,19 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		Return gc
 	End Method
 	
+	Rem
+		bbdoc: Set the graphics context for the driver.
+		returns: Nothing.
+	End Rem
 	Method SetGraphics(gcontext:TGraphics)
-		
 		'DebugLog("(TProtog2DDriver.SetGraphics)")
 		
 		If gcontext = Null
-			'TMax2DGraphics.ClearCurrent()
-			'Super.SetGraphics(Null)
 			bbGLGraphicsSetGraphics(Null)
+			ClearGLContext()
 		Else
 			Local p2d_gcontext:TProtog2DGraphics = TProtog2DGraphics(gcontext)
 			Assert p2d_gcontext, "(duct.protog2d.TProtog2DDriver.SetGraphics) Graphics context is not a Protog2DGraphics instance"
-			
-			'Super.SetGraphics(p2d_gcontext)
 			
 			Local context:Byte Ptr
 			If p2d_gcontext <> Null
@@ -257,54 +248,183 @@ Type TProtog2DDriver Extends TGraphicsDriver
 			bbGLGraphicsSetGraphics(context)
 			
 			ResetGLContext(p2d_gcontext)
-			'm2d_gcontext.MakeCurrent()
 		End If
 		
 	End Method
 	
 '#end region (Extended methods)
 	
+'#region Context
+	
 	Rem
 		bbdoc: Reset the OpenGL context.
 		returns: Nothing.
 	End Rem
-	Method ResetGLContext(gcontext:TProtog2DGraphics)
+	Function ResetGLContext(gcontext:TProtog2DGraphics)
+		Local gwidth:Int, gheight:Int
 		Local gd:Int, gr:Int, gf:Int
 		
 		If m_glewinitiated = False
 			InitGlew()
 		End If
 		
-		gcontext.GetSettings(m_gwidth, m_gheight, gd, gr, gf)
+		ClearGLContext()
 		
-		m_state_blend = 0
-		m_boundtexture = 0
-		m_state_tex2denabled = 0
+		gcontext.GetSettings(gwidth, gheight, gd, gr, gf)
+		m_windowsize.Set(Float(gwidth), Float(gheight))
 		
-		glDisable(GL_TEXTURE_2D)
+		glViewport(0, 0, gwidth, gheight)
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
-		glOrtho(0, m_gwidth, m_gheight, 0, - 1, 1)
-		glMatrixMode(GL_MODELVIEW)
-		glViewport(0, 0, m_gwidth, m_gheight)
 		
-		If m_renderbuffer <> Null
-			DestroyRenderBuffer()
+		glOrtho(0.0, gwidth, gheight, 0.0, -10.0, 10.0)
+		
+		SetViewport(New TVec4.Create(0.0, 0.0, Float(gwidth), Float(gheight)))
+		
+		' Buffer textures
+		Local colorbuffers:TProtogTexture[4] ', depthtexture:TProtogTexture
+		m_rendertexture = New TProtogTexture.CreateFromSize(gwidth, gheight, TEXTURE_RECTANGULAR)
+		'm_accumtexture1 = New TGLTexture.CreateFromSize(gwidth, gheight, TEXTURE_RECTANGULAR)
+		'depthtexture = New TGLTexture.CreateFromSize(gwidth, gheight, FORMAT_DEPTH, TEXTURE_RECTANGULAR)
+		
+		colorbuffers[0] = m_rendertexture
+		colorbuffers[1] = Null 'm_accumtexture1
+		colorbuffers[2] = Null
+		colorbuffers[3] = Null
+		m_renderbuffer = New TProtogFrameBuffer.Create(colorbuffers)
+		
+		CheckForErrors("TProtog2DDriver.ResetGLContext::end")
+		
+		Cls()
+		If m_onflip_renderbuffer = True
+			BindRenderBuffer()
+		End If
+	End Function
+	
+	Rem
+		bbdoc: Clear the OpenGL context (reset everything to the initial values).
+		returns: Nothing.
+	End Rem
+	Function ClearGLContext()
+		
+		m_windowsize.Set(0.0, 0.0)
+		m_viewportpos.Set(0.0, 0.0)
+		m_viewportsize.Set(0.0, 0.0)
+		
+		m_state_blend = 0
+		
+		DestroyRenderBuffer()
+		
+		Local shader:TProtogShader
+		For shader = EachIn m_renderpasses
+			shader.Destroy()
+		Next
+		m_renderpasses.Clear()
+		
+		UnbindTextureTarget(GL_TEXTURE_RECTANGLE_EXT)
+		UnbindTextureTarget(GL_TEXTURE_2D)
+		
+		glActiveTexture(GL_TEXTURE0)
+	End Function
+	
+	Rem
+		bbdoc: Check for and throw an exception for any OpenGL errors that have occured.
+		returns: The error that was retrieved.
+		about: This will throw the error type if there is an error, if there is no error nothing will be done.
+	End Rem
+	Function CheckForErrors:String(name:String = "__GENERIC__", dthrow:Int = True)
+		Local err:Int
+		
+		err = glGetError()
+		If err <> GL_NO_ERROR
+			Local str:String
+			Select err
+				Case GL_INVALID_ENUM
+					str = "INVALID ENUM"
+				Case GL_INVALID_VALUE
+					str = "INVALID VALUE"
+				Case GL_INVALID_OPERATION
+					str = "INVALID OPERATION"
+				Case GL_STACK_OVERFLOW
+					str = "STACK OVERFLOW"
+				Case GL_STACK_UNDERFLOW
+					str = "STACK UNDERFLOW"
+				Case GL_OUT_OF_MEMORY
+					str = "OUT OF MEMORY"
+				Case GL_TABLE_TOO_LARGE
+					str = "TABLE TOO LARGE"
+					
+				Default
+					str = "UNKNOWN"
+			End Select
+			If dthrow = True
+				Throw("(TProtog2DDriver.CheckForErrors -- " + name + ") GL error: " + str)
+			End If
+			Return str
 		End If
 		
-		' Setup our FBO
-		m_renderbuffer = New TProtogFrameBuffer
-		BindRenderBuffer()
+		Return Null
+	End Function
+	
+'#end region (Context)
 		
-		m_renderbuffer.AttachTexture(0, New TGLTexture.CreateFromSize(m_gwidth, m_gheight, TEXTURE_RECTANGULAR), True)
-		m_renderbuffer_texture = m_renderbuffer.m_colorbuffers[0].m_handle
-		
-		'DebugLog("(TProtog2DDriver.ResetGLContext) renderbuffer = " + m_renderbuffer + " renderbuffer_texture = " + m_renderbuffer_texture + "~n~t~t" + ..
-		'		"gwidth = " + m_gwidth + " gheight = " + m_gheight)
-		
-		m_renderbuffer.SetDrawBuffers()
-		
+'#region Renderpass & shaders
+	
+	Rem
+		bbdoc: Turn on or off the use of renderpass shaders.
+		returns: Nothing.
+		about: If @use is True renderpass shaders will be used upon flipping the screen, if @use is False, they will not be used.
+	End Rem
+	Function UseRenderPasses(use:Int)
+		m_use_renderpasses = use
+	End Function
+	
+	Rem
+		bbdoc: Add the given shader as a render pass shader (used when the renderbuffer is rendered).
+		returns: Nothing.
+	End Rem
+	Function AddRenderPassShader(shader:TProtogShader)
+		If m_renderpasses.Contains(shader) = False
+			m_renderpasses.AddLast(shader)
+		End If
+	End Function
+	
+	Rem
+		bbdoc: Remove the given shader from the renderpass phase.
+		returns: True if the given shader was removed, or False if it was not (the given shader was not found in the renderpass list).
+	End Rem
+	Method RemoveRenderPassShader:Int(shader:TProtogShader)
+		Return m_renderpasses.Remove(shader)
 	End Method
+	
+	Rem
+		bbdoc: Check if the given shader is being used in the renderpass phase.
+		returns: True if the given shader is in the renderpass list, or False if it is not.
+	End Rem
+	Function ContainsRenderPassShader:Int(shader:TProtogShader)
+		Return m_renderpasses.Contains(shader)
+	End Function
+	
+	Rem
+		bbdoc: Remove all renderpass shaders.
+		returns: Nothing.
+	End Rem
+	Method ClearRenderPassShaders()
+		m_renderpasses.Clear()
+	End Method
+	
+	Rem
+		bbdoc: Setup the header parameters on the given shader material.
+		returns: Nothing.
+	End Rem
+	Function SetupHeader(mat:TProtogMaterial)
+		mat.SetTexture("p2d_rendertexture", m_rendertexture) 'm_accumtexture1
+		mat.SetVec2("p2d_windowsize", m_windowsize)
+		mat.SetVec2("p2d_viewportposition", m_viewportpos)
+		mat.SetVec2("p2d_viewportsize", m_viewportsize)
+	End Function
+	
+'#end region (Renderpass & shaders)
 	
 '#region Renderbuffer
 	
@@ -312,122 +432,190 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		bbdoc: Destroy the renderbuffer.
 		returns: Nothing.
 	End Rem
-	Method DestroyRenderBuffer()
-		m_renderbuffer.Destroy()
+	Function DestroyRenderBuffer()
+		If m_renderbuffer <> Null
+			m_renderbuffer.Destroy()
+		End If
 		m_renderbuffer = Null
-		m_renderbuffer_texture = -1
-	End Method
+		
+		If m_rendertexture <> Null
+			m_rendertexture.Destroy()
+			m_rendertexture = Null
+		End If
+		'If m_accumtexture1 <> Null
+		'	m_accumtexture1.Destroy()
+		'	m_accumtexture1 = Null
+		'End If
+	End Function
 	
 	Rem
 		bbdoc: Bind the renderbuffer (anything drawn will go to the renderbuffer).
 		returns: Nothing.
 	End Rem
-	Method BindRenderBuffer()
-		If m_renderbuffer_bound = False
-			m_renderbuffer.Bind()
-			m_renderbuffer_bound = True
-		End If
-	End Method
+	Function BindRenderBuffer()
+		m_renderbuffer.Bind()
+	End Function
 	
 	Rem
 		bbdoc: Unbind the renderbuffer (will allow rendering to the backbuffer).
 		returns: Nothing.
 	End Rem
-	Method UnbindRenderBuffer()
-		If m_renderbuffer_bound = True
-			TProtogFrameBuffer.UnBind()
-			m_renderbuffer_bound = False
-		End If
-	End Method
+	Function UnbindRenderBuffer()
+		TProtogFrameBuffer.UnBind()
+	End Function
+	
+	Rem
+		bbdoc: Turn on or off the drawing/usage of the renderbuffer.
+		returns: Nothing.
+	End Rem
+	Function SetRenderBufferOnFlip(on_off:Int)
+		m_onflip_renderbuffer = on_off
+	End Function
 	
 	Rem
 		bbdoc: Draw the renderbuffer.
 		returns: Nothing.
 		about: This is called automatically before the backbuffer is flipped.
 	End Rem
-	Method DrawRenderBuffer()
+	Function DrawRenderBuffer(bufferization:Int = True)
 		Local lastblend:Int = m_state_blend
-		Local lastrb_bound:Int = m_renderbuffer_bound
-		Local last_texture:Int = m_boundtexture
-		
-		If lastrb_bound = True
-			UnbindRenderBuffer()
-		End If
+		Local vport:TVec4 = New TVec4.Create(m_viewportpos.m_x, m_viewportpos.m_y, m_viewportsize.m_x, m_viewportsize.m_y)
 		
 		SetBlend(BLEND_SOLID)
-		EnableTexture(m_renderbuffer_texture)
-		
 		glColor4f(1.0, 1.0, 1.0, 1.0)
 		
-		glBegin(GL_QUADS)
-			glTexCoord2f(0.0, 0.0) ; glVertex2f(0.0, m_gheight)
-			glTexCoord2f(1.0, 0.0) ; glVertex2f(m_gwidth, m_gheight)
-			glTexCoord2f(1.0, 1.0) ; glVertex2f(m_gwidth, 0.0)
-			glTexCoord2f(0.0, 1.0) ; glVertex2f(0.0, 0.0)
-		glEnd()
+		Local quad:TVec4 = New TVec4.Create(0.0, 0.0, m_windowsize.m_x, m_windowsize.m_y)
+		SetViewport(quad)
 		
-		_SetDrawingColor()
-		SetBlend(lastblend)
-		BindTexture(last_texture)
+		Print(m_viewportsize.m_x + " by " + m_viewportsize.m_y)
 		
-		If lastrb_bound = True
-			BindRenderBuffer()
+		If m_use_renderpasses = True And m_renderpasses.m_count > 0
+			Local enum:TListEnum = m_renderpasses.ObjectEnumerator(), shader:TProtogShader
+			
+			'm_renderbuffer.DetachTexture(1)
+			'm_renderbuffer.BindDrawBuffer()
+			While enum.HasNext() = True
+				shader = TProtogShader(enum.NextObject())
+				
+				'shader.m_material.SetTexture("p2d_rendertexture", m_accumtexture1)
+				
+				shader.Activate()
+				m_renderbuffer.Render(quad, 0)
+				shader.Deactivate()
+			Wend
+			'm_renderbuffer.AttachTexture(1, m_accumtexture1)
+			'm_renderbuffer.BindDrawBuffer()
+			
+		Else
+			If bufferization = True
+				UnbindRenderBuffer()
+			End If
+			m_renderbuffer.Render(quad, 0)
+			If bufferization = True
+				BindRenderBuffer()
+			End If
 		End If
 		
-	End Method
+		SetViewport(vport)
+		SetBlend(lastblend)
+	End Function
 	
 '#end region (Renderbuffer)
 	
-'#region State functions
+'#region Rendering
 	
 	Rem
 		bbdoc: Draw the render buffer, and flip the backbuffer.
 		returns: Nothing.
-		about: This is used internally (sadly) by #{brl.graphics}.<br />
+		about: This is used internally (sadly) by #{brl.graphics}.<br/>
 		Call #{brl.graphics.Flip} to flip the backbuffer, instead of this (it will call this method after it does the syncing voodoo).
 	End Rem
 	Method Flip(sync:Int)
-		'DebugLog("(TProtog2DDriver.Flip)")
-		
-		DrawRenderBuffer()
+		If m_onflip_renderbuffer = True
+			DrawRenderBuffer()
+		End If
 		bbGLGraphicsFlip(sync)
-		
 	End Method
+	
+'#end region (Rendering)
+	
+'#region State functions
 	
 	Method ToString:String()
 		Return "Protog2D"
 	End Method
 	
 	Rem
+		bbdoc: Set the active (bound) texture.
+		returns: Nothing.
+	End Rem
+	Function SetActiveTexture(texture:TGLTexture)
+		m_activetexture = texture
+	End Function
+	
+	Rem
+		bbdoc: Get the active (bound) texture.
+		returns: The active texture..
+	End Rem
+	Function GetActiveTexture:TGLTexture()
+		Return m_activetexture
+	End Function
+	
+	Rem
+		bbdoc: Bind the given texture.
+		returns: Nothing.
+	End Rem
+	Function BindTexture(texture:TGLTexture, enabletarget:Int = True)
+		If enabletarget = True
+			glEnable(texture.m_target)
+		End If
+		glBindTexture(texture.m_target, texture.m_handle)
+		SetActiveTexture(texture)
+	End Function
+	
+	Rem
+		bbdoc: Bind the given texture handle.
+		returns: Nothing.
+	End Rem
+	Function BindTextureHandle(target:Int, handle:Int)
+		glEnable(target)
+		glBindTexture(target, handle)
+		'SetActiveTexture(Null)
+	End Function
+	 
+	Rem
+		bbdoc: Unbind the given texture target.
+		returns: Nothing.
+	End Rem
+	Function UnbindTextureTarget(target:Int)
+		glBindTexture(target, 0)
+		glDisable(target)
+		'SetActiveTexture(Null)
+	End Function
+	
+	Rem
 		bbdoc: Set the blending mode.
 		returns: Nothing.
 	End Rem
 	Function SetBlend(blend:Int)
-		
 		If blend <> m_state_blend
-			
 			m_state_blend = blend
-			
 			Select blend
 				Case BLEND_MASK
 					glDisable(GL_BLEND)
 					glEnable(GL_ALPHA_TEST)
 					glAlphaFunc(GL_GEQUAL, 0.5)
-					
 				Case BLEND_SOLID
 					glDisable(GL_BLEND)
 					glDisable(GL_ALPHA_TEST)
-					
 				Case BLEND_ALPHA
 					glEnable(GL_BLEND)
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 					glDisable(GL_ALPHA_TEST)
-					
 				Case BLEND_LIGHT
 					glEnable(GL_BLEND)
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE)
 					glDisable(GL_ALPHA_TEST)
-					
 				Case BLEND_SHADE
 					glEnable(GL_BLEND)
 					glBlendFunc(GL_DST_COLOR, GL_ZERO)
@@ -436,52 +624,22 @@ Type TProtog2DDriver Extends TGraphicsDriver
 				Default
 					glDisable(GL_BLEND)
 					glDisable(GL_ALPHA_TEST)
-					
 			End Select
-			
 		End If
-		
 	End Function
 	
 	Rem
-		bbdoc: Set the alpha value for the drawing color.
+		bbdoc: Bind the given TProtogColor.
 		returns: Nothing.
+		about: If @alpha is True, the color's alpha will also be bound.
 	End Rem
-	Function SetDrawingAlpha(alpha:Float)
-		If alpha > 1.0 alpha = 1.0
-		If alpha < 0.0 alpha = 0.0
-		m_drawcolor.m_w = alpha
-		
-		glColor4fv(Varptr(m_drawcolor.m_x))
-	End Function
-	
-	Rem
-		bbdoc: Set the drawing color from float values.
-		returns: Nothing.
-	End Rem
-	Function SetDrawingColor(red:Float, green:Float, blue:Float)
-		m_drawcolor.m_x = red
-		m_drawcolor.m_y = green
-		m_drawcolor.m_z = blue
-		
-		glColor4fv(Varptr(m_drawcolor.m_x))
-	End Function
-	
-	Rem
-		bbdoc: Set the drawing color via a vector.
-		returns: Nothing.
-	End Rem
-	Function SetDrawingColorVector(vec:TVec4)
-		m_drawcolor = vec.Copy()
-		glColor4fv(Varptr(m_drawcolor.m_x))
-	End Function
-	
-	Rem
-		bbdoc: Set the drawing color to the current drawing color (e.g. if you need the original color back and you changed it manually with glColor#f).
-		returns: Nothing.
-	End Rem
-	Function _SetDrawingColor()
-		glColor4fv(Varptr(m_drawcolor.m_x))
+	Function BindPColor(color:TProtogColor, alpha:Int = True)
+		If alpha = True
+			glColor4fv(Varptr(color.m_red))
+		Else
+			glColor3fv(Varptr(color.m_red))
+		End If
+		m_color_curr.SetFromColor(color, alpha)
 	End Function
 	
 	Rem
@@ -489,318 +647,104 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		returns: Nothing.
 		about: @color maps to the RGB values just as the vector's fields are defined (x=r, y=g, z=b).
 	End Rem
-	Function SetClsColor(color:TVec3, alpha:Float = 1.0)
-		glClearColor(color.m_x, color.m_y, color.m_z, alpha)
+	Function SetClsColor(color:TProtogColor)
+		glClearColor(color.m_red, color.m_green, color.m_blue, color.m_alpha)
+		m_color_cls.SetFromColor(color, True)
+	End Function
+	
+	Rem
+		bbdoc: Get the clear-screen color.
+		returns: The color used to clear the screen.
+	End Rem
+	Function GetClsColor:TProtogColor()
+		Return m_color_cls
 	End Function
 	
 	Rem
 		bbdoc: Set the graphical viewport (anything which is drawn outside of the current viewport will not appear on the screen).
 		returns: Nothing.
 	End Rem
-	Method SetViewport(x:Int, y:Int, w:Int, h:Int)
-		If x = 0 And y = 0 And w = m_gwidth And h = m_gheight
+	Function SetViewport(vport:TVec4)
+		If vport.m_x = 0 And vport.m_y = 0 And vport.m_z = m_windowsize.m_x And vport.m_w = m_windowsize.m_y
 			glDisable(GL_SCISSOR_TEST)
 		Else
 			glEnable(GL_SCISSOR_TEST)
-			glScissor(x, m_gheight - y - h, w, h)
+			glScissor(vport.m_x, m_windowsize.m_y - vport.m_y - vport.m_w, vport.m_z, vport.m_w)
 		End If
-	End Method
+		m_viewportpos.Set(vport.m_x, vport.m_y)
+		m_viewportsize.Set(vport.m_z, vport.m_w)
+	End Function
 	
 	Rem
 		bbdoc: Clear the screen.
 		returns: Nothing.
 		about: Either this function, or #{brl.graphics.Cls} can be called to clear the screen.
 	End Rem
-	Method Cls()
-		glClear(GL_COLOR_BUFFER_BIT)
-	End Method
+	Function Cls()
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+	End Function
 	
 '#end region (State functions)
 	
-	Rem
-	Method Plot(x:Float, y:Float)
-		
-		DisableTex()
-		glBegin(GL_POINTS)
-			glVertex2f(x + 0.5, y + 0.5)
-		glEnd()
-		
-	End Method
-	
-	Method DrawLine(x0:Float, y0:Float, x1:Float, y1:Float, tx:Float, ty:Float)
-		
-		DisableTex()
-		glBegin(GL_LINES)
-			glVertex2f(x0 * ix + y0 * iy + tx + 0.5, x0 * jx + y0 * jy + ty + 0.5)
-			glVertex2f(x1 * ix + y1 * iy + tx + 0.5, x1 * jx + y1 * jy + ty + 0.5)
-		glEnd()
-		
-	End Method
-	
-	Method DrawRect(x0:Float, y0:Float, x1:Float, y1:Float, tx:Float, ty:Float)
-		
-		DisableTex()
-		glBegin(GL_QUADS)
-			glVertex2f(x0 * ix + y0 * iy + tx, x0 * jx + y0 * jy + ty)
-			glVertex2f(x1 * ix + y0 * iy + tx, x1 * jx + y0 * jy + ty)
-			glVertex2f(x1 * ix + y1 * iy + tx, x1 * jx + y1 * jy + ty)
-			glVertex2f(x0 * ix + y1 * iy + tx, x0 * jx + y1 * jy + ty)
-		glEnd()
-		
-	End Method
-	
-	Method DrawOval(x0:Float, y0:Float, x1:Float, y1:Float, tx:Float, ty:Float)
-		Local th:Float, x:Float, y:Float
-		Local xr:Float = (x1 - x0) * 0.5
-		Local yr:Float = (y1 - y0) * 0.5
-		Local segs:Int = Abs(xr) + Abs(yr)
-		
-		segs = Max(segs, 12) & ~3
-		
-		x0:+xr
-		y0:+yr
-		
-		DisableTex()
-		glBegin(GL_POLYGON)
-		
-		For Local i:Int = 0 Until segs
-			th = i * 360.0 / segs
-			x = x0 + Cos(th) * xr
-			y = y0 - Sin(th) * yr
-			
-			glVertex2f(x * ix + y * iy + tx, x * jx + y * jy + ty)
-			
-		Next
-		
-		glEnd()
-		
-	End Method
-	
-	Method DrawPoly(xy:Float[], handle_x:Float, handle_y:Float, origin_x:Float, origin_y:Float)
-		Local x:Float, y:Float
-		
-		If xy.length < 6 Or (xy.length & 1) Return
-		
-		DisableTex()
-		glBegin(GL_POLYGON)
-		
-		For Local i:Int = 0 Until xy.Length Step 2
-			x = xy[i + 0] + handle_x
-			y = xy[i + 1] + handle_y
-			
-			glVertex2f(x * ix + y * iy + origin_x, x * jx + y * jy + origin_y)
-			
-		Next
-		
-		glEnd()
-		
-	End Method
-	End Rem
-	
 '#region Pixmaps
 	
-	Rem
-		bbdoc: Draw the given pixmap at the position given.
-		returns: Nothing.
-	End Rem
-	Method DrawPixmap(p:TPixmap, x:Int, y:Int)
-		Local blend:Int = m_state_blend
-		Disable2DTexturing()
-		SetBlend(BLEND_SOLID)
-		
-		Local t:TPixmap = YFlipPixmap(p)
-		
-		If t.format <> PF_RGBA8888 Then t = ConvertPixmap(t, PF_RGBA8888)
-		
-		glRasterPos2i(0, 0)
-		glBitmap(0, 0, 0, 0, x, - y - t.height, Null)
-		glDrawPixels(t.width, t.height, GL_RGBA, GL_UNSIGNED_BYTE, t.pixels)
-		
-		SetBlend(blend)
-		
-	End Method
+	'Rem
+	'	bbdoc: Draw the given pixmap at the position given.
+	'	returns: Nothing.
+	'End Rem
+	'Method DrawPixmap(p:TPixmap, x:Int, y:Int)
+	'	Local lastblend:Int = m_state_blend
+	'	Local t:TPixmap
+	'	
+	'	glDisable(GL_TEXTURE_2D)
+	'	glDisable(GL_TEXTURE_RECTANGLE_EXT)
+	'	SetBlend(BLEND_SOLID)
+	'	
+	'	t = YFlipPixmap(p)
+	'	If t.format <> PF_RGBA8888 Then t = ConvertPixmap(t, PF_RGBA8888)
+	'	glRasterPos2i(0, 0)
+	'	glBitmap(0, 0, 0, 0, x, - y - t.height, Null)
+	'	glDrawPixels(t.width, t.height, GL_RGBA, GL_UNSIGNED_BYTE, t.pixels)
+	'	
+	'	SetBlend(lastblend)
+	'	glDisable(GL_TEXTURE_2D)
+	'	glDisable(GL_TEXTURE_RECTANGLE_EXT)
+	'End Method
 	
 	Rem
 		bbdoc: Grab the given area into a pixmap.
 		returns: Nothing.
 	End Rem
 	Method GrabPixmap:TPixmap(x:Int, y:Int, w:Int, h:Int)
-		Local blend:Int = m_state_blend
+		Local lastblend:Int = m_state_blend
+		Local p:TPixmap
+		
 		SetBlend(BLEND_SOLID)
 		
-		Local p:TPixmap = CreatePixmap(w, h, PF_RGBA8888)
-		
-		glReadPixels(x, m_gheight - h - y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, p.pixels)
+		p = CreatePixmap(w, h, PF_RGBA8888)
+		glReadPixels(x, m_windowsize.m_y - h - y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, p.pixels)
 		p = YFlipPixmap(p)
 		
-		SetBlend(blend)
-		
+		SetBlend(lastblend)
 		Return p
-		
 	End Method
 	
 '#end region (Pixmaps)
 	
-	Rem
-		bbdoc: Bind the given texture handle.
-		returns: Nothing.
-	End Rem
-	Function BindTexture(texture:Int)
-		If texture <> m_boundtexture
-			glBindTexture(GL_TEXTURE_2D, texture)
-			m_boundtexture = texture
-		End If
-	End Function
-	
-	Rem
-		bbdoc: Enable GL_TEXTURE_2D and bind the given texture handle.
-		returns: Nothing.
-	End Rem
-	Function EnableTexture(texture:Int)
-		BindTexture(texture)
-		
-		If m_state_tex2denabled = False
-			glEnable(GL_TEXTURE_2D)
-			m_state_tex2denabled = True
-		End If
-	End Function
-	
-	Rem
-		bbdoc: Disable GL_TEXTURE_2D.
-		returns: Nothing.
-	End Rem
-	Function Disable2DTexturing()
-		If m_state_tex2denabled = True
-			glDisable(GL_TEXTURE_2D)
-			m_state_tex2denabled = False
-		End If
-	End Function
-	
-'#region Texture initiation stuffs
-	
-	Function CreateTex:Int(width:Int, height:Int, flags:Int)
-		Local name:Int
-		
-		glGenTextures(1, Varptr(name))
-		glBindTexture(GL_TEXTURE_2D, name)
-		
-		' Set texture parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-		
-		If flags & TEXTURE_FILTER
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-			
-			If flags & TEXTURE_MIPMAP
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-			Else
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-			End If
-		Else
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-			
-			If flags & TEXTURE_MIPMAP
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST)
-			Else
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-			End If
-		End If
-		
-		Local mip_level:Int
-		
-		Repeat
-			glTexImage2D(GL_TEXTURE_2D, mip_level, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Null)
-			If Not (flags & TEXTURE_MIPMAP) Exit
-			If width = 1 And height = 1 Then Exit
-			If width > 1 Then width:/2
-			If height > 1 Then height:/2
-			
-			mip_level:+1
-		Forever
-		
-		Return name
-		
-	End Function
-	
-	Function UploadTex(pixmap:TPixmap, flags:Int)
-		Local mip_level:Int
-		
-		If pixmap.format <> PF_RGBA8888
-			pixmap = pixmap.Convert(PF_RGBA8888)
-		End If
-		
-		Repeat
-			glPixelStorei(GL_UNPACK_ROW_LENGTH, pixmap.pitch / BytesPerPixel[pixmap.format])
-			glTexSubImage2D(GL_TEXTURE_2D, mip_level, 0, 0, pixmap.width, pixmap.height, GL_RGBA, GL_UNSIGNED_BYTE, pixmap.pixels)
-			
-			If flags & TEXTURE_MIPMAP = False
-				Exit
-			End If
-			
-			If pixmap.width > 1 And pixmap.height > 1
-				pixmap = ResizePixmap(pixmap, pixmap.width / 2, pixmap.height / 2)
-			Else If pixmap.width > 1
-				pixmap = ResizePixmap(pixmap, pixmap.width / 2, pixmap.height)
-			Else If pixmap.height > 1
-				pixmap = ResizePixmap(pixmap, pixmap.width, pixmap.height / 2)
-			Else
-				Exit
-			End If
-			
-			mip_level:+1
-		Forever
-		
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0)
-		
-	End Function
-	
-	Function AdjustTexSize(width:Int Var, height:Int Var)
-		
-		width = Pow2Size(width)
-		height = Pow2Size(height)
-		
-		width = Max(1, width)
-		width = Min(width, m_gl_maxtexturesize)
-		height = Max(1, height)
-		height = Min(height, m_gl_maxtexturesize)
-		
-		Rem
-		Local t:Int
-		
-		' Calc texture size
-		width = Pow2Size(width)
-		height = Pow2Size(height)
-		
-		Repeat
-			
-			glTexImage2D(GL_PROXY_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Null)
-			glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, Varptr(t))
-			
-			If t <> 0 Then Exit
-			If width = 1 And height = 1 Then RuntimeError("Unable to calculate tex size")
-			If width > 1 Then width:/2
-			If height > 1 Then height:/2
-			
-		Forever
-		End Rem
-		
-	End Function
-	
-'#end region (Texture initiation stuffs)
-	
 End Type
 
 Rem
-	bbdoc: Get the GLMax2DExt driver instance.
-	returns: The current instance of the GLMax2DExt driver.
-	about: The returned driver can be used with #SetGraphicsDriver to enable the extended OpenGL Max2D rendering driver.
+	bbdoc: Get the Protog2D driver instance.
+	returns: The current instance of the Protog2D driver.
+	about: The returned driver can be used with #SetGraphicsDriver to enable the Protog2D driver.
 End Rem
 Function Protog2DDriver:TProtog2DDriver()
 	Return TProtog2DDriver.GetInstance()
 End Function
 
 TProtog2DDriver.InitGlobal()
-SetGraphicsDriver(Protog2DDriver())
+SetGraphicsDriver(TProtog2DDriver.GetInstance())
+
 
 
 

@@ -36,140 +36,253 @@ Type TProtogFrameBuffer
 	Field m_handle:Int, m_seq:Int
 	
 	' 4 possible colorbuffers (should be a decent maximum, especially for old hardware)
-	Field m_colorbuffers:TGLTexture[4]
+	Field m_colorbuffers:TProtogTexture[4] ', m_depthbuffer:TProtogTexture
+	Field m_glbuffers:Int[4]
 	
-		Method New()
-			m_handle = -1
-			m_seq = GraphicsSeq
-			glGenFramebuffersEXT(1, Varptr(m_handle))
-		End Method
+	Method New()
+		m_handle = -1
+		m_seq = GraphicsSeq
+	End Method
+	
+	Method Delete()
+		Destroy()
+	End Method
+	
+	Rem
+		bbdoc: Destroy the framebuffer.
+		returns: Nothing.
+	End Rem
+	Method Destroy()
+		'DebugLog("(TProtogFrameBuffer.Destroy) m_handle = " + m_handle + " m_seq " + m_seq + " GraphicsSeq = " + GraphicsSeq)
 		
-		Method Delete()
-			Destroy()
-		End Method
-		
-		Rem
-			bbdoc: Destroy the framebuffer.
-			returns: Nothing.
-		End Rem
-		Method Destroy()
-			If m_handle <> - 1 And m_seq = GraphicsSeq
-				Local index:Int
-				
-				UnBind()
-				
-				' Detach all attached textures
-				For index = 0 To m_colorbuffers.Length - 1
-					DetachTexture(index)
-				Next
-				
-				' Delete the framebuffer
-				glDeleteFramebuffersEXT(1, Varptr(m_handle))
-				m_handle = -1
-				m_seq = 0
-			End If
-		End Method
-		
-		Rem
-			bbdoc: Bind the texture at the given index.
-			returns: Nothing.
-			about: The @index parameter must be 0-3 (%{instead of} a GL_COLOR_ATTACHMENT<b><i>n</i></b>_EXT constant).<br />
-			An exception will be asserted if the index is out of bounds (only in debug mode).<br />
-			If the value at the given index is Null nothing will happen.
-		End Rem
-		Method BindTexture(index:Int)
+		If m_handle <> - 1 And m_seq = GraphicsSeq
+			Local index:Int
 			
-			Assert index > - 1 And index < 4,  ..
-				"(duct.Protog2D.TProtogFrameBuffer.AttachTexture) @index (=" + String(index) + ") is not within bounds! (it must be 0-3)"
-			
-			If m_colorbuffers[index] <> Null
-				m_colorbuffers[index].Bind()
-			End If
-			
-		End Method
-		
-		Rem
-			bbdoc: Bind the framebuffer.
-			returns: Nothing.
-		End Rem
-		Method Bind()
-			If m_handle <> - 1 And m_seq = GraphicsSeq
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_handle)
-			End If
-		End Method
-		
-		Rem
-			bbdoc: Unbind any set framebuffer.
-			returns: Nothing.
-		End Rem
-		Function Unbind()
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
-		End Function
-		
-		Rem
-			bbdoc: Set the current target buffers for the framebuffer.
-			returns: Nothing.
-			about: If a single colorbuffer has not been set, GL_NONE will be in its place for the set buffer.
-		End Rem
-		Method SetDrawBuffers()
-			Local buffers:Int[4], index:Int
-			
+			Bind()
+			' Detach all attached textures
 			For index = 0 To m_colorbuffers.Length - 1
-				If m_colorbuffers[index] <> Null
-					buffers[index] = GL_COLOR_ATTACHMENT0_EXT + index
-				Else
-					buffers[index] = GL_NONE
-				End If
+				DetachTexture(index)
 			Next
 			
-			glDrawBuffers(buffers.Length, buffers)
-			
-		End Method
+			' Delete the framebuffer
+			glDeleteFramebuffersEXT(1, Varptr(m_handle))
+			Unbind()
+			m_handle = -1
+			m_seq = 0
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Create a new TProtogFrameBuffer and set the buffers to the given array.
+		returns: The new TProtogFrameBuffer (itself).
+	End Rem
+	Method Create:TProtogFrameBuffer(colorbuffers:TProtogTexture[])
 		
-		Rem
-			bbdoc: Attach a colorbuffer texture to the framebuffer at the given index.
-			returns: Nothing.
-			about: The @index parameter must be 0-3 (%{instead of} a GL_COLOR_ATTACHMENT<b><i>n</i></b>_EXT constant).<br />
-			An exception will be asserted if the index is out of bounds (only in debug mode).<br />
-			If you attempt to set a texture to an index which already has a texture, this method will silently return (use the @override parameter to override this behavior).
-		End Rem
-		Method AttachTexture(index:Int, texture:TGLTexture, override:Int = False)
-			
-			Assert index > - 1 And index < 4,  ..
-				"(duct.Protog2D.TProtogFrameBuffer.AttachTexture) @index (=" + String(index) + ") is not within bounds! (it must be 0-3)"
-			
-			Assert texture, "(duct.Protog2D.TProtogFrameBuffer.AttachTexture) @texture is Null!"
-			
-			If m_colorbuffers[index] = Null Or override = True
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + index, GL_TEXTURE_2D, texture.m_handle, 0)
-				
-				Assert glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) = GL_FRAMEBUFFER_COMPLETE_EXT,  ..
-					"(duct.Protog2D.TProtogFrameBuffer.AttachTexture) glCheckFramebufferStatusEXT <> GL_FRAMEBUFFER_COMPLETE_EXT"
-				
-				m_colorbuffers[index] = texture
-				
-			End If
-			
-		End Method
+		glGenFramebuffersEXT(1, Varptr(m_handle))
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_handle)
 		
-		Rem
-			bbdoc: Detach a colorbuffer texture at the given index.
-			returns: Nothing.
-			about: The @index parameter must be 0-3 (%{instead of} a GL_COLOR_ATTACHMENT<b><i>n</i></b>_EXT constant).<br />
-			An exception will be asserted if the index is out of bounds (only in debug mode).
-		End Rem
-		Method DetachTexture(index:Int)
-			
-			Assert index > - 1 And index < 4,  ..
-				"(duct.Protog2D.TProtogFrameBuffer.DetachTexture) @index (=" + String(index) + ") is not within bounds! (it must be 0-3)"
-			
+		SetColorBuffers(colorbuffers)
+		
+		'If depthbuffer <> Null
+		'	m_depthbuffer = depthbuffer
+		'	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, depthbuffer.m_target, depthbuffer.m_handle, 0)
+		'End If
+		
+		'If glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) <> GL_FRAMEBUFFER_COMPLETE_EXT
+		'	Throw("(TProtogFrameBuffer.Create) glCheckFramebufferStatusEXT <> GL_FRAMEBUFFER_COMPLETE_EXT")
+		'End If
+		Unbind()
+		
+		TProtog2DDriver.CheckForErrors("TProtogFrameBuffer.Create::end")
+		
+		Return Self
+	End Method
+	
+'#region OpenGL
+	
+	Rem
+		bbdoc: Bind the texture at the given index.
+		returns: Nothing.
+		about: The @index parameter must be 0-3 (%{instead of} a GL_COLOR_ATTACHMENT<b><i>n</i></b>_EXT constant).<br/>
+		An exception will be asserted if the index is out of bounds (only in debug mode).<br/>
+		If the value at the given index is Null nothing will happen.
+	End Rem
+	Method BindTexture(index:Int, enabletarget:Int = True)
+		Assert index > - 1 And index < 4,  ..
+			"(TProtogFrameBuffer.BindTexture) @index (=" + String(index) + ") is not within bounds! (it must be 0-3)"
+		
+		If m_glbuffers[index] <> GL_NONE
+			m_colorbuffers[index].Bind(enabletarget)
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Unbind the texture at the given index.
+		returns: Nothing.
+		about: The @index parameter must be 0-3 (%{instead of} a GL_COLOR_ATTACHMENT<b><i>n</i></b>_EXT constant).<br/>
+		An exception will be asserted if the index is out of bounds (only in debug mode).<br/>
+		If the value at the given index is Null nothing will happen.
+	End Rem
+	Method UnbindTexture(index:Int)
+		Assert index > - 1 And index < 4,  ..
+			"(TProtogFrameBuffer.BindTexture) @index (=" + String(index) + ") is not within bounds! (it must be 0-3)"
+		
+		If m_glbuffers[index] <> GL_NONE
+			m_colorbuffers[index].Unbind()
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Bind the framebuffer.
+		returns: Nothing.
+	End Rem
+	Method Bind()
+		If m_handle <> - 1 And m_seq = GraphicsSeq
+			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_handle)
+			BindDrawBuffer()
+		Else
+			DebugLog("(TProtogFrameBuffer.Bind) Unable to bind (invalid graphics context): m_handle = " + m_handle + " m_seq = " + m_seq + " GraphicsSeq = " + GraphicsSeq)
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Bind the drawbuffer.
+		returns: Nothing.
+	End Rem
+	Method BindDrawBuffer()
+		If m_handle <> - 1 And m_seq = GraphicsSeq
+			glDrawBuffers(m_glbuffers.Length, m_glbuffers)
+		Else
+			DebugLog("(TProtogFrameBuffer.BindDrawBuffer) Unable to set draw buffers (invalid graphics context): m_handle = " + m_handle + " m_seq = " + m_seq + " GraphicsSeq = " + GraphicsSeq)
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Unbind any set framebuffer.
+		returns: Nothing.
+	End Rem
+	Function Unbind()
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
+	End Function
+	
+	Rem
+		bbdoc: Render the framebuffer with the given dimensions.
+		returns: Nothing.
+		about: If @buffer is -1, no texture will be bound (allowing you to do batch draws, by having the texture already bound), otherwise, it is used as the index for the texture to be bound.
+	End Rem
+	Method Render(quad:TVec4, buffer:Int, enabletarget:Int = True)
+		If buffer > - 1
+			BindTexture(buffer, enabletarget)
+		End If
+		If TProtog2DDriver.GetActiveTexture() <> Null
+			TProtog2DDriver.GetActiveTexture().Render(quad, True)
+		Else
+			DebugLog("(TProtogFrameBuffer.Render) Did not render dimensions - no active texture!")
+		End If
+		If buffer > - 1
+			UnbindTexture(buffer)
+		End If
+	End Method
+	
+'#end region (OpenGL)
+	
+'#region Color buffer
+	
+	Rem
+		bbdoc: Set the draw buffer for the framebuffer.
+		returns: Nothing.
+		about: The given array must be 4 elements.
+	End Rem
+	Method SetDrawBuffer(array:Int[])
+		If array.length = 4
+			m_glbuffers = array
+		Else
+			DebugLog("(TProtogFrameBuffer.SetDrawBuffer) Unable to set draw buffers (array length is not 4)")
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Set the colorbuffers array.
+		returns: Nothing.
+		about: The given array must be 4 elements.
+	End Rem
+	Method SetColorBuffers(colorbuffers:TProtogTexture[])
+		If colorbuffers.length = 4
+			Local index:Int
+			For index = 0 To colorbuffers.length - 1
+				DetachTexture(index)
+				If colorbuffers[index] = Null
+					m_glbuffers[index] = GL_NONE
+				Else
+					AttachTexture(index, colorbuffers[index], False)
+				End If
+			Next
+		Else
+			DebugLog("(TProtogFrameBuffer.SetColorBuffers) Unable to set color buffers (array length is not 4)")
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Get the colorbuffer texture at the given index.
+		returns: The texture at the given index.
+	End Rem
+	Method GetTexture:TProtogTexture(index:Int)
+		Assert index > - 1 And index < 4,  ..
+			"(TProtogFrameBuffer.GetTexture) @index (=" + String(index) + ") is not within bounds! (it must be 0-3)"
+		
+		Return m_colorbuffers[index]
+	End Method
+	
+	Rem
+		bbdoc: Attach a colorbuffer texture to the framebuffer at the given index.
+		returns: Nothing.
+		about: The @index parameter must be 0-3 (%{instead of} a GL_COLOR_ATTACHMENT<b><i>n</i></b>_EXT constant).<br/>
+		An exception will be asserted if the index is out of bounds (only in debug mode).<br/>
+		If you attempt to set a texture to an index which already has a texture, this method will silently return (use the @override parameter to override this behavior).
+	End Rem
+	Method AttachTexture(index:Int, texture:TProtogTexture, override:Int = False)
+		
+		Assert index > - 1 And index < 4,  ..
+			"(TProtogFrameBuffer.AttachTexture) @index (=" + String(index) + ") is not within bounds! (it must be 0-3)"
+		
+		Assert texture, "(TProtogFrameBuffer.AttachTexture) @texture is Null!"
+		
+		If m_colorbuffers[index] = Null Or override = True
 			If m_colorbuffers[index] <> Null
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + index, GL_TEXTURE_2D, 0, 0)
-				m_colorbuffers[index] = Null
+				DetachTexture(index)
+			End If
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + index, texture.m_gltexture.m_target, texture.m_gltexture.m_handle, 0)
+			
+			Local err:Int = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)
+			If err <> GL_FRAMEBUFFER_COMPLETE_EXT
+				Throw("(TProtogFrameBuffer.AttachTexture) glCheckFramebufferStatusEXT <> GL_FRAMEBUFFER_COMPLETE_EXT; GL_Error = " + TProtog2DDriver.CheckForErrors("FBO.AttachTexture::checkfbostatus", False) + " ; err = " + err)
 			End If
 			
-		End Method
+			m_colorbuffers[index] = texture
+			m_glbuffers[index] = GL_COLOR_ATTACHMENT0_EXT + index
+		End If
 		
+	End Method
+	
+	Rem
+		bbdoc: Detach a colorbuffer texture at the given index.
+		returns: Nothing.
+		about: The @index parameter must be 0-3 (%{instead of} a GL_COLOR_ATTACHMENT<b><i>n</i></b>_EXT constant).<br/>
+		An exception will be asserted if the index is out of bounds (only in debug mode).
+	End Rem
+	Method DetachTexture(index:Int)
+		Assert index > - 1 And index < 4,  ..
+			"(TProtogFrameBuffer.DetachTexture) @index (=" + String(index) + ") is not within bounds! (it must be 0-3)"
+		
+		If m_colorbuffers[index] <> Null
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + index, m_colorbuffers[index].m_gltexture.m_target, 0, 0)
+			m_colorbuffers[index] = Null
+			m_glbuffers[index] = GL_NONE
+		End If
+	End Method
+	
+'#end region (Color buffer)
+	
 End Type
 
 

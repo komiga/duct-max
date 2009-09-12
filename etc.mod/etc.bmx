@@ -28,10 +28,14 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.14"
+ModuleInfo "Version: 0.15"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.15"
+ModuleInfo "History: Added TListEx"
+ModuleInfo "History: Added TTextReplacer example"
+ModuleInfo "History: Added TTextReplacer and TTextReplacement"
 ModuleInfo "History: Version 0.14"
 ModuleInfo "History: Added FixPathEnding()"
 ModuleInfo "History: Version 0.13"
@@ -70,8 +74,8 @@ Include "inc/functions/other.bmx"
 Include "inc/types/listreversed.bmx"
 Include "inc/types/fpscounter.bmx"
 Include "inc/types/mstimer.bmx"
-
-
+Include "inc/types/replacer.bmx"
+Include "inc/types/listex.bmx"
 
 
 

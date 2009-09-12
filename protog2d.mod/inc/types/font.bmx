@@ -21,7 +21,7 @@ Rem
 	THE SOFTWARE.
 	-----------------------------------------------------------------------------
 	
-	font.bmx (Contains: TProtogFont, )
+	font.bmx (Contains: TProtogFont, TProtogFontChar, )
 	
 	TODO:
 		
@@ -37,6 +37,8 @@ Type TProtogFont
 	Global m_template_texture:TTemplate = New TTemplate.Create(["texture"], [[TV_STRING] ])
 	Global m_template_height:TTemplate = New TTemplate.Create(["height"], [[TV_FLOAT] ])
 	
+	Global m_map:TObjectMap = New TObjectMap
+	
 	Field m_name:String, m_height:Float
 	Field m_texture:TProtogTexture
 	Field m_chars:TIntMap, m_emptychar:TProtogFontChar
@@ -49,15 +51,9 @@ Type TProtogFont
 		m_chars = Null
 	End Method
 	
-	'Rem
-	'	bbdoc: Create a new TProtogFont.
-	'	returns: The new TProtogFont (itself).
-	'End Rem
-	'Method Create:TProtogFont(name:String, height:Float)
-	'	SetName(name)
-	'	m_height = height
-	'	Return Self
-	'End Method
+	Method InsertSelf()
+		m_map._Insert(m_name, Self)
+	End Method
 	
 '#region Drawing
 	
@@ -157,8 +153,8 @@ Type TProtogFont
 	Rem
 		bbdoc: Deserialize a font from the given stream.
 		returns: The deserialized TProtogFont.
-		about: If @readtexture is True, the texture's pixmap will be deserialized from the stream.<br />
-		If @upload is True the texture (if loaded) will be uploaded to OpenGL (the GL texture will be created).<br />
+		about: If @readtexture is True, the texture's pixmap will be deserialized from the stream.<br/>
+		If @upload is True the texture (if loaded) will be uploaded to OpenGL (the GL texture will be created).<br/>
 		If @upload is False you must upload the texture at some point in the future.
 	End Rem
 	Method DeSerialize:TProtogFont(stream:TStream, readtexture:Int = True, upload:Int = True)
@@ -179,6 +175,7 @@ Type TProtogFont
 		Next
 		
 		m_emptychar = GetChar(- 1)
+		InsertSelf()
 		
 		Return Self
 		
@@ -250,6 +247,7 @@ Type TProtogFont
 		Next
 		
 		m_emptychar = GetChar(- 1)
+		InsertSelf()
 		
 		Return Self
 		
@@ -332,6 +330,50 @@ Type TProtogFont
 	End Method
 	
 '#end region (Field accessors)
+	
+'#region Collections
+	
+	Rem
+		bbdoc: Get a font from the name given.
+		returns: A TProtogFont which has the given name, or NUll if there was no font found that has the given name.
+	End Rem
+	Function GetFontFromName:TProtogFont(name:String)
+		Return TProtogFont(m_map._ValueByKey(name))
+	End Function
+	
+	Rem
+		bbdoc: Remove a font by the name given.
+		returns: True if the font with the given name was removed, or False if it was not (no font with the given name exists).
+	End Rem
+	Function RemoveFontByName:Int(name:String)
+		Return m_map._Remove(name)
+	End Function
+	
+	Rem
+		bbdoc: Remove the given font from the tracking map.
+		returns: True if the given font was removed, or False if it was not (the given font does not exist in the tracking map).
+	End Rem
+	Function RemoveFont:Int(font:TProtogFont)
+		Return m_map._Remove(font.m_name)
+	End Function
+	
+	Rem
+		bbdoc: Check if the tracking map contains a font with the name given.
+		returns: True if the font exists in the tracking map, or False if it does not.
+	End Rem
+	Function ContainsFontByName:Int(name:String)
+		Return m_map._Contains(name)
+	End Function
+	
+	Rem
+		bbdoc: Check if the tracking map contains the given font.
+		returns: True if the font exists in the tracking map, or False if it does not.
+	End Rem
+	Function ContainsFont:Int(font:TProtogFont)
+		Return m_map._Contains(font.m_name)
+	End Function
+	
+'#end region (Collections)
 	
 End Type
 
