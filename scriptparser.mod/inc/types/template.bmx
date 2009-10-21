@@ -58,39 +58,33 @@ Type TTemplate
 		@_infinitism: Use infinitism? (see #{SetInfinitism}).
 	End Rem
 	Method Create:TTemplate(iden:String[], vars:Int[][], casesens:Int = False, flexible:Int = False, infinitism:Int[] = Null)
-		
 		SetIden(iden)
 		SetVars(vars)
-		
 		SetFlexible(flexible)
 		SetCaseSensitive(casesens)
-		
 		SetInfinitism(infinitism)
-		
 		Return Self
-		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set infinitism (type of flexibility).
 		returns: Nothing.
-		about: This will only be used if the template is flexible.<br />
-		If Null the template will not care about the type of variable that is after the defined variables.<br />
-		If set to a TV_ variable (or multiple TV_ variables), the template will require that a certain type of variable(s) be after the defined variables.<br />
-		<br />
-		e.g.<br />
-		template.SetVars([[TV_STRING], [TV_FLOAT]])<br />
-		template.SetFlexible(True)<br />
-		template.SetInfinitism([TV_INTEGER])<br />
-		Now the identifier can only have variables of the INTEGER type after the end of the defined variables (string, then float)<br />
+		about: This will only be used if the template is flexible.<br/>
+		If Null the template will not care about the type of variable that is after the defined variables.<br/>
+		If set to a TV_ variable (or multiple TV_ variables), the template will require that a certain type of variable(s) be after the defined variables.<br/>
+		<br/>
+		e.g.<br/>
+		template.SetVars([[TV_STRING], [TV_FLOAT]])<br/>
+		template.SetFlexible(True)<br/>
+		template.SetInfinitism([TV_INTEGER])<br/>
+		Now the identifier can only have variables of the INTEGER type after the end of the defined variables (string, then float)<br/>
 		someidentifier stringvar floatvar aninteger anotherinteger anotherinteger ... etc.
 	End Rem
 	Method SetInfinitism(infinitism:Int[])
 		m_infinitism = infinitism
 	End Method
-	
 	Rem
 		bbdoc: Get the infinitism (type of flexibility) for the template.
 		returns: The infinitism field (False, or a TV_ constant).
@@ -106,7 +100,6 @@ Type TTemplate
 	Method SetCaseSensitive(casesens:Int)
 		m_casesens = casesens
 	End Method
-	
 	Rem
 		bbdoc: Get the case sensitivity for checking the identifier name.
 		returns: The case sensitivity (True or False).
@@ -124,7 +117,6 @@ Type TTemplate
 	Method SetFlexible(flexible:Int)
 		m_flexible = flexible
 	End Method
-	
 	Rem
 		bbdoc: Get the flexibility for the template.
 		returns: The flexibility field (True or False).
@@ -140,7 +132,6 @@ Type TTemplate
 	Method SetIden(iden:String[])
 		m_iden = iden
 	End Method
-	
 	Rem
 		bbdoc: Get the identifier name for the template.
 		returns: The identifier name.
@@ -158,7 +149,6 @@ Type TTemplate
 	Method SetVars(vars:Int[][])
 		m_vars = vars
 	End Method
-	
 	Rem
 		bbdoc: Get the variable definitions for the template.
 		returns: The variable definitions.
@@ -167,7 +157,9 @@ Type TTemplate
 		Return m_vars
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
+	
+'#region Data handling
 	
 	Rem
 		bbdoc: Serialize the template into a stream.
@@ -179,11 +171,9 @@ Type TTemplate
 		If m_iden <> Null Then tmpsize = m_iden.Length
 		stream.WriteInt(tmpsize)
 		If tmpsize > 0
-			
 			For i = 0 To tmpsize - 1
 				WriteNString(stream, m_iden[i])
 			Next
-			
 		End If
 		
 		stream.WriteInt(m_flexible)
@@ -193,32 +183,25 @@ Type TTemplate
 		If m_infinitism <> Null Then tmpsize = m_infinitism.Length
 		stream.WriteInt(tmpsize)
 		If tmpsize > 0
-			
 			For i = 0 To tmpsize - 1
 				stream.WriteInt(m_infinitism[i])
 			Next
-			
 		End If
 		
 		tmpsize = 0
 		If m_vars <> Null Then tmpsize = m_vars.Length
 		stream.WriteInt(tmpsize)
 		If tmpsize > 0
-			
 			For i = 0 To tmpsize - 1
 				Local varray:Int[], ix:Int
 				
 				varray = m_vars[i]
 				stream.WriteInt(varray.Length)
-				
 				For ix = 0 To varray.Length - 1
 					stream.WriteInt(varray[ix])
 				Next
-				
 			Next
-			
 		End If
-		
 	End Method
 	
 	Rem
@@ -230,13 +213,10 @@ Type TTemplate
 		
 		tmpsize = stream.ReadInt()
 		If tmpsize > 0
-			
 			m_iden = New String[tmpsize]
-			
 			For i = 0 To tmpsize - 1
 				m_iden[i] = ReadNString(stream, 768)
 			Next
-			
 		End If
 		
 		m_flexible = stream.ReadInt()
@@ -245,39 +225,28 @@ Type TTemplate
 		tmpsize = 0
 		tmpsize = stream.ReadInt()
 		If tmpsize > 0
-			
 			m_infinitism = New Int[tmpsize]
-			
 			For i = 0 To tmpsize - 1
 				m_infinitism[i] = stream.ReadInt()
 			Next
-			
 		End If
 		
 		tmpsize = 0
 		tmpsize = stream.ReadInt()
 		If tmpsize > 0
-			
 			m_vars = New Int[][tmpsize]
 			If m_vars.Length > 40 Then DebugLog("TTemplate.DeSerialize() WARNING: Possible corrupt template stream, template data contains a unusually large number of variables (" + tmpsize + ")")
-			
 			For i = 0 To tmpsize - 1
 				Local varray:Int[], ix:Int
 				
 				varray = New Int[stream.ReadInt()]
-				
 				For ix = 0 To varray.Length - 1
 					varray[ix] = stream.ReadInt()
 				Next
-				
 				m_vars[i] = varray
-				
 			Next
-			
 		End If
-		
 		Return Self
-		
 	End Method
 	
 	Rem
@@ -285,11 +254,8 @@ Type TTemplate
 		returns: True if the identifier matches the template, False if it does not (or if the Identifier is Null).
 	End Rem
 	Method ValidateIdentifier:Int(identifier:TIdentifier)
-		
 		If identifier <> Null
-			
 			If CheckNames(m_iden, identifier.GetName(), m_casesens) = True
-				
 				If identifier.GetValueCount() > m_vars.Length And m_flexible = False
 					Return False
 				Else If identifier.GetValueCount() < m_vars.Length
@@ -301,144 +267,108 @@ Type TTemplate
 					Local cmpvar:TVariable
 					
 					cmpvar = TVariable(identifier.GetValues().ValueAtIndex(i))
-					
 					If cmpvar <> Null
 						Local cmp:Int
 						
 						cmp = CheckVariable(m_vars[i], cmpvar)
-						
 						Select cmp
 							Case False
 								Return False
-								
 							Case True
 								' Don't need to do anything here, just assert the case else Default would pick it up
-								
 							Default
 								DebugLog("TTemplate.ValidateIdentifier() WARNING: vars[" + i + "][" + (- cmp) + "] (=" + m_vars[i][(- cmp)] + ") is not a valid TV_ constant; Returning False..")
 								Return False
-								
 						End Select
-						
 					Else
 						DebugLog("TTemplate.ValidateIdentifier() WARNING: cmpvar is Null (at index " + i + ", likely unable to convert object to TVariable)")
 					End If
-					
 				Next
 				
 				' Check flexible and infinitism
 				If identifier.GetValueCount() > m_vars.Length
 					If m_flexible = True
-						
 						If m_infinitism <> Null
-							
 							For Local i:Int = m_vars.Length To identifier.GetValueCount() - 1
 								Local cmp:Int
 								
 								cmp = CheckVariable(m_infinitism, TVariable(identifier.GetValues().ValueAtIndex(i)))
-								
 								Select cmp
 									Case False
 										Return False
-										
 									Case True
 										'Don't need to do anything here, just assert the case because Default would pick it up
-										
 									Default
 										DebugLog("TTemplate.ValidateIdentifier() WARNING: Infinitism contains an invalid TV_ constant (index " + ((- cmp) - 1) + ", " + m_infinitism[(- cmp) - 1] + "); Returning False.. ")
 										Return False
-										
 								End Select
-								
 							Next
-							
 						End If
-						
 					End If
 				End If
 				
 				Return True
-				
 			Else
 				'DebugLog("TTemplate.ValidateIdentifier(); Identifier name did not match any in the list")
 			End If
-			
 		Else
 			DebugLog("TTemplate.ValidateIdentifier(); Identifier is Null")
 		End If
 		
 		Return False
 		
-		
 		'Sub-functions
 			Function CheckVariable:Int(tvarray:Int[], variable:TVariable)
-				
 				If variable <> Null
 					Local i:Int
 					
 					For i = 0 To tvarray.Length - 1
-						
 						Select tvarray[i]
 							Case TV_INTEGER
 								If TIntVariable(variable)
 									Return True
 								End If
-								
 							Case TV_STRING
 								If TStringVariable(variable)
 									Return True
 								End If
-								
 							Case TV_FLOAT
 								If TFloatVariable(variable)
 									Return True
 								End If
-								
 							Case TV_EVAL
 								If TEvalVariable(variable)
 									Return True
 								End If
-								
 							Default
 								' Error, return negative index (for determining that there was an error and where it occured)
 								Return - (i + 1)
-								
 						End Select
-						
 					Next
-					
 				End If
-				
 				Return False
-				
 			End Function
 			
 			Function CheckNames:Int(names:String[], tocheck:String, casesens:Int)
 				Local cv1:String, i:Int
 				
 				If names <> Null
-					
 					If casesens = False Then tocheck = tocheck.ToLower()
-					
 					For i = 0 To names.Length - 1
 						cv1 = names[i]
-						
 						If casesens = False Then cv1 = cv1.ToLower()
-						
 						'DebugLog("ValidateIdentifier.CheckNames(): ~q" + cv1 + "~q ~q" + tocheck + "~q")
 						If cv1 = tocheck Then Return True
-						
 					Next
-					
 					Return False
-					
 				Else
 					' Null iden name = will pass for any name
 					Return True
 				End If
-				
 			End Function
 			
 	End Method
+	
+'#end region (Data handling)
 	
 End Type

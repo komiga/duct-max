@@ -28,11 +28,13 @@ bbdoc: 2D animations module
 End Rem
 Module duct.animations
 
-ModuleInfo "Version: 0.19"
+ModuleInfo "Version: 0.20"
 ModuleInfo "Credits: Indiepath for the initial single surface code"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.20"
+ModuleInfo "History: Fixed changed dependency (imports duct.imageio)"
 ModuleInfo "History: Version 0.19"
 ModuleInfo "History: General code cleanup"
 ModuleInfo "History: Version 0.18"
@@ -52,7 +54,7 @@ Import brl.pngloader
 Import brl.bmploader
 Import brl.jpgloader
 
-Import duct.objectio
+Import duct.imageio
 Import duct.etc
 
 

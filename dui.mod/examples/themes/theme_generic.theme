@@ -1,0 +1,116 @@
+
+name		"theme_generic"
+formalname	"Generic theme"
+
+texture		"themes/theme_generic.tga"
+
+sets {
+	"generic" {
+		section		"middle"		5	5	5	5
+		"corner" {
+			section "topleft"		0	0	5	5
+			section "topright"		10	0	5	5
+			section "bottomleft"	0	10	5	5
+			section "bottomright"	10	10	5	5
+		}
+		"side" {
+			section "top"			5	0	5	5
+			section "left"			0	5	5	5
+			section "right"			10	5	5	5
+			section "bottom"		5	10	5	5
+		}
+	}
+	
+	"panel" {
+		importset	"generic"
+	}
+	
+	"button" {
+		importset	"generic"
+	}
+	
+	"combobox" {
+		importset	"generic"
+		section		"arrow"		24	32	7	5
+	}
+	
+	"date" {
+		importset	"combobox"
+	}
+	
+	"menu" {
+		importset	"generic"
+	}
+	
+	"datepanel" {
+		importset	"menu"
+	}
+	
+	"progressbar" {
+		importset	"generic"
+	}
+	
+	"checkbox" {
+		section		"unticked"	16	0	15	15
+		section		"ticked"	32	0	15	15
+	}
+	
+	"searchbox" {
+		importset	"generic"
+		section		"glass"		32	32	10	10
+	}
+	
+	"searchpanel" {
+		importset	"generic"
+	}
+	
+	"textfield" {
+		importset		"generic"
+		importsection	"searchbox.glass"
+	}
+	
+	"scrollbar" {
+		section	"background"	48	0	15	15
+		
+		"button" {
+			section	"left"		0	16	15	15
+			section	"right"		16	16	15	15
+			section	"up"		32	16	15	15
+			section	"down"		48	16	15	15
+		}
+		"grab" {
+			"vertical" {
+				section "top"		0	32	15	2
+				section "middle"	0	34	15	3
+				section "bottom"	0	37	15	2
+			}
+			"horizontal" {
+				section "left"		16	32	2	15
+				section "middle"	18	32	3	15
+				section "right"		21	32	2	15
+			}
+		}
+	}
+	
+	"slider" {
+		importsection	"scrollbar.background"
+		"grab" {
+			importset		"scrollbar.grab"
+		}
+	}
+	
+	"cursor" {
+		section	"normal"	64	0	13	20
+		section	"over"		78	0	18	20
+		section	"down"		64	21	18	20
+		section	"textover"	83	21	9	18
+	}
+}
+
+
+
+
+
+
+
+

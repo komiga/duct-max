@@ -33,12 +33,11 @@ Type TSNode
 	Global m_handler:TSNodeDefaultParserHandler = New TSNodeDefaultParserHandler
 	
 	Field m_name:String
-	
 	Field m_parent:TSNode
-	Field m_children:TList
+	Field m_children:TListEx
 	
 	Method New()
-		m_children = New TList
+		m_children = New TListEx
 	End Method
 	
 	Rem
@@ -60,7 +59,6 @@ Type TSNode
 	Method SetParent(parent:TSNode)
 		m_parent = parent
 	End Method
-	
 	Rem
 		bbdoc: Get the node's parent.
 		returns: The node's parent; if the return value is Null then the node is most likely a root node.
@@ -76,7 +74,6 @@ Type TSNode
 	Method SetName(name:String)
 		m_name = name
 	End Method
-	
 	Rem
 		bbdoc: Get the name of the node.
 		returns: The name of the node.
@@ -86,6 +83,8 @@ Type TSNode
 	End Method
 	
 '#end region (Field accessors)
+	
+'#region Collections
 	
 	Rem
 		bbdoc: Add a SNode to this node.
@@ -128,22 +127,16 @@ Type TSNode
 		If casesens = False
 			name = name.ToLower()
 		End If
-		
 		For node = EachIn m_children
-			
 			itername = node.GetName()
 			If casesens = False
 				itername = itername.ToLower()
 			End If
-			
 			If name = itername
 				Return node
 			End If
-			
 		Next
-		
 		Return Null
-		
 	End Method
 	
 	Rem
@@ -157,22 +150,16 @@ Type TSNode
 		If casesens = False
 			name = name.ToLower()
 		End If
-		
 		For iden = EachIn m_children
-			
 			itername = iden.GetName()
 			If casesens = False
 				itername = itername.ToLower()
 			End If
-			
 			If name = itername
 				Return iden
 			End If
-			
 		Next
-		
 		Return Null
-		
 	End Method
 	
 	Rem
@@ -187,10 +174,12 @@ Type TSNode
 				Return iden
 			End If
 		Next
-		
 		Return Null
-		
 	End Method
+	
+'#end region (Collections)
+	
+'#region Data handling
 	
 	Rem
 		bbdoc: Write the node and it's children (child nodes and identifiers) to a file.
@@ -205,9 +194,7 @@ Type TSNode
 			rv = WriteToStream(outstream)
 			outstream.Close()
 		End If
-		
 		Return rv
-		
 	End Method
 	
 	Rem
@@ -215,12 +202,10 @@ Type TSNode
 		returns: True if completed successfully, or False if an error occured.
 	End Rem
 	Method WriteToStream:Int(stream:TStream, tablevel:String = "")
-		
 		If stream <> Null
 			Local tableveld:String
 			
 			If m_parent <> Null
-				
 				If m_name <> ""
 					If m_name.Contains("~t") = True Or m_name.Contains(" ")
 						stream.WriteLine(tablevel + "~q" + m_name + "~q {")
@@ -231,7 +216,6 @@ Type TSNode
 					stream.WriteLine(tablevel + "{")
 				End If
 				tableveld = tablevel + "~t"
-				
 			Else
 				tableveld = tablevel
 				stream.WriteLine("")
@@ -239,10 +223,8 @@ Type TSNode
 			
 			Local child:Object, iden:TIdentifier, node:TSNode
 			For child = EachIn m_children
-				
 				iden = TIdentifier(child)
 				node = TSNode(child)
-				
 				If iden <> Null
 					stream.WriteLine(tableveld + iden.ConvToString())
 				Else If node <> Null
@@ -250,17 +232,12 @@ Type TSNode
 					node.WriteToStream(stream, tableveld)
 					'stream.WriteLine("")
 				End If
-				
 			Next
-			
 			If m_parent <> Null
 				stream.WriteLine(tablevel + "}")
 			End If
-			
 			Return True
-			
 		End If
-		
 		Return False
 		
 		Rem
@@ -274,16 +251,15 @@ Type TSNode
 			
 		End Function
 		End Rem
-		
 	End Method
 	
 	Rem
 		bbdoc: Load a script from a stream/file.
 		returns: The root node of the script.
-		about: If the given @obj is a stream, it will not be closed.<br />
+		about: If the given @obj is a stream, it will not be closed.<br/>
 		A #TSNodeException might be thrown if an error occurs in parsing.
 	End Rem
-	Function LoadScriptFromObject:TSNode(obj:Object, encoding:Int = TTextStream.UTF8)
+	Function LoadScriptFromObject:TSNode(obj:Object, encoding:Int = SNPEncoding_UTF8)
 		Local root:TSNode
 		root = m_handler.ProcessFromObject(obj, encoding)
 		Return root
@@ -294,11 +270,13 @@ Type TSNode
 		returns: The root node of the script.
 		about: A #TSNodeException might be thrown if an error occurs in parsing.
 	End Rem
-	Function LoadScriptFromString:TSNode(data:String, encoding:Int = TTextStream.UTF8)
+	Function LoadScriptFromString:TSNode(data:String, encoding:Int = SNPEncoding_UTF8)
 		Local root:TSNode
 		root = m_handler.ProcessFromString(data, encoding)
 		Return root
 	End Function
+	
+'#end region (Data handling)
 	
 	Rem
 		bbdoc: Try a TVariable for boolean conversion.
@@ -306,7 +284,6 @@ Type TSNode
 		about: Tries integers (i.e. only if they are 1/0) and strings ("on"/"off", "true"/"false", "one"/"zero", "1"/"0" - not case sensitive); floats are not tried.
 	End Rem
 	Function ConvertVariableToBool:Int(variable:TVariable)
-		
 		If TIntVariable(variable)
 			Local val:Int = TIntVariable(variable).Get()
 			If val = False Or val = True
@@ -321,11 +298,8 @@ Type TSNode
 				Case "false", "off", "0"
 					Return False
 			End Select
-			
 		End If
-		
-	   Return - 1
-	   
+		Return - 1
 	End Function
 	
 End Type

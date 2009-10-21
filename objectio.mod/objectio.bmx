@@ -19,6 +19,10 @@ Rem
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE.
+	-----------------------------------------------------------------------------
+	
+	objectio.bmx (Contains: TPixmapIO, )
+	
 End Rem
 
 SuperStrict
@@ -28,40 +32,77 @@ bbdoc: Object writer/reader module
 End Rem
 Module duct.objectio
 
-ModuleInfo "Version: 0.2"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.3"
+ModuleInfo "History: Cleanup"
 ModuleInfo "History: Version 0.2"
 ModuleInfo "History: Changed license headers"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Added TPixmapWriter and TImageWriter"
 ModuleInfo "History: Initial release"
 
-'Used modules
+' Used modules
 Import brl.stream
-
 Import brl.pixmap
-Import brl.max2d
 
 
-'Included code
-Include "inc/types/graphical.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Rem
+	bbdoc: The pixmap reader/writer type.
+End Rem
+Type TPixmapIO
+	
+	Rem
+		bbdoc: Read a pixmap from a stream
+		returns: The read pixmap.
+		about: This does not check if the stream is Null.
+	End Rem
+	Function Read:TPixmap(stream:TStream)
+		Const align:Int = 4
+		Local pixmap:TPixmap, width:Int, height:Int, format:Int, pitch:Int, capacity:Int, y:Int
+		
+		pixmap:TPixmap = New TPixmap
+		width = stream.ReadInt()
+		height = stream.ReadInt()
+		format = stream.ReadInt()
+		
+		pitch = width * BytesPerPixel[format]
+		pitch = (pitch + (align - 1)) / align * align
+		capacity = pitch * height
+		
+		pixmap.pixels = MemAlloc(capacity)
+		pixmap.width = width
+		pixmap.height = height
+		pixmap.pitch = pitch
+		pixmap.format = format
+		pixmap.capacity = capacity
+		
+		For y = 0 Until pixmap.height
+			stream.ReadBytes(pixmap.PixelPtr(0, y), pixmap.width * BytesPerPixel[pixmap.format])
+		Next
+		Return pixmap
+	End Function
+	
+	Rem
+		bbdoc: Write a pixmap to a stream.
+		returns: Nothing.
+		about: This does not check if the stream is Null.
+	End Rem
+	Function Write(pixmap:TPixmap, stream:TStream)
+		Local y:Int
+		
+		stream.WriteInt(pixmap.width)
+		stream.WriteInt(pixmap.height)
+		stream.WriteInt(pixmap.format)
+		
+		For y = 0 Until pixmap.height
+			stream.WriteBytes(pixmap.PixelPtr(0, y), pixmap.width * BytesPerPixel[pixmap.format])
+		Next
+	End Function
+	
+End Type
 
 
 

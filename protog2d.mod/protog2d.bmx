@@ -28,10 +28,17 @@ bbdoc: Protog OpenGL 2D graphics engine
 End Rem
 Module duct.protog2d
 
-ModuleInfo "Version: 0.5"
+ModuleInfo "Version: 0.6"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.6"
+ModuleInfo "History: Added TProtogTexture.RenderToPosParams"
+ModuleInfo "History: Fixed font string width calculation (was returning 0.0 for strings that did /not/ contain a newline character)"
+ModuleInfo "History: Added TProtogDrawState"
+ModuleInfo "History: Added some state getters/setters"
+ModuleInfo "History: Added some viewport-related functions to TProtog2DDriver"
+ModuleInfo "History: Added TProtogPrimitives and line width access"
 ModuleInfo "History: Version 0.5"
 ModuleInfo "History: Lots of changes.."
 ModuleInfo "History: Added TProtogSpriteEntity"
@@ -85,7 +92,10 @@ Include "inc/types/texture.bmx"
 Include "inc/types/fbo.bmx"
 Include "inc/types/font.bmx"
 Include "inc/types/entity.bmx"
+Include "inc/types/collision.bmx"
 Include "inc/types/color.bmx"
+Include "inc/types/primitives.bmx"
+Include "inc/types/drawstate.bmx"
 
 Include "inc/types/app.bmx"
 

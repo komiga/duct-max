@@ -132,6 +132,7 @@ Type TProtog2DDriver Extends TGraphicsDriver
 	Global m_color_curr:TProtogColor = New TProtogColor.Create()
 	Global m_color_cls:TProtogColor = New TProtogColor.Create(0.0, 0.0, 0.0, 1.0)
 	
+	Global m_linewidth:Float
 	Global m_activetexture:TGLTexture
 	
 	Global m_rendertexture:TProtogTexture', m_accumtexture1:TProtogTexture
@@ -306,11 +307,11 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		returns: Nothing.
 	End Rem
 	Function ClearGLContext()
-		
 		m_windowsize.Set(0.0, 0.0)
 		m_viewportpos.Set(0.0, 0.0)
 		m_viewportsize.Set(0.0, 0.0)
 		
+		m_linewidth = 0
 		m_state_blend = 0
 		
 		DestroyRenderBuffer()
@@ -447,7 +448,6 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		'	m_accumtexture1 = Null
 		'End If
 	End Function
-	
 	Rem
 		bbdoc: Bind the renderbuffer (anything drawn will go to the renderbuffer).
 		returns: Nothing.
@@ -455,7 +455,6 @@ Type TProtog2DDriver Extends TGraphicsDriver
 	Function BindRenderBuffer()
 		m_renderbuffer.Bind()
 	End Function
-	
 	Rem
 		bbdoc: Unbind the renderbuffer (will allow rendering to the backbuffer).
 		returns: Nothing.
@@ -463,7 +462,6 @@ Type TProtog2DDriver Extends TGraphicsDriver
 	Function UnbindRenderBuffer()
 		TProtogFrameBuffer.UnBind()
 	End Function
-	
 	Rem
 		bbdoc: Turn on or off the drawing/usage of the renderbuffer.
 		returns: Nothing.
@@ -487,7 +485,7 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		Local quad:TVec4 = New TVec4.Create(0.0, 0.0, m_windowsize.m_x, m_windowsize.m_y)
 		SetViewport(quad)
 		
-		Print(m_viewportsize.m_x + " by " + m_viewportsize.m_y)
+		'Print(m_viewportsize.m_x + " by " + m_viewportsize.m_y)
 		
 		If m_use_renderpasses = True And m_renderpasses.m_count > 0
 			Local enum:TListEnum = m_renderpasses.ObjectEnumerator(), shader:TProtogShader
@@ -552,7 +550,6 @@ Type TProtog2DDriver Extends TGraphicsDriver
 	Function SetActiveTexture(texture:TGLTexture)
 		m_activetexture = texture
 	End Function
-	
 	Rem
 		bbdoc: Get the active (bound) texture.
 		returns: The active texture..
@@ -572,7 +569,6 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		glBindTexture(texture.m_target, texture.m_handle)
 		SetActiveTexture(texture)
 	End Function
-	
 	Rem
 		bbdoc: Bind the given texture handle.
 		returns: Nothing.
@@ -582,7 +578,6 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		glBindTexture(target, handle)
 		'SetActiveTexture(Null)
 	End Function
-	 
 	Rem
 		bbdoc: Unbind the given texture target.
 		returns: Nothing.
@@ -591,6 +586,17 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		glBindTexture(target, 0)
 		glDisable(target)
 		'SetActiveTexture(Null)
+	End Function
+	
+	Rem
+		bbdoc: If a texture is currently active (bound), unbind it.
+		returns: Nothing.
+	End Rem
+	Function UnbindActiveTexture()
+		If m_activetexture <> Null
+			m_activetexture.Unbind()
+			SetActiveTexture(Null)
+		End If
 	End Function
 	
 	Rem
@@ -627,6 +633,13 @@ Type TProtog2DDriver Extends TGraphicsDriver
 			End Select
 		End If
 	End Function
+	Rem
+		bbdoc: Get the current blend state.
+		returns: The current blend state.
+	End Rem
+	Function GetBlend:Int()
+		Return m_state_blend
+	End Function
 	
 	Rem
 		bbdoc: Bind the given TProtogColor.
@@ -634,12 +647,47 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		about: If @alpha is True, the color's alpha will also be bound.
 	End Rem
 	Function BindPColor(color:TProtogColor, alpha:Int = True)
-		If alpha = True
-			glColor4fv(Varptr(color.m_red))
-		Else
-			glColor3fv(Varptr(color.m_red))
-		End If
 		m_color_curr.SetFromColor(color, alpha)
+		If alpha = True
+			glColor4fv(Varptr(m_color_curr.m_red))
+		Else
+			glColor3fv(Varptr(m_color_curr.m_red))
+		End If
+	End Function
+	
+	Rem
+		bbdoc: Bind the given parameters to the color state.
+		returns: Nothing.
+	End Rem
+	Function BindColorParams(red:Float, green:Float, blue:Float)
+		m_color_curr.SetColor(red, green, blue)
+		glColor4fv(Varptr(m_color_curr.m_red))
+	End Function
+	
+	Rem
+		bbdoc: Get the currently bound color.
+		returns: The bound color in a #TProtogColor.
+		about: NOTE: The color that is returned is not the object that was bound. The color returned is simply a clone of it (depending on the alpha setting).
+	End Rem
+	Function GetBoundColor:TProtogColor()
+		Return m_color_curr
+	End Function
+	
+	Rem
+		bbdoc: Set the current alpha value.
+		returns: Nothing.
+	End Rem
+	Function SetAlpha(alpha:Float)
+		m_color_curr.SetAlpha(alpha)
+		glColor4fv(Varptr(m_color_curr.m_red))
+	End Function
+	
+	Rem
+		bbdoc: Get the current alpha value.
+		returns: The current alpha value.
+	End Rem
+	Function GetAlpha:Float()
+		Return m_color_curr.m_alpha
 	End Function
 	
 	Rem
@@ -661,6 +709,22 @@ Type TProtog2DDriver Extends TGraphicsDriver
 	End Function
 	
 	Rem
+		bbdoc: Set the line width.
+		returns: Nothing.
+	End Rem
+	Function SetLineWidth(width:Float)
+		m_linewidth = width
+		glLineWidth(width)
+	End Function
+	Rem
+		bbdoc: Get the current line width.
+		returns: The current line width.
+	End Rem
+	Function GetLineWidth:Float()
+		Return m_linewidth
+	End Function
+	
+	Rem
 		bbdoc: Set the graphical viewport (anything which is drawn outside of the current viewport will not appear on the screen).
 		returns: Nothing.
 	End Rem
@@ -673,6 +737,31 @@ Type TProtog2DDriver Extends TGraphicsDriver
 		End If
 		m_viewportpos.Set(vport.m_x, vport.m_y)
 		m_viewportsize.Set(vport.m_z, vport.m_w)
+	End Function
+	
+	Rem
+		bbdoc: Set the graphical viewport (anything which is drawn outside of the current viewport will not appear on the screen).
+		returns: Nothing.
+	End Rem
+	Function SetViewportParams(x:Float, y:Float, width:Float, height:Float)
+		SetViewport(New TVec4.Create(x, y, width, height))
+	End Function
+	
+	Rem
+		bbdoc: Get the viewport position vector.
+		returns: The viewport position vector.
+		about: NOTE: The returned value is %not a copy of the original. If you need to change the viewport, do so using #SetViewport of #SetViewportParams.
+	End Rem
+	Function GetViewportPosition:TVec2()
+		Return m_viewportpos
+	End Function
+	
+	Rem
+		bbdoc: Get the viewport size vector.
+		returns: The viewport size vector.
+	End Rem
+	Function GetViewportSize:TVec2()
+		Return m_viewportsize
 	End Function
 	
 	Rem

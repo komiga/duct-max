@@ -41,7 +41,6 @@ Function WriteFileExplicitly:TStream(url:String)
 	stream = WriteFile(url)
 	
 	Return stream
-	
 End Function
 
 Rem
@@ -57,7 +56,6 @@ Function CreateFileExplicitly(url:String)
 	End If
 	
 	CreateFile(url)
-	
 End Function
 
 Rem
@@ -79,13 +77,10 @@ Function CopyFileExplicitly:Int(from:String, _to:String)
 	CopyFile(from, _to)
 	
 	If FileType(_to) = FILETYPE_FILE
-		
 		Return True
-		
 	End If
 	
 	Return False
-	
 End Function
 
 Rem
@@ -99,7 +94,6 @@ Function TimeInFormat:String(format:String)
 	strftime_(buff, 256, format, localtime_(time))
 	
 	Return String.FromCString(buff)
-	
 End Function
 
 Rem
@@ -110,17 +104,13 @@ Function FileTimeWithFormat:String(path:String, format:String)
 	Local time:Int Ptr, buff:Byte[256], ftime:Int
 	
 	If format <> Null And path <> Null And FileType(path) = FILETYPE_FILE
-		
 		ftime = FileTime(path)
 		time = Varptr(ftime)
 		strftime_(buff, 256, format, localtime_(time))
 		
 		Return String.FromCString(buff)
-		
 	End If
-	
 	Return Null
-	
 End Function
 
 Rem
@@ -134,60 +124,35 @@ Function FixPathEnding:String(path:String, remove_slash:Int = False)
 	
 	Repeat
 		If path[lastchar] = 92 Or path[lastchar] = 47
-			
 			path = path[..lastchar]
-			
 			lastchar = path.Length - 1
-			
 		Else
-			
 			Exit
-				
 		End If
-		
 	Forever
 	
 	If remove_slash = False
-		
 		' "\" = 92; "/" = 47
 		If path[lastchar] = 92
-			
 			Return path[..lastchar] + "/"
-			
 		Else If path[lastchar] <> 47
-			
 			Return path + "/"
-			
 		End If
-		
 	End If
 	
 	Return path
-	
 End Function
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Rem
+	bbdoc: Check if the given number is divisible by the given divisor.
+	returns: True if the given number can divide evenly, or False if it cannot.
+End Rem
+Function IsDivisible:Int(number:Int, divisor:Int)
+	If number > 0 And divisor > 0
+		Return (number Mod divisor = 0)
+	End If
+	Return False
+End Function
 
 
 

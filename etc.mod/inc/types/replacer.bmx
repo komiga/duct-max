@@ -21,7 +21,7 @@ Rem
 	THE SOFTWARE.
 	-----------------------------------------------------------------------------
 	
-	replacer.bmx (Contains: TTextReplacer, )
+	replacer.bmx (Contains: TTextReplacer, TTextReplacement, )
 	
 	TODO:
 		

@@ -43,15 +43,12 @@ Type TLocale Extends TObjectMap
 		returns: The new TLocale (itself).
 	End Rem
 	Method Create:TLocale(name:String, nativename:String)
-		
 		SetName(name)
 		SetNativeName(nativename)
-		
 		Return Self
-		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the name for the locale (the name of the language for the locale).
@@ -85,9 +82,9 @@ Type TLocale Extends TObjectMap
 		Return m_nativename
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
-	'#region Collections
+'#region Collections
 	
 	Rem
 		bbdoc: Get a #TLocalizationCategory by the name given.
@@ -135,23 +132,22 @@ Type TLocale Extends TObjectMap
 			If sloc = -1
 				Return Category(structure)
 			Else
-				Local cat:TLocalizationCategory = Category(structure[..sloc])
+				Local cat:TLocalizationCategory
 				
+				cat = Category(structure[..sloc])
 				If cat <> Null
 					Return cat.CategoryFromStructure(structure[sloc + separator.Length..], separator)
 				End If
-				
 			End If
 		End If
 		
 		Return Null
-		
 	End Method
 	
 	Rem
 		bbdoc: Get a #TLocalizedText from the given structure.
 		returns: The #TLocalizedText from the given structure, or Null if either no #TLocalizedText was found at the end of the structure or the given separator is Null.
-		about: @separator is the string inbetween a category/text (e.g. @{'mycategory.mytext'}, where @{'.'} is the separator).<br />
+		about: @separator is the string inbetween a category/text (e.g. @{'mycategory.mytext'}, where @{'.'} is the separator).<br/>
 		See #TextFromStructureAsString if you just want to get the value of the #TLocalizedText.
 	End Rem
 	Method TextFromStructureL:TLocalizedText(structure:String, separator:String = ".")
@@ -162,17 +158,16 @@ Type TLocale Extends TObjectMap
 			If sloc = -1
 				Return TextL(structure)
 			Else
-				Local cat:TLocalizationCategory = Category(structure[..sloc])
+				Local cat:TLocalizationCategory
 				
+				cat = Category(structure[..sloc])
 				If cat <> Null
 					Return cat.TextFromStructureL(structure[sloc + separator.Length..], separator)
 				End If
-				
 			End If
 		End If
 		
 		Return Null
-		
 	End Method
 	
 	Rem
@@ -184,13 +179,11 @@ Type TLocale Extends TObjectMap
 		Local ltext:TLocalizedText
 		
 		ltext = TextFromStructureL(structure, separator)
-		
 		If ltext <> Null
 			Return ltext.GetValue()
 		End If
 		
 		Return Null
-		
 	End Method
 	
 	Rem
@@ -198,11 +191,8 @@ Type TLocale Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method AddText(text:TLocalizedText)
-		
 		Assert text, "(TLocale.AddText()) @text is Null!"
-		
 		_Insert(text.CollectionKey(), text)
-		
 	End Method
 	
 	Rem
@@ -210,11 +200,8 @@ Type TLocale Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method AddCategory(category:TLocalizationCategory)
-		
 		Assert category, "(TLocale.AddCategory()) @category is Null!"
-		
 		_Insert(category.CollectionKey(), category)
-		
 	End Method
 	
 	Rem
@@ -223,9 +210,7 @@ Type TLocale Extends TObjectMap
 		about: See #CollectionKey.
 	End Rem
 	Method RemoveChildByKey:Int(key:String)
-		
 		Return _Remove(key.ToLower())
-		
 	End Method
 	
 	Rem
@@ -255,8 +240,8 @@ Type TLocale Extends TObjectMap
 	Rem
 		bbdoc: Check if this locale matches another.
 		returns: True if the given locale has all the categories and texts as this locale, or False if the given locale does not have all the categories and texts as this locale.
-		about: This will only check if the given locale has the categories and texts that this locale has.<br />
-		If the given locale has extra categories or texts, they will not make the match false.<br />
+		about: This will only check if the given locale has the categories and texts that this locale has.<br/>
+		If the given locale has extra categories or texts, they will not make the match false.<br/>
 		If the given locale is missing a category/text that this locale has, the return value will be false.
 	End Rem
 	Method Matches:Int(locale:TLocale)
@@ -265,7 +250,6 @@ Type TLocale Extends TObjectMap
 		Local catl:TLocalizationCategory
 		
 		For child = EachIn ValueEnumerator()
-			
 			text = TLocalizedText(child)
 			If text <> Null
 				If locale.ContainsText(text.CollectionKey()) = False
@@ -274,7 +258,6 @@ Type TLocale Extends TObjectMap
 			Else
 				cat = TLocalizationCategory(child)
 				catl = locale.Category(cat.CollectionKey())
-				
 				If catl <> Null
 					If cat.Matches(catl) = False
 						Return False
@@ -282,13 +265,10 @@ Type TLocale Extends TObjectMap
 				Else
 					Return False
 				End If
-				
 			End If
-			
 		Next
 		
 		Return True
-		
 	End Method
 	
 	Rem
@@ -296,16 +276,13 @@ Type TLocale Extends TObjectMap
 		returns: The collection key for this locale (currently the name of the locale).
 	End Rem
 	Method CollectionKey:String()
-		
 		Assert m_name, "(TLocale.CollectionKey()) m_name is Null!"
-		
 		Return m_name.ToLower()
-		
 	End Method
 	
-	'#end region (Collections)
+'#end region (Collections)
 	
-	'#region Data handling
+'#region Data handling
 	
 	Rem
 		bbdoc: Load the locale data from the given script file.
@@ -315,15 +292,11 @@ Type TLocale Extends TObjectMap
 		Local node:TSNode
 		
 		If FileType(file) = FILETYPE_FILE
-			
 			node = TSNode.LoadScriptFromObject(file)
-			
 			Return FromNode(node)
-			
 		End If
 		
 		Return Null
-		
 	End Method
 	
 	Rem
@@ -335,7 +308,6 @@ Type TLocale Extends TObjectMap
 		
 		If node <> Null
 			For child = EachIn node.GetChildren()
-				
 				iden = TIdentifier(child)
 				If iden <> Null
 					If tpl_name.ValidateIdentifier(iden) = True
@@ -349,7 +321,6 @@ Type TLocale Extends TObjectMap
 					cnode = TSNode(child)
 					AddCategory(New TLocalizationCategory.FromNode(cnode))
 				End If
-				
 			Next
 		Else
 			Return Null
@@ -360,10 +331,9 @@ Type TLocale Extends TObjectMap
 		End If
 		
 		Return Self
-		
 	End Method
 	
-	'#end region (Data handling)
+'#end region (Data handling)
 	
 End Type
 
@@ -377,7 +347,7 @@ Type TLocaleManager
 	
 	Global m_locale_ext:String = "loc"
 	
-	'#region Setters and getters
+'#region Setters and getters
 	
 	Rem
 		bbdoc: Set the current locale.
@@ -395,14 +365,12 @@ Type TLocaleManager
 		Local locale:TLocale
 		
 		locale = GetLocaleByKey(name)
-		
 		If locale = Null
 			Return False
 		End If
 		
 		m_currentlocale = locale
 		Return True
-		
 	End Function
 	
 	Rem
@@ -431,9 +399,9 @@ Type TLocaleManager
 		Return m_locale_ext
 	End Function
 	
-	'#end region (Setters and getters)
+'#end region (Setters and getters)
 	
-	'#region Collections
+'#region Collections
 	
 	Rem
 		bbdoc: Get a #TLocalizationCategory by the name given.
@@ -451,7 +419,7 @@ Type TLocaleManager
 	Rem
 		bbdoc: Get a #TLocalizedText with the name given.
 		returns: The #TLocalizedText with the name given, or Null if either there is no #TLocalizedText with the name given or there is no current locale..
-		about: This function forwards off to the current locale (if there is no current locale, the return value is Null).<br />
+		about: This function forwards off to the current locale (if there is no current locale, the return value is Null).<br/>
 		See #TextAsString if you just want to get the value of the #TLocalizedText.
 	End Rem
 	Function TextL:TLocalizedText(name:String)
@@ -468,62 +436,54 @@ Type TLocaleManager
 		about: This function forwards off to the current locale (if there is no current locale, the return value is Null).
 	End Rem
 	Function Text:String(name:String)
-		
 		If m_currentlocale <> Null
 			Return m_currentlocale.Text(name)
 		Else
 			Return Null
 		End If
-		
 	End Function
 	
 	Rem
 		bbdoc: Get a category from the given structure.
 		returns: The category from the given structure, or Null if either no category was found at the end of the structure or the given separator is Null.
-		about: This function forwards off to the current locale (if there is no current locale, the return value is Null).<br />
+		about: This function forwards off to the current locale (if there is no current locale, the return value is Null).<br/>
 		@separator is the string inbetween a category (e.g. @{'mycategory.myothercategory'}, where @{'.'} is the separator).
 	End Rem
 	Function CategoryFromStructure:TLocalizationCategory(structure:String, separator:String = ".")
-		
 		If m_currentlocale <> Null
 			Return m_currentlocale.CategoryFromStructure(structure, separator)
 		Else
 			Return Null
 		End If
-		
 	End Function
 	
 	Rem
 		bbdoc: Get the #TLocalizedText from the given structure.
 		returns: The #TLocalizedText from the given structure, or Null if either no #TLocalizedText was found at the end of the structure or the given separator is Null.
-		about: This function forwards off to the current locale (if there is no current locale, the return value is Null).<br />
-		@separator is the string inbetween a category/text (e.g. @{'mycategory.mytext'}, where @{'.'} is the separator).<br />
+		about: This function forwards off to the current locale (if there is no current locale, the return value is Null).<br/>
+		@separator is the string inbetween a category/text (e.g. @{'mycategory.mytext'}, where @{'.'} is the separator).<br/>
 		See #TextFromStructureAsString if you just want to get the value of the #TLocalizedText.
 	End Rem
 	Function TextFromStructureL:TLocalizedText(structure:String, separator:String = ".")
-		
 		If m_currentlocale <> Null
 			Return m_currentlocale.TextFromStructureL(structure, separator)
 		Else
 			Return Null
 		End If
-		
 	End Function
 	
 	Rem
 		bbdoc: Get the value of the #TLocalizedText from the given structure.
 		returns: The value of the #TLocalizedText from the given structure, or Null if either no #TLocalizedText was found at the end of the structure or the given separator is Null.
-		about: This function forwards off to the current locale (if there is no current locale, the return value is Null).<br />
+		about: This function forwards off to the current locale (if there is no current locale, the return value is Null).<br/>
 		@separator is the string inbetween a category/text (e.g. @{'mycategory.mytext'}, where @{'.'} is the separator).
 	End Rem
 	Function TextFromStructure:String(structure:String, separator:String = ".")
-		
 		If m_currentlocale <> Null
 			Return m_currentlocale.TextFromStructure(structure, separator)
 		Else
 			Return Null
 		End If
-		
 	End Function
 	
 	Rem
@@ -531,13 +491,10 @@ Type TLocaleManager
 		returns: Nothing.
 	End Rem
 	Function AddLocale(locale:TLocale)
-		
 		Assert locale, "(TLocaleManager.AddLocale()) @locale is Null!"
-		
 		If locale <> Null
 			m_map._Insert(locale.CollectionKey(), locale)
 		End If
-		
 	End Function
 	
 	Rem
@@ -564,9 +521,9 @@ Type TLocaleManager
 		Return m_map.ValueEnumerator()
 	End Function
 	
-	'#end region (Collections)
+'#end region (Collections)
 	
-	'#region Parsing
+'#region Parsing
 	
 	Rem
 		bbdoc: Load/parse all of the locales in the given folder.
@@ -577,36 +534,27 @@ Type TLocaleManager
 		
 		FixPathEnding(path)
 		dir = ReadDir(path)
-		
 		Repeat
-			
 			file = NextFile(dir)
 			
 			If file = "" Then Exit
 			If file <> "." And file <> ".."
-				
 				Select FileType(path + file)
 					Case FILETYPE_FILE
 						If ExtractExt(file).ToLower() = m_locale_ext
 							AddLocale(New TLocale.FromScriptFile(path + file))
 						End If
-						
 					Case FILETYPE_DIR
 						If recursive = True
 							ParseLocaleFolder(path + file + "/", recursive)
 						End If
-						
 				End Select
-				
 			End If
-			
 		Forever
-		
 		CloseDir(dir)
-		
 	End Function
 	
-	'#end region (Parsing)
+'#end region (Parsing)
 	
 End Type
 

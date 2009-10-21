@@ -37,14 +37,11 @@ Type TLocalizationCategory Extends TObjectMap
 		returns: The new TLocalizationCategory (itself).
 	End Rem
 	Method Create:TLocalizationCategory(name:String)
-		
 		SetName(name)
-		
 		Return Self
-		
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the category's name
@@ -62,9 +59,9 @@ Type TLocalizationCategory Extends TObjectMap
 		Return m_name
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
-	'#region Collections
+'#region Collections
 	
 	Rem
 		bbdoc: Get a #TLocalizationCategory by the name given.
@@ -96,7 +93,6 @@ Type TLocalizationCategory Extends TObjectMap
 		End If
 		
 		Return Null
-		
 	End Method
 	
 	Rem
@@ -112,23 +108,22 @@ Type TLocalizationCategory Extends TObjectMap
 			If sloc = -1
 				Return Category(structure)
 			Else
-				Local cat:TLocalizationCategory = Category(structure[..sloc])
+				Local cat:TLocalizationCategory
 				
+				cat = Category(structure[..sloc])
 				If cat <> Null
 					Return cat.CategoryFromStructure(structure[sloc + separator.Length..], separator)
 				End If
-				
 			End If
 		End If
 		
 		Return Null
-		
 	End Method
 	
 	Rem
 		bbdoc: Get the #TLocalizedText from the given structure.
 		returns: The #TLocalizedText from the given structure, or Null if either no #TLocalizedText was found at the end of the structure or if the given separator is Null.
-		about: @separator is the string inbetween a category/text (e.g. @{'mycategory.mytext'}, where @{'.'} is the separator).<br />
+		about: @separator is the string inbetween a category/text (e.g. @{'mycategory.mytext'}, where @{'.'} is the separator).<br/>
 		See #TextFromStructureAsString if you just want to get the value of the #TLocalizedText.
 	End Rem
 	Method TextFromStructureL:TLocalizedText(structure:String, separator:String = ".")
@@ -140,8 +135,9 @@ Type TLocalizationCategory Extends TObjectMap
 			If sloc = -1
 				Return TextL(structure)
 			Else
-				Local cat:TLocalizationCategory = Category(structure[..sloc])
+				Local cat:TLocalizationCategory
 				
+				cat = Category(structure[..sloc])
 				If cat <> Null
 					Return cat.TextFromStructureL(structure[sloc + separator.Length..], separator)
 				End If
@@ -150,25 +146,22 @@ Type TLocalizationCategory Extends TObjectMap
 		End If
 		
 		Return Null
-		
 	End Method
 	
 	Rem
 		bbdoc: Get the value of the #TLocalizedText from the given structure.
 		returns: The value of the #TLocalizedText from the given structure, or Null if either no #TLocalizedText was found at the end of the structure or the given separator is Null.
-		about: @separator is the string inbetween a category/text (e.g. @{'mycategory.mytext'}, where @{'.'} is the separator).<br />
+		about: @separator is the string inbetween a category/text (e.g. @{'mycategory.mytext'}, where @{'.'} is the separator).<br/>
 	End Rem
 	Method TextFromStructure:String(structure:String, separator:String = ".")
 		Local ltext:TLocalizedText
 		
 		ltext = TextFromStructureL(structure, separator)
-		
 		If ltext <> Null
 			Return ltext.GetValue()
 		End If
 		
 		Return Null
-		
 	End Method
 	
 	Rem
@@ -176,13 +169,10 @@ Type TLocalizationCategory Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method AddCategory(category:TLocalizationCategory)
-		
 		Assert category, "(TLocalizationCategory.AddCategory()) @category is Null!"
-		
 		If category <> Null
 			_Insert(category.CollectionKey(), category)
 		End If
-		
 	End Method
 	
 	Rem
@@ -190,13 +180,10 @@ Type TLocalizationCategory Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method AddText(text:TLocalizedText)
-		
 		Assert text, "(TLocalizationCategory.AddText()) @text is Null!"
-		
 		If text <> Null
 			_Insert(text.CollectionKey(), text)
 		End If
-		
 	End Method
 	
 	Rem
@@ -205,9 +192,7 @@ Type TLocalizationCategory Extends TObjectMap
 		about: See #CollectionKey.
 	End Rem
 	Method RemoveChildByKey:Int(key:String)
-		
 		Return _Remove(key)
-		
 	End Method
 	
 	Rem
@@ -237,8 +222,8 @@ Type TLocalizationCategory Extends TObjectMap
 	Rem
 		bbdoc: Check if this category matches another.
 		returns: True if the given category has all the categories and texts as this category, or False if the given category does not have all the categories and texts as this category.
-		about: This will only check if the given category has the categories and texts that this category has.<br />
-		If the given category has extra categories or texts, they will not make the match false.<br />
+		about: This will only check if the given category has the categories and texts that this category has.<br/>
+		If the given category has extra categories or texts, they will not make the match false.<br/>
 		If the given category is missing a category/text that this category has, the return value will be false.
 	End Rem
 	Method Matches:Int(category:TLocalizationCategory)
@@ -247,7 +232,6 @@ Type TLocalizationCategory Extends TObjectMap
 		Local catl:TLocalizationCategory
 		
 		For child = EachIn ValueEnumerator()
-			
 			text = TLocalizedText(child)
 			If text <> Null
 				If category.ContainsText(text.CollectionKey()) = False
@@ -256,7 +240,6 @@ Type TLocalizationCategory Extends TObjectMap
 			Else
 				cat = TLocalizationCategory(child)
 				catl = category.Category(cat.CollectionKey())
-				
 				If catl <> Null
 					If cat.Matches(catl) = False
 						Return False
@@ -264,13 +247,10 @@ Type TLocalizationCategory Extends TObjectMap
 				Else
 					Return False
 				End If
-				
 			End If
-			
 		Next
 		
 		Return True
-		
 	End Method
 	
 	Rem
@@ -278,14 +258,11 @@ Type TLocalizationCategory Extends TObjectMap
 		returns: The collection key for this category (currently the name of the category).
 	End Rem
 	Method CollectionKey:String()
-		
 		Assert m_name, "(TLocalizationCategory.CollectionKey()) m_name is Null!"
-		
 		Return m_name.ToLower()
-		
 	End Method
 	
-	'#end region (Collections)
+'#end region (Collections)
 	
 	Rem
 		bbdoc: Load the locale data from the given node.
@@ -297,7 +274,6 @@ Type TLocalizationCategory Extends TObjectMap
 		SetName(node.GetName())
 		
 		For child = EachIn node.GetChildren()
-			
 			iden = TIdentifier(child)
 			If iden <> Null
 				AddText(New TLocalizedText.FromIdentifier(iden))
@@ -305,11 +281,9 @@ Type TLocalizationCategory Extends TObjectMap
 				cnode = TSNode(child)
 				AddCategory(New TLocalizationCategory.FromNode(cnode))
 			End If
-			
 		Next
 		
 		Return Self
-		
 	End Method
 	
 End Type
@@ -336,11 +310,8 @@ Type TLocalizedText
 		returns: The new TLocalizedText (itself).
 	End Rem
 	Method Create:TLocalizedText(name:String)
-		
 		SetName(name)
-		
 		Return Self
-		
 	End Method
 	
 	'#region Field accessors
@@ -377,41 +348,33 @@ Type TLocalizedText
 		Return m_text
 	End Method
 	
-	'#end region (Field accessors)
+'#end region (Field accessors)
 	
-	'#region Collections
+'#region Collections
 	
 	Rem
 		bbdoc: Get the collection key for the localized text.
 		returns: The collection key for the localized text (currently the name of the localized text).
 	End Rem
 	Method CollectionKey:String()
-		
 		Assert m_name, "(TLocalizedText.CollectionKey()) m_name is Null!"
-		
 		Return m_name.ToLower()
-		
 	End Method
 	
-	'#end region (Collections)
+'#end region (Collections)
 	
 	Rem
 		bbdoc: Load a localized text from the given identifier.
 		returns: The loaded localized text (itself), or Null if the given identifier is not of the correct template (see #m_template).
 	End Rem
 	Method FromIdentifier:TLocalizedText(iden:TIdentifier)
-		
 		If m_template.ValidateIdentifier(iden) = True
-			
 			SetName(iden.GetName())
 			SetValue(TStringVariable(iden.GetValueAtIndex(0)).Get())
-			
 			Return Self
-			
 		Else
 			Return Null
 		End If
-		
 	End Method
 	
 End Type

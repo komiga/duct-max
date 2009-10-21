@@ -1,87 +1,75 @@
 
 Rem
-	scrollbox.bmx (Contains: dui_TScrollBox, )
+	scrollbox.bmx (Contains: dui_ScrollBox, )
 End Rem
 
 Rem
 	bbdoc: The dui scrollbox gadget type.
 End Rem
-Type dui_TScrollBox Extends dui_TGadget
+Type dui_ScrollBox Extends dui_Gadget
 	
 	Const V_SCROLL:Int = 1				'Vertical scroll only
 	Const H_SCROLL:Int = 2				'Horizontal scroll only
 	Const B_SCROLL:Int = 3				'Both scroll
-
-	Field gOX:Int							'x origin point, used to give the impression of scrolling
-	Field gOY:Int							'y origin point
-	Field gBackground:Int = 1			'draw a border around scrollbox area
-	Field gHScroll:dui_TScrollBar = Null	'horizontal scrollbar
-	Field gVScroll:dui_TScrollBar = Null	'vertical scrollbar
+	
+	Field m_oldx:Int					'x origin point, used to give the impression of scrolling
+	Field m_oldy:Int					'y origin point
+	Field m_background:Int = 1			'draw a border around scrollbox area
+	Field m_hscroll:dui_ScrollBar		'horizontal scrollbar
+	Field m_vscroll:dui_ScrollBar		'vertical scrollbar
 	
 	Rem
 		bbdoc: Create a scrollbox gadget.
 		returns: The created scrollbox.
 	End Rem
-	Method Create:dui_TScrollBox(_name:String, _x:Float, _y:Float, _w:Float, _h:Float, _scroll:Int, _mw:Int, _mh:Int, _parent:dui_TGadget)
-		PopulateGadget(_name, _x, _y, _w, _h, _parent)
+	Method Create:dui_ScrollBox(name:String, x:Float, y:Float, w:Float, h:Float, _scroll:Int, _mw:Int, _mh:Int, parent:dui_Gadget)
+		_Init(name, x, y, w, h, parent, False)
 		Select _scroll
 			Case V_SCROLL
 				' Create the vertical scrollbar
-				gVScroll = New dui_TScrollBar.Create(_name + ":VScroll", (_x + _w) - 15, _y, _h, 0, _mh, _h - 18, _parent)
+				m_vscroll = New dui_ScrollBar.Create(name + ":VScroll", (x + w) - 15, y, h, 0, _mh, h - 18, parent)
 				' Reduce the width of the scroll box
-				gW = _w - 18
+				m_width = w - 18
 			Case H_SCROLL
 				' Create the horizontal scrollbar
-				gHScroll = New dui_TScrollBar.Create(_name + ":HScroll", _x, (_y + _h) - 15, _w, 1, _mw, _w - 18, _parent)
+				m_hscroll = New dui_ScrollBar.Create(name + ":HScroll", x, (y + h) - 15, w, 1, _mw, w - 18, parent)
 				' Reduce the height of the scroll box
-				gH = _h - 18
+				m_height = h - 18
 			Case B_SCROLL
 				' Create both scrollbars
-				gVScroll = New dui_TScrollBar.Create(_name + ":VScroll", (_x + _w) - 15, _y, _h - 15, 0, _mh, _h - 18, _parent)
-				gHScroll = New dui_TScrollBar.Create(_name + ":HScroll", _x, (_y + _h) - 15, _w - 15, 1, _mw, _w - 18, _parent)
+				m_vscroll = New dui_ScrollBar.Create(name + ":VScroll", (x + w) - 15, y, h - 15, 0, _mh, h - 18, parent)
+				m_hscroll = New dui_ScrollBar.Create(name + ":HScroll", x, (y + h) - 15, w - 15, 1, _mw, w - 18, parent)
 				' Reduce the dimensions of the scroll box
-				gW = _w - 18
-				gH = _h - 18
+				m_width = w - 18
+				m_height = h - 18
 		End Select
 		Return Self
 	End Method
+	
+'#region Render & update methods
 	
 	Rem
 		bbdoc: Render the scrollbox.
 		returns: Nothing.
 	End Rem
-	Method Render(_x:Float, _y:Float)
-		Local rx:Float, ry:Float
+	Method Render(x:Float, y:Float)
+		Local relx:Float, rely:Float
 		
 		If IsVisible() = True
+			relx = m_x + x
+			rely = m_y + y
 			
-			'set up rendering locations
-			rx = gX + _x
-			ry = gY + _y
+			BindDrawingState()
+			TProtogPrimitives.DrawRectangleToSize(relx - 1, rely - 1, m_width + 1, m_height + 1, m_background)
 			
-			SetDrawingState()
-			Select gBackground
-				Case 1
-					' Draw box
-					'DrawLine(rx - 1, ry - 1, rx + gW + 1, ry - 1)
-					'DrawLine(rx + gW + 1, ry, rx + gW + 1, ry + gH + 1)
-					'DrawLine(rx + gW + 1, ry + gH + 1, rx - 1, ry + gH + 1)
-					'DrawLine(rx - 1, ry + gH, rx - 1, ry)
-					dui_DrawLineRect(rx - 1, ry - 1, gW + 1, gH + 1)
-				Case 2
-					' Draw box
-					DrawRect(rx - 1, ry - 1, gW + 2, gH + 2)
-			End Select
+			TProtogDrawState.Push(False, False, False, True, False, False)
+			dui_SetViewport(relx + BOUNDARY, rely + BOUNDARY, m_width - DOUBLEBOUNDARY, m_height - DOUBLEBOUNDARY)
 			
-			'draw children
-			TDrawState.Push(False, False, False, False, False, True, False, False)
-			dui_SetViewport(rx + BOUNDARY, ry + BOUNDARY, gW - DOUBLEBOUNDARY, gH - DOUBLEBOUNDARY)
-			
-			For Local child:dui_TGadget = EachIn gChildren
-				child.Render(rx + gOX, ry + gOY)
+			For Local child:dui_Gadget = EachIn m_children
+				child.Render(relx + m_oldx, rely + m_oldy)
 			Next
 			
-			TDrawState.Pop(False, False, False, False, False, True, False, False)
+			TProtogDrawState.Pop(False, False, False, True, False, False)
 		End If
 	End Method
 	
@@ -89,79 +77,49 @@ Type dui_TScrollBox Extends dui_TGadget
 		bbdoc: Update the scrollbox.
 		returns: Nothing.
 	End Rem
-	Method Update(_x:Int, _y:Int)
-		If gState = MOUSEDOWN_STATE
+	Method Update(x:Int, y:Int)
+		If m_state = STATE_MOUSEDOWN
 			If MouseDown(1)
-				UpdateMouseDown(_x, _y)
+				UpdateMouseDown(x, y)
 				Return
 			End If
 			If Not MouseDown(1)
-				UpdateMouseRelease(_x, _y)
+				UpdateMouseRelease(x, y)
 				Return
 			End If
 		End If
 		
 		If IsVisible() = True
-			For Local child:dui_TGadget = EachIn New TListReversed.Create(gChildren)
-				child.Update(gX + _x + gOX, gY + _y + gOY)
+			For Local child:dui_Gadget = EachIn New TListReversed.Create(m_children)
+				child.Update(m_x + x + m_oldx, m_y + y + m_oldy)
 			Next
 			
-			If gVScroll Then gOY = -gVScroll.GetValue()
-			If gHScroll Then gOX = -gHScroll.GetValue()
+			If m_vscroll Then m_oldy = -m_vscroll.GetValue()
+			If m_hscroll Then m_oldx = -m_hscroll.GetValue()
 			
-			gState = IDLE_STATE
+			m_state = STATE_IDLE
 			If TDUIMain.IsGadgetActive(Self) = True
-				If dui_MouseIn(gX + _x, gY + _y, gW, gH)
-					UpdateMouseOver(_x, _y)
-					If MouseDown(1) Then UpdateMouseDown(_x, _y)
+				If dui_MouseIn(m_x + x, m_y + y, m_width, m_height)
+					UpdateMouseOver(x, y)
+					If MouseDown(1) Then UpdateMouseDown(x, y)
 				End If
 			End If
 		End If
 	End Method
 	
+'#end region (Render & update methods)
+	
+'#region Field accessors
+	
 	Rem
 		bbdoc: Set the background on or off for the scrollbox.
 		returns: Nothing.
 	End Rem
-	Method SetBackground(_background:Int)
-		gBackground = _background
+	Method SetBackground(background:Int)
+		m_background = background
 	End Method
 	
-	Rem
-		bbdoc: Set the colour of one of the scrollbars.
-		returns: Nothing.
-	End Rem
-	Method SetScrollColour(_r:Int, _g:Int, _b:Int, _which:Int)
-		If _which = 0
-			gVScroll.SetColour(_r, _g, _b)
-		Else
-			gHScroll.SetColour(_r, _g, _b)
-		End If
-	End Method
-	
-	Rem
-		bbdoc: Set the colour of one of the scrollbars using a hex string (e.g. "FF0000")
-		returns: Nothing.
-	End Rem
-	Method HexScrollColour(_color:String, _which:Int)
-		If _which = 0
-			gVScroll.HexColour(_color)
-		Else
-			gHScroll.HexColour(_color)
-		End If
-	End Method
-	
-	Rem
-		bbdoc: Set the alpha of one of the scrollbars.
-		returns: Nothing.
-	End Rem
-	Method SetScrollAlpha(_alpha:Float, _which:Int)
-		If _which = 0
-			gVScroll.SetAlpha(_alpha)
-		Else
-			gHScroll.SetAlpha(_alpha)
-		End If
-	End Method
+'#end region (Field accessors)
 	
 End Type
 

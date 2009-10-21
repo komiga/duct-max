@@ -1,76 +1,65 @@
 
 Rem
-	panel.bmx (Contains: dui_TPanel, )
+	panel.bmx (Contains: dui_Panel, )
 End Rem
 
 Rem
-	bbdoc: The dui panel gadget Type.
+	bbdoc: The dui panel gadget type.
 End Rem
-Type dui_TPanel Extends dui_TGadget
-
-	Global gImage:TImage[9]
+Type dui_Panel Extends dui_Gadget
 	
-	Field gBorder:Int = True
+	Global m_renderer:dui_GenericRenderer = New dui_GenericRenderer
 	
-	Field gMovable:Int
-	Field gPMoving:Int = False
-	Field gIMoveX:Float, gIMoveY:Float
+	Field m_border:Int = True
+	
+	Field m_movable:Int
+	Field m_moving:Int = False
+	Field m_movex:Float, m_movey:Float
 	
 	Rem
 		bbdoc: Create a panel.
-		returns: The created panel (itself).
-		about: @_parent can be either a dui_TGadget or a dui_TScreen
+		returns: The new panel (itself).
+		about: @parent can be either a dui_Gadget or a dui_Screen (in which case it will be added as a child of the screen).
 	End Rem
-	Method Create:dui_TPanel(_name:String, _x:Float, _y:Float, _w:Float, _h:Float, _movable:Int = True, _parent:Object = Null)
-		If dui_TScreen(_parent) Then dui_TScreen(_parent).AddGadget(Self)
-		PopulateGadget(_name, _x, _y, _w, _h, dui_TGadget(_parent))
-		SetMovable(_movable)
+	Method Create:dui_Panel(name:String, x:Float, y:Float, w:Float, h:Float, movable:Int = True, parent:Object = Null)
+		If dui_Screen(parent)
+			dui_Screen(parent).AddGadget(Self)
+		End If
+		
+		_Init(name, x, y, w, h, dui_Gadget(parent), False)
+		SetMovable(movable)
 		Return Self
 	End Method
 	
+'#region Render & update methods
+	
 	Rem
-		bbdoc: Render the panel and it's children.
+		bbdoc: Render the panel and its children.
 		returns: Nothing.
 	End Rem
-	Method Render(_x:Float, _y:Float)
-		Local rX:Float, rY:Float
+	Method Render(x:Float, y:Float)
+		Local relx:Float, rely:Float
 		
 		If IsVisible() = True
-			SetDrawingState()
-			' Set up rendering locations
-			rX = gX + _x
-			rY = gY + _y
-			If gBorder = True
-				' Draw four corners
-				DrawImage(gImage[0], rX, rY)
-				DrawImage(gImage[2], (rX + gW) - 5, rY)
-				DrawImage(gImage[6], rX, (rY + gH) - 5)
-				DrawImage(gImage[8], (rX + gW) - 5, (rY + gH) - 5)
-				
-				' Draw four sides
-				DrawImageRect(gImage[1], rX + 5, rY, gW - 10, 5)
-				DrawImageRect(gImage[7], rX + 5, (rY + gH) - 5, gW - 10, 5)
-				DrawImageRect(gImage[3], rX, rY + 5, 5, gH - 10)
-				DrawImageRect(gImage[5], (rX + gW) - 5, rY + 5, 5, gH - 10)
-				
-				' Draw centre
-				DrawImageRect(gImage[4], rX + 5, rY + 5, gW - 10, gH - 10)
+			relx = m_x + x
+			rely = m_y + y
+			
+			BindDrawingState()
+			If m_border = True
+				m_renderer.RenderCells(relx, rely, Self)
 			Else
-				' Draw centre
-				DrawImageRect(gImage[4], rX, rY, gW, gH)
+				m_renderer.RenderCell(4, relx, rely, Self)
 			End If
-			Super.Render(_x, _y)
+			Super.Render(x, y)
 		End If
 	End Method
 	
 	Rem
-		bbdoc: Update the panel and it's children
+		bbdoc: Update the panel and its children
 		returns: Nothing.
 	End Rem
-	Method Update(_x:Int, _y:Int)
-		
-		' Check for existing mouse down states
-		If gState = MOUSEDOWN_STATE
+	Method Update(x:Int, y:Int)
+		If m_state = STATE_MOUSEDOWN
 			If MouseDown(1)
 				UpdateMouseDown(MouseX(), MouseY()) 
 				Return
@@ -82,59 +71,52 @@ Type dui_TPanel Extends dui_TGadget
 		End If
 		
 		If IsVisible() = True
-			' Only update the children if this panel has focus
-			If TDUIMain.IsPanelFocused(Self) And dui_MouseIn(gX + _x, gY + _y, gW, gH)
-				' Set the focused panel
+			If TDUIMain.IsPanelFocused(Self) = True And dui_MouseIn(m_x + x, m_y + y, m_width, m_height) = True
 				TDUIMain.SetFocusedPanel(Self)
-				' Update the kids
-				For Local child:dui_TGadget = EachIn New TListReversed.Create(gChildren)
-					child.Update(gX + _x, gY + _y)
+				For Local child:dui_Gadget = EachIn New TListReversed.Create(m_children)
+					child.Update(m_x + x, m_y + y)
 				Next
 			End If
 			
-			gState = IDLE_STATE
-			
-			' Check for other active gadgets
-			If TDUIMain.IsGadgetActive(Self)
-				
-				' Test for mouse over the gadget
-				If dui_MouseIn(gX + _x, gY + _y, gW, gH)
+			m_state = STATE_IDLE
+			If TDUIMain.IsGadgetActive(Self) = True
+				If dui_MouseIn(m_x + x, m_y + y, m_width, m_height)
 					UpdateMouseOver(MouseX(), MouseY())
-					' Check for a mouse action
-					If MouseDown(1) Then UpdateMouseDown(MouseX(), MouseY()) 
+					If MouseDown(1) = True
+						UpdateMouseDown(MouseX(), MouseY())
+					End If
 				End If
 			End If
 		End If
-		
 	End Method
 	
 	Rem
 		bbdoc: Update the MouseOver state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseOver(_x:Int, _y:Int)
+	Method UpdateMouseOver(x:Int, y:Int)
 		'TDUIMain.SetCursor(dui_CURSOR_MOUSEOVER)
-		Super.UpdateMouseOver(_x, _y)
+		Super.UpdateMouseOver(x, y)
 	End Method
 	
 	Rem
 		bbdoc: Update the MouseDown state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseDown(_x:Int, _y:Int)
+	Method UpdateMouseDown(x:Int, y:Int)
 		TDUIMain.SetCursor(dui_CURSOR_MOUSEDOWN)
-		Super.UpdateMouseDown(_x, _y)
+		Super.UpdateMouseDown(x, y)
 		
-		'New dui_TEvent.Create(dui_EVENT_GADGETACTION, Self, 0, MouseX() - gX, MouseY() - gY, Null)
+		'New dui_Event.Create(dui_EVENT_GADGETACTION, Self, 0, MouseX() - m_x, MouseY() - m_y, Null)
 		If IsMovable() = True
-			If gPMoving = False
-				gIMoveX = _x - gX
-				gIMoveY = _y - gY
-				gPMoving = True
-				New dui_TEvent.Create(dui_EVENT_GADGETACTION, Self, 0, _x - gX, _y - gY, Null)
+			If m_moving = False
+				m_movex = x - m_x
+				m_movey = y - m_y
+				m_moving = True
+				New dui_Event.Create(dui_EVENT_GADGETACTION, Self, 0, x - m_x, y - m_y, Null)
 			Else
-				gX = _x - gIMoveX
-				gY = _y - gIMoveY
+				m_x = x - m_movex
+				m_y = y - m_movey
 			End If
 		End If
 	End Method
@@ -143,11 +125,18 @@ Type dui_TPanel Extends dui_TGadget
 		bbdoc: Update the MouseRelease state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseRelease(_x:Int, _y:Int)
-		Super.UpdateMouseRelease(_x, _y)
-		New dui_TEvent.Create(dui_EVENT_GADGETSELECT, Self, 0, _x - gX, _y - gY, Null)
-		If gPMoving = True Then gPMoving = False
+	Method UpdateMouseRelease(x:Int, y:Int)
+		Super.UpdateMouseRelease(x, y)
+		If m_moving = True
+			m_moving = False
+		End If
+		
+		New dui_Event.Create(dui_EVENT_GADGETSELECT, Self, 0, x - m_x, y - m_y, Null)
 	End Method
+	
+'#end region (Render & update methods)
+	
+'#region Field accessors
 	
 	Rem
 		bbdoc: Turn On drawing for the panel's borders.
@@ -155,7 +144,7 @@ Type dui_TPanel Extends dui_TGadget
 		about: See also #BorderOff.
 	End Rem
 	Method BorderOn()
-		gBorder = True
+		m_border = True
 	End Method
 	
 	Rem
@@ -164,16 +153,16 @@ Type dui_TPanel Extends dui_TGadget
 		about: See also #BorderOn.
 	End Rem
 	Method BorderOff()
-		gBorder = False
+		m_border = False
 	End Method
 	
 	Rem
 		bbdoc: Set the movable state on or off.
 		returns: Nothing.
 	End Rem
-	Method SetMovable(_movable:Int)
-		gMovable = _movable
-		gPMoving = False
+	Method SetMovable(movable:Int)
+		m_movable = movable
+		m_moving = False
 	End Method
 	
 	Rem
@@ -181,38 +170,17 @@ Type dui_TPanel Extends dui_TGadget
 		returns: True if the panel is movable, or False if it is not.
 	End Rem
 	Method IsMovable:Int()
-		Return gMovable
+		Return m_movable
 	End Method
+	
+'#end region (Field accessors)
 	
 	Rem
 		bbdoc: Refresh the panel skin.
 		returns: Nothing.
 	End Rem
-	Function RefreshSkin()
-		Local x:Int, y:Int, index:Int, map:Int
-		Local image:TImage, mainmap:TPixmap, pixmap:TPixmap[9]
-		
-		image = LoadImage(TDUIMain.SkinUrl + "/graphics/panel.png", DYNAMICIMAGE | FILTEREDIMAGE | MIPMAPPEDIMAGE)
-		mainmap = LockImage(image)
-		
-		For index = 0 To 8
-			gImage[index] = CreateImage(5, 5,, FILTEREDIMAGE)
-			pixmap[index] = LockImage(gImage[index])
-		Next
-		
-		For y = 0 To 14
-			For x = 0 To 14
-				' Get correct pixmap to write to
-				map = ((y / 5) * 3) + (x / 5)
-				pixmap[map].WritePixel((x Mod 5), (y Mod 5), mainmap.ReadPixel(x, y))
-			Next
-		Next
-		
-		For index = 0 To 8
-			UnlockImage(gImage[index])
-		Next
-		UnlockImage(image)
-		
+	Function RefreshSkin(theme:dui_Theme)
+		m_renderer.Create(theme, "panel")
 	End Function
 	
 End Type

@@ -28,10 +28,12 @@ bbdoc: Localization
 End Rem
 Module duct.locale
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 

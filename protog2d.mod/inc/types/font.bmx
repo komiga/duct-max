@@ -61,7 +61,15 @@ Type TProtogFont
 		bbdoc: Draw a string on the screen using the font.
 		returns: Nothing.
 	End Rem
-	Method DrawString(str:String, pos:TVec2, hcenter:Int = False, vcenter:Int = False)
+	Method DrawStringVec(str:String, pos:TVec2, hcenter:Int = False, vcenter:Int = False)
+		DrawStringParams(str, pos.m_x, pos.m_y, hcenter, vcenter)
+	End Method
+	
+	Rem
+		bbdoc: Draw a string on the screen using the font.
+		returns: Nothing.
+	End Rem
+	Method DrawStringParams(str:String, x:Float, y:Float, hcenter:Int = False, vcenter:Int = False)
 		Local char:TProtogFontChar, index:Int, charcode:Int
 		Local offsetx:Float, offsety:Float, width:Float, height:Float
 		Local incx:Float, incy:Float
@@ -88,13 +96,12 @@ Type TProtogFont
 					If char = Null
 						char = m_emptychar
 					End If
-					char.Draw(pos.m_x + offsetx + incx, pos.m_y + offsety + incy)
+					char.Draw(x + offsetx + incx, y + offsety + incy)
 					incx:+char.m_width
 				End If
 			Next
-			
+			m_texture.m_gltexture.Unbind()
 		End If
-		
 	End Method
 	
 	Rem
@@ -121,6 +128,9 @@ Type TProtogFont
 					width:+char.m_width
 				End If
 			Next
+			If width > largestwidth
+				largestwidth = width
+			End If
 		End If
 		Return largestwidth
 	End Method
@@ -141,9 +151,7 @@ Type TProtogFont
 				End If
 			Next
 		End If
-		
 		Return height
-		
 	End Method
 	
 '#end region (Drawing)

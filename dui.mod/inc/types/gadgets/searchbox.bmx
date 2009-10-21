@@ -1,297 +1,246 @@
 
 Rem
-	searchbox.bmx (Contains: dui_TSearchBox, )
+	searchbox.bmx (Contains: dui_SearchBox, )
 End Rem
 
 Rem
 	bbdoc: The dui search box gadget type.
 End Rem
-Type dui_TSearchBox Extends dui_TGadget
+Type dui_SearchBox Extends dui_Gadget
 
-	Global gImage:TImage[9]
-	Global gSearchImage:TImage
+	Global m_renderer:dui_GenericRenderer = New dui_GenericRenderer
 	
-	Field gText:String
-	Field gData:Int
-	Field gNull:Int
+	Field m_text:String
+	Field m_data:Int
+	Field m_nullvalue:Int
 	
-	Field fSearch(_searchbox:dui_TSearchBox, _text:String)
+	Field m_searchfunction(searchbox:dui_SearchBox, text:String)
+	Field m_searchpanel:dui_SearchPanel
 	
-	Field gSearchPanel:dui_TSearchPanel
+	Rem
+		bbdoc: Create a search box gadget.
+		returns: The created search box.
+	End Rem
+	Method Create:dui_SearchBox(name:String, x:Float, y:Float, w:Float, h:Float, panelwidth:Float, panelheight:Float, itemheight:Int, nullvalue:Int, parent:dui_Gadget)
+		_Init(name, x, y, w, h, parent, False)
 		
-		Rem
-			bbdoc: Create a search box gadget.
-			returns: The created search box.
-		End Rem
-		Method Create:dui_TSearchBox(_name:String, _x:Float, _y:Float, _w:Float, _h:Float, _pw:Float, _ph:Float, _ih:Int, _nv:Int, _parent:dui_TGadget)
-			
-			PopulateGadget(_name, _x, _y, _w, _h, _parent)
-			
-			gSearchPanel = New dui_TSearchPanel.Create(_name + ":Panel", _pw, _ph, _ih, Self)
-			gNull = _nv
-			SetSelectedText(Null)
-			
-			Return Self
-			
-		End Method
+		m_searchpanel = New dui_SearchPanel.Create(name + ":SearchPanel", panelwidth, panelheight, itemheight, Self)
+		SetNullValue(nullvalue)
+		SetSelectedText(Null)
+		Return Self
+	End Method
+	
+	Rem
+		bbdoc: Called when a search is performed.
+		returns: Nothing.
+		about: Extend this method or use the search callback (see #SetSearchCallback).
+	End Rem
+	Method OnSearch(text:String)
+	End Method
+	
+'#region Render & update methods
+	
+	Rem
+		bbdoc: Render the search box.
+		returns: Nothing.
+	End Rem
+	Method Render(x:Float, y:Float)
+		Local relx:Float, rely:Float
 		
-		Rem
-			bbdoc: Render the search box.
-			returns: Nothing.
-		End Rem
-		Method Render(_x:Float, _y:Float)
-			Local rx:Float, ry:Float
+		If IsVisible() = True
+			relx = m_x + x
+			rely = m_y + y
 			
-			If IsVisible() = True
-				
-				SetDrawingState()
-				
-				rx = gX + _x
-				ry = gY + _y
-				
-				' Draw four corners
-				DrawImage(gImage[0], rx, ry)
-				DrawImage(gImage[2], (rx + gW) - 5, ry)
-				DrawImage(gImage[6], rx, (ry + gH) - 5)
-				DrawImage(gImage[8], (rx + gW) - 5, (ry + gH) - 5)
-				
-				' Draw four sides
-				DrawImageRect(gImage[1], rx + 5, ry, gW - 10, 5)
-				DrawImageRect(gImage[7], rx + 5, (ry + gH) - 5, gW - 10, 5)
-				DrawImageRect(gImage[3], rx, ry + 5, 5, gH - 10)
-				DrawImageRect(gImage[5], (rx + gW) - 5, ry + 5, 5, gH - 10)
-				
-				' Draw centre
-				DrawImageRect(gImage[4], rx + 5, ry + 5, gW - 10, gH - 10)
-				
-				SetTextDrawingState(True)
-				DrawText(gText, rx + 5, ry + 3)
-				
-				DrawImage(gSearchImage, (rx + gW) - 16, ry + ((gH - 2) / 2) - 4)
-				
-				Super.Render(_x, _y)
-				
-			End If
+			BindDrawingState()
+			m_renderer.RenderCells(relx, rely, Self)
 			
-		End Method
+			BindTextDrawingState()
+			dui_FontManager.RenderString(m_text, m_font, relx + 5, rely + 3)
+			
+			BindDrawingState()
+			m_renderer.RenderSectionToSectionSize("glass", relx + m_width - 16, rely + ((m_height - 2) / 2) - 4)
+			
+			Super.Render(x, y)
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Update the MouseOver state.
+		returns: Nothing.
+	End Rem
+	Method UpdateMouseOver(x:Int, y:Int)
+		TDUIMain.SetCursor(dui_CURSOR_MOUSEOVER)
+		Super.UpdateMouseOver(x, y)
+	End Method
+	
+	Rem
+		bbdoc: Update the MouseDown state.
+		returns: Nothing.
+	End Rem
+	Method UpdateMouseDown(x:Int, y:Int)
+		TDUIMain.SetCursor(dui_CURSOR_MOUSEDOWN)
+		Super.UpdateMouseDown(x, y)
+	End Method
+	
+	Rem
+		bbdoc: Update the MouseRelease state.
+		returns: Nothing.
+	End Rem
+	Method UpdateMouseRelease(x:Int, y:Int)
+		Local relx:Int, rely:Int, ay:Int
 		
-		Rem
-			bbdoc: Update the MouseOver state.
-			returns: Nothing.
-		End Rem
-		Method UpdateMouseOver(_x:Int, _y:Int)
-			
-			TDUIMain.SetCursor(dui_CURSOR_MOUSEOVER)
-			Super.UpdateMouseOver(_x, _y)
-			
-		End Method
+		relx = m_x + x
+		rely = m_y + y
 		
-		Rem
-			bbdoc: Update the MouseDown state.
-			returns: Nothing.
-		End Rem
-		Method UpdateMouseDown(_x:Int, _y:Int)
-			
-			TDUIMain.SetCursor(dui_CURSOR_MOUSEDOWN)
-			Super.UpdateMouseDown(_x, _y)
-			
-		End Method
+		ay = rely + m_height + 2
+		If ay + m_searchpanel.m_height > TDUIMain.m_height
+			ay = (rely - 2) - m_searchpanel.m_height
+		End If
+		Open(relx, ay)
 		
-		Rem
-			bbdoc: Update the MouseRelease state.
-			returns: Nothing.
-		End Rem
-		Method UpdateMouseRelease(_x:Int, _y:Int)
-			Local rx:Int, ry:Int, ay:Int
-			
-			rx = gX + _x
-			ry = gY + _y
-			
-			ay = ry + gH + 2
-			If ay + gSearchPanel.gH > TDUIMain.gHeight Then ay = (rY - 2) - gSearchPanel.gH
-			
-			'activate the panel
-			Open(rx, ay)
-			
-			Super.UpdateMouseRelease(_x, _y)
-			
-		End Method
+		Super.UpdateMouseRelease(x, y)
+	End Method
+	
+'#end region (Render & update methods)
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Set the text for the search box.
+		returns: Nothing.
+	End Rem
+	Method SetText(text:String)
+		m_text = text
+	End Method
+	Rem
+		bbdoc: Get the text for the search box.
+		returns: The search box's text.
+	End Rem
+	Method GetText:String()
+		Return m_text
+	End Method
+	
+	Rem
+		bbdoc: Set the data for the search box.
+		returns: Nothing.
+	End Rem
+	Method SetData(data:Int)
+		m_data = data
+	End Method
+	Rem
+		bbdoc: Get the data for the search box.
+		returns: The search box's data.
+	End Rem	
+	Method GetData:Int()
+		Return m_data
+	End Method
+	
+	Rem
+		bbdoc: Set the null value for a null/empty search.
+		returns: Nothing.
+	End Rem
+	Method SetNullValue(nullvalue:Int)
+		m_nullvalue = nullvalue
+	End Method
+	Rem
+		bbdoc: Get the null value (used for null/empty searches).
+		returns: The null value.
+	End Rem
+	Method GetNullValue:Int()
+		Return m_nullvalue
+	End Method
+	
+	Rem
+		bbdoc: Set the selected text.
+		returns: Nothing.
+	End Rem
+	Method SetSelectedText(text:String, data:Int = 0)
+		If text = Null
+			text = "[None]"
+			data = m_nullvalue
+		End If
 		
-		Rem
-			bbdoc: Set the text for the search box.
-			returns: Nothing.
-		End Rem
-		Method SetText(_text:String)
-			
-			gText = _text
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the text for the search box.
-			returns: The search box's text.
-		End Rem
-		Method GetText:String()
-			
-			Return gText
-			
-		End Method
-		
-		Rem
-			bbdoc: Set the data for the search box.
-			returns: Nothing.
-		End Rem
-		Method SetData(_data:Int)
-			
-			gData = _data
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the data for the search box.
-			returns: The search box's data.
-		End Rem	
-		Method GetData:Int()
-			
-			Return gData
-			
-		End Method
-		
-		Rem
-			bbdoc: Clear the search box.
-			returns: Nothing.
-		End Rem
-		Method ClearItems()
-			
-			gSearchPanel.gResults.ClearItems()
-			
-		End Method
-		
-		Rem
-			bbdoc: Add an item to the search box.
-			returns: Nothing.
-		End Rem
-		Method AddItem(_text:String, _data:Int)
-			
-			gSearchPanel.gResults.AddItemByData([_text], _data, Null)
-			
-		End Method
-		
-		Rem
-			bbdoc: Set the selected text.
-			returns: Nothing.
-		End Rem
-		Method SetSelectedText(_text:String, _data:Int = 0)
-			If _text = Null
-				_text = "[None]"
-				_data = gNull
-			End If
-			
-			SetText(_text)
-			SetData(_data)
-			
-		End Method
-		
-		Rem
-			bbdoc: Set the search function callback.
-			returns: Nothing.
-		End Rem
-		Method SetSearchCallback(func(_searchbox:dui_TSearchBox, _text:String))
-			
-			fSearch = func
-			
-		End Method
-		
-		Rem
-			bbdoc: Search for the given text.
-			returns: Nothing.
-			about: This calls the search function callback.
-		End Rem
-		Method Search(_text:String)
-			
-			If fSearch <> Null
-				
-				fSearch(Self, _text)
-				
-			End If
-			
-		End Method
-		
-		Rem
-			bbdoc: Open the search panel.
-			returns: Nothing.
-			about: Opens the search panel, and generates a dui_EVENT_GADGETOPEN event.
-		End Rem
-		Method Open(_x:Float, _y:Float)
-			
-			gSearchPanel.Activate(_x, _y)
-			
-			New dui_TEvent.Create(dui_EVENT_GADGETOPEN, Self, 1, 0, 0, gSearchPanel)
-			
-		End Method
-		
-		Rem
-			bbdoc: Close the search panel.
-			returns: Nothing.
-			about: Closes the search panel, and generates a dui_EVENT_GADGETCLOSE event.
-		End Rem
-		Method Close()
-			
-			gSearchPanel.Hide()
-			gSearchPanel.Deactivate()
-			
-		End Method
-		
-		Rem
-			bbdoc: Refresh the searchbox skin.
-			returns: Nothing.
-		End Rem
-		Function RefreshSkin()
-			Local x:Int, y:Int, index:Int, map:Int
-			Local image:TImage, mainmap:TPixmap, pixmap:TPixmap[9]
-			
-			image = LoadImage(TDUIMain.SkinUrl + "/graphics/combobox.png")
-			mainmap = LockImage(image)
-			
-			For index = 0 To 8
-				gImage[index] = CreateImage(5, 5)
-				pixmap[index] = LockImage(gImage[index])
-			Next
-			
-			For y = 0 To 14
-				For x = 0 To 14
-				
-					map = ((y / 5) * 3) + (x / 5)
-					
-					pixmap[map].WritePixel((x Mod 5), (y Mod 5), mainmap.ReadPixel(x, y))
-					
-				Next
-			Next
-			
-			For index = 0 To 8
-				UnlockImage(gImage[index])
-			Next
-			UnlockImage(image)
-			
-			gSearchImage = LoadImage(TDUIMain.SkinUrl + "/graphics/search.png")
-			
-		End Function
-		
+		SetText(text)
+		SetData(data)
+	End Method
+	
+	Rem
+		bbdoc: Set the search function callback.
+		returns: Nothing.
+		about: You can either set this function or extend this type and the #OnSearch method.
+	End Rem
+	Method SetSearchCallback(callback(searchbox:dui_SearchBox, text:String))
+		m_searchfunction = callback
+	End Method
+	
+'#end region (Field accessors)
+	
+'#region Collections
+	
+	Rem
+		bbdoc: Clear the search box.
+		returns: Nothing.
+	End Rem
+	Method ClearItems()
+		m_searchpanel.m_results.ClearItems()
+	End Method
+	
+	Rem
+		bbdoc: Add an item to the search box.
+		returns: Nothing.
+	End Rem
+	Method AddItem(text:String, data:Int)
+		m_searchpanel.m_results.AddItemByData([text], data, Null)
+	End Method
+	
+'#end region (Collections)
+	
+'#region Function
+	
+	Rem
+		bbdoc: Search for the given text.
+		returns: Nothing.
+		about: This calls the search function callback.
+	End Rem
+	Method Search(text:String)
+		If m_searchfunction <> Null
+			m_searchfunction(Self, text)
+		End If
+		OnSearch(text)
+	End Method
+	
+	Rem
+		bbdoc: Open the search panel.
+		returns: Nothing.
+		about: Opens the search panel, and generates a dui_EVENT_GADGETOPEN event.
+	End Rem
+	Method Open(x:Float, y:Float)
+		m_searchpanel.Activate(x, y)
+		New dui_Event.Create(dui_EVENT_GADGETOPEN, Self, 1, 0, 0, m_searchpanel)
+	End Method
+	
+	Rem
+		bbdoc: Close the search panel.
+		returns: Nothing.
+		about: Closes the search panel, and generates a dui_EVENT_GADGETCLOSE event.
+	End Rem
+	Method Close()
+		m_searchpanel.Hide()
+		m_searchpanel.Deactivate()
+	End Method
+	
+'#end region (Function)
+	
+	Rem
+		bbdoc: Refresh the searchbox skin.
+		returns: Nothing.
+	End Rem
+	Function RefreshSkin(theme:dui_Theme)
+		m_renderer.Create(theme, "searchbox")
+		m_renderer.AddSectionFromStructure("glass", True)
+	End Function
+	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

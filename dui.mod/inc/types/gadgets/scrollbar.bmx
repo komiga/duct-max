@@ -1,12 +1,12 @@
 
 Rem
-	scrollbar.bmx (Contains: dui_TScrollBar, )
+	scrollbar.bmx (Contains: dui_ScrollBar, )
 End Rem
 
 Rem
-	bbdoc: The dui scrollbar gadget Type.
+	bbdoc: The dui scrollbar gadget type.
 End Rem
-Type dui_TScrollBar Extends dui_TGadget
+Type dui_ScrollBar Extends dui_Gadget
 	
 	Const NO_PART:Int = 0			' No part has yet been touched
 	Const BAR_PART:Int = 1			' The scrollbar itself
@@ -15,87 +15,59 @@ Type dui_TScrollBar Extends dui_TGadget
 	Const BIGDEC_PART:Int = 4		' The area before the bar
 	Const BIGINC_PART:Int = 5		' The area after the bar
 	
-	Const VERT_ALIGN:Int = 0		' Vertical scrollbar
-	Const HORIZ_ALIGN:Int = 1		' Horizontal scrollbar
+			' Vertical scrollbar
+			' Horizontal scrollbar
 	
-	Global gButtonImage:TImage[4]		' Images for the scrollbar's buttons
-	Global gBarImage:TImage[6]			' Three images that form the scroll bar itself
-	Global gBackImage:TImage			' The scroll area 
+	Global m_renderer:dui_ScrollbarRenderer = New dui_ScrollbarRenderer
 	
-	Field gAlign:Int					' Alignment (horizontal or vertical)
+	Field m_align:Int					' Alignment (horizontal or vertical)
 	
-	Field gValue:Int					' Value of the scrollbar
-	Field gRange:Int					' The number of values covered by the bar (e.g. a 15 line textbox should have a range of 15)
+	Field m_value:Int					' Value of the scrollbar
+	Field m_range:Int					' The number of values covered by the bar (e.g. a 15 line textbox should have a range of 15)
 	
-	Field gMax:Int						' Maximum value
-	Field gUnit:Float					' Length of a single unit
-	Field gBig:Int = 10					' Size of a big increment/decrement
-	Field gInc:Int = 1					' Size of a normal increment/decrement
+	Field m_max:Int						' Maximum value
+	Field m_unit:Float					' Length of a single unit
+	Field m_biginc:Int = 10					' Size of a big increment/decrement
+	Field m_smallinc:Int = 1					' Size of a normal increment/decrement
 	
-	Field gStart:Float					' Location of the start of the scrollbar
-	Field gLength:Float					' Length of the scrollbar (including ends)
+	Field m_start:Float					' Location of the start of the scrollbar
+	Field m_length:Float					' Length of the scrollbar (including ends)
 	
-	Field gPart:Int						' Part of the scrollbar that has been activated
-	Field gGrab:Int						' Location of the bar that you grabbed (used to set the new position accordingly)
+	Field m_part:Int						' Part of the scrollbar that has been activated
+	Field m_grab:Int						' Location of the bar that you grabbed (used to set the new position accordingly)
 	
 	Rem
 		bbdoc: Create a scrollbar.
-		returns: The created scrollbar.
+		returns: The new scrollbar.
 	End Rem
-	Method Create:dui_TScrollBar(_name:String, _x:Float, _y:Float, _length:Float, _align:Int, _maxval:Int, _range:Int, _parent:dui_TGadget)
-		gAlign = _align
-		If gAlign = HORIZ_ALIGN
-			PopulateGadget(_name, _x, _y, _length, 15, _parent)
-		Else If gAlign = VERT_ALIGN
-			PopulateGadget(_name, _x, _y, 15, _length, _parent)
+	Method Create:dui_ScrollBar(name:String, x:Float, y:Float, length:Float, align:Int, maxval:Int, range:Int, parent:dui_Gadget)
+		m_align = align
+		If m_align = dui_ALIGN_HORIZONTAL
+			_Init(name, x, y, length, 15, parent, False)
+		Else If m_align = dui_ALIGN_VERTICAL
+			_Init(name, x, y, 15, length, parent, False)
 		End If
-		SetMax(_maxval)
-		SetRange(_range)
+		SetMax(maxval)
+		SetRange(range)
 		Return Self
 	End Method
+	
+'#region Render & update methods
 	
 	Rem
 		bbdoc: Render the scrollbar.
 		returns: Nothing.
 	End Rem
-	Method Render(_x:Float, _y:Float)
-		Local rX:Float, rY:Float
+	Method Render(x:Float, y:Float)
+		Local relx:Float, rely:Float
 		
 		If IsVisible() = True
-			SetDrawingState()
-			rX = gX + _x
-			rY = gY + _y
-			Select gAlign
-				Case VERT_ALIGN
-					' Background
-					DrawImageRect(gBackImage, rX, rY + 10, gW, gH - 20)
-					
-					' Top
-					DrawImage(gButtonImage[0], rX, rY)
-					' Bottom
-					DrawImage(gButtonImage[1], rX, (rY + gH) - 15)
-					
-					' Draw scrollbar
-					DrawImage(gBarImage[0], rX, gStart + _y)
-					DrawImageRect(gBarImage[2], rX, gStart + _y + 3, gW, gLength - 6)
-					DrawImage(gBarImage[1], rX, gStart + _y + (gLength - 3))
-					
-				Case HORIZ_ALIGN
-					'Background
-					DrawImageRect(gBackImage, rX + 10, rY, gW - 20, gH)
-					
-					' Left
-					DrawImage(gButtonImage[2], rX, rY)
-					' Right
-					DrawImage(gButtonImage[3], (rX + gW) - 15, rY)
-					
-					' Draw scrollbar
-					DrawImage(gBarImage[3], gStart + _x, rY)
-					DrawImageRect(gBarImage[5], gStart + _x + 3, rY, gLength - 6, gH)
-					DrawImage(gBarImage[4], gStart + _x + (gLength - 3) , rY)
-					
-			End Select
-			Super.Render(_x, _y)
+			relx = m_x + x
+			rely = m_y + y
+			
+			BindDrawingState()
+			m_renderer.RenderFull(x, y, Self)
+			Super.Render(x, y)
 		End If
 		
 	End Method
@@ -104,22 +76,22 @@ Type dui_TScrollBar Extends dui_TGadget
 		bbdoc: Update the scrollbar.
 		returns: Nothing.
 	End Rem
-	Method Update(_x:Int, _y:Int)
-		'If Not gState
+	Method Update(x:Int, y:Int)
+		'If Not m_state
 		'	m_oz = MouseZ()
 		'End If
-		Super.Update(_x, _y)
+		Super.Update(x, y)
 	End Method
 	
 	Rem
 		bbdoc: Update the MouseOver state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseOver(_x:Int, _y:Int)
+	Method UpdateMouseOver(x:Int, y:Int)
 		Local mz:Int
 		
 		TDUIMain.SetCursor(dui_CURSOR_MOUSEOVER)
-		Super.UpdateMouseOver(_x, _y)
+		Super.UpdateMouseOver(x, y)
 		
 		mz = MouseZ()
 		If mz <> m_oz
@@ -136,71 +108,81 @@ Type dui_TScrollBar Extends dui_TGadget
 		bbdoc: Update the MouseDown state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseDown(_x:Int, _y:Int)
-	  Local rX:Int, rY:Int
+	Method UpdateMouseDown(x:Int, y:Int)
+		Local relx:Float, rely:Float
 		
 		TDUIMain.SetCursor(dui_CURSOR_MOUSEDOWN)
-		Super.UpdateMouseDown(_x, _y)
+		Super.UpdateMouseDown(x, y)
 		
-		rX = gX + _x
-		rY = gY + _y
+		relx = m_x + x
+		rely = m_y + y
 		
-		Select gAlign
-			Case VERT_ALIGN
-				' Check for the part of the gadget to update
-				If gPart = NO_PART
-					' Check for decrement button
-					If dui_MouseIn(rX, rY, gW, 15) Then gPart = DEC_PART
+		Select m_align
+			Case dui_ALIGN_VERTICAL
+				If m_part = NO_PART
+					' Decrement button
+					If dui_MouseIn(relx, rely, m_width, 15) = True
+						m_part = DEC_PART
+					End If
+					
 					' Increment button
-					If dui_MouseIn(rX, (rY + gH) - 15, gW, 15) Then gPart = INC_PART
+					If dui_MouseIn(relx, (rely + m_height) - 15, m_width, 15) = True
+						m_part = INC_PART
+					End If
 					
 					' Scrollbar
-					If dui_MouseIn(rX, (gStart + _y), gW, gLength)
-						gPart = BAR_PART
-						gGrab = MouseY() - (gStart + _y)
+					If dui_MouseIn(relx, (m_start + y), m_width, m_length)
+						m_part = BAR_PART
+						m_grab = MouseY() - (m_start + y)
 					End If
 				End If
 				
 				' Check for bigger increments by clicking scroll area
-				If gPart = NO_PART And dui_MouseIn(rX, rY + 15, gW, gH - 30) = True
+				If m_part = NO_PART And dui_MouseIn(relx, rely + 15, m_width, m_height - 30) = True
 					' Area before the scrollbar
-					If MouseY() < gStart + _y
-						gPart = BIGDEC_PART
+					If MouseY() < m_start + y
+						m_part = BIGDEC_PART
 					Else
 					' Area after the scrollbar
-						gPart = BIGINC_PART
+						m_part = BIGINC_PART
 					End If
 				End If
-				If gPart = BAR_PART Then SetBarPosition((MouseY() - _y) - gGrab)
-				
-			Case HORIZ_ALIGN
-				' Check for the part of the gadget to update
-				If gPart = NO_PART
-					' Check for increment button
-					If dui_MouseIn(rX, rY, 15, gH) Then gPart = DEC_PART
+				If m_part = BAR_PART
+					SetBarPosition((MouseY() - y) - m_grab)
+				End If
+			Case dui_ALIGN_HORIZONTAL
+				If m_part = NO_PART
+					' Increment button
+					If dui_MouseIn(relx, rely, 15, m_height)
+						m_part = DEC_PART
+					End If
 					
 					' Decrement button
-					If dui_MouseIn(rX + (gW - 15), rY, 15, gH) Then gPart = INC_PART
+					If dui_MouseIn(relx + (m_width - 15), rely, 15, m_height) = True
+						m_part = INC_PART
+					End If
 					
 					' Scrollbar
-					If dui_MouseIn(gStart + _x, rY, gLength, gH)
-						gPart = BAR_PART
-						gGrab = MouseX() - (gStart + _x)
+					If dui_MouseIn(m_start + x, rely, m_length, m_height) = True
+						m_part = BAR_PART
+						m_grab = MouseX() - (m_start + x)
 					End If
 					
 				End If
 				
-				'check for bigger increments by clicking scroll area
-				If gPart = NO_PART And dui_MouseIn(rX + 15, rY, gW - 30, gH)
-					'area before the scrollbar
-					If MouseX() < gStart + _x
-						gPart = BIGDEC_PART
+				' Check for bigger increments by clicking scroll area
+				If m_part = NO_PART And dui_MouseIn(relx + 15, rely, m_height - 30, m_height)
+					' Area before the scrollbar
+					If MouseX() < m_start + x
+						m_part = BIGDEC_PART
 					Else
-					'area after the scrollbar
-						gPart = BIGINC_PART
+					' Area after the scrollbar
+						m_part = BIGINC_PART
 					End If
 				End If
-				If gPart = BAR_PART Then SetBarPosition((MouseX() - _x) - gGrab)
+				If m_part = BAR_PART
+					SetBarPosition((MouseX() - x) - m_grab)
+				End If
 		End Select
 		
 	End Method
@@ -209,34 +191,160 @@ Type dui_TScrollBar Extends dui_TGadget
 		bbdoc: Update the MouseRelease state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseRelease(_x:Int, _y:Int)
-		Super.UpdateMouseRelease(_x, _y)
+	Method UpdateMouseRelease(x:Int, y:Int)
+		Super.UpdateMouseRelease(x, y)
 		
-		If dui_MouseIn(gX + _x, gY + _y, gW, gH) = True
-			Select gPart
+		If dui_MouseIn(m_x + x, m_y + y, m_width, m_height) = True
+			Select m_part
 				Case DEC_PART
-					MoveUp(0,, True)
+					MoveUp(0, 0, True)
 				Case INC_PART
-					MoveDown(0,, True)
+					MoveDown(0, 0, True)
 				Case BIGDEC_PART
-					MoveUp(1,, True)
+					MoveUp(1, 0, True)
 				Case BIGINC_PART
-					MoveDown(1,, True)
+					MoveDown(1, 0, True)
 			End Select
 		End If
-		gPart = NO_PART
+		m_part = NO_PART
 	End Method
+	
+'#end region (Render & update methods)
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Get the value of the scroll bar
+		returns: The value of the scroll bar
+	End Rem
+	Method GetValue:Int()
+		Return m_value
+	End Method
+	
+	Rem
+		bbdoc: Set the entire length of the scrollbar area (includes buttons).
+		returns: Nothing.
+	End Rem
+	Method SetLength(length:Float)
+		Select m_align
+			Case dui_ALIGN_VERTICAL
+				m_height = length
+			Case dui_ALIGN_HORIZONTAL
+				m_width = length
+		End Select
+		UpdateBarLength()
+	End Method
+	
+	Rem
+		bbdoc: Set the range of the scrollbar.
+		about: The range of a scrollbar is the number of values the bar actually covers.<br/>
+		For example, if the bar was used to scroll lines of text, the range of the bar would be the number of lines visible in the text gadget.
+	End Rem
+	Method SetRange(range:Int)
+		m_range = range
+		If m_range < 1
+			m_range = 1
+		End If
+		If (m_value + m_range) > m_max
+			m_value = m_max - m_range
+		End If
+		If m_value < 0
+			m_value = 0
+		End If
+		UpdateBarLength()
+	End Method
+	Rem
+		bbdoc: Get the range of the scrollbar.
+		returns: The range of the scrollbar.
+	End Rem
+	Method GetRange:Int()
+		Return m_range
+	End Method
+	
+	Rem
+		bbdoc: Set the max value for the scrollbar.
+		returns: Nothing.
+	End Rem
+	Method SetMax(_max:Int)
+		m_max = _max
+		If m_max < 1
+			m_max = 1
+		End If
+		If (m_value + m_range) > m_max
+			m_value = m_max - m_range
+		End If
+		If m_value < 0
+			m_value = 0
+		End If
+		UpdateBarLength()
+	End Method
+	Rem
+		bbdoc: Get the max value for the scrollbar.
+		returns: The max value for the scrollbar.
+	End Rem
+	Method GetMax:Int()
+		Return m_max
+	End Method
+	
+	Rem
+		bbdoc: Set the increment.
+		returns: Nothing.
+		about: This is the value added/subtracted when the user presses either of the scrollbar buttons.
+	End Rem
+	Method SetInc(inc:Int)
+		m_smallinc = inc
+		If m_smallinc < 0
+			m_smallinc = 0
+		End If
+	End Method
+	Rem
+		bbdoc: Get the small increment for the scrollbar.
+		returns: The small increment.
+	End Rem
+	Method GetInc:Int()
+		Return m_smallinc
+	End Method
+	
+	Rem
+		bbdoc: Set the big increment.
+		returns: Nothing.
+		about: This is the value added/subtracted when the user clicks in the empty area between the bar and the buttons at either end.		
+	End Rem
+	Method SetBigInc(inc:Int)
+		m_biginc = inc
+		If m_biginc < 0
+			m_biginc = 0
+		End If
+	End Method
+	Rem
+		bbdoc: Get the big increment for the scrollbar.
+		returns: The big increment.
+	End Rem
+	Method GetBigInc:Int()
+		Return m_biginc
+	End Method
+	
+'#end region Field accessors
+	
+'#region Bar positioning and updating
 	
 	Rem
 		bbdoc: Set the exact value of the scroll bar
 		about: Sets the value of the scroll bar, and positions the bar at the right position.
 	End Rem
-	Method SetValue(_value:Int, _doevent:Int = True)
-		gValue = _value
-		If (gValue + gRange) > gMax Then gValue = gMax - gRange
-		If gValue < 0 Then gValue = 0
+	Method SetValue(value:Int, doevent:Int = True)
+		m_value = value
+		If (m_value + m_range) > m_max
+			m_value = m_max - m_range
+		End If
+		If m_value < 0
+			m_value = 0
+		End If
 		UpdateBarPos()
-		If _doevent = True Then New dui_TEvent.Create(dui_EVENT_GADGETACTION, Self, gValue, 0, 0, Null)
+		
+		If doevent = True
+			New dui_Event.Create(dui_EVENT_GADGETACTION, Self, m_value, 0, 0, Null)
+		End If
 	End Method
 	
 	Rem
@@ -251,9 +359,9 @@ Type dui_TScrollBar Extends dui_TGadget
 		If cinc > 0
 			inc = Abs(cinc)
 		Else If inctype = 0
-			inc = gInc
+			inc = m_smallinc
 		Else If inctype = 1
-			inc = gBig
+			inc = m_biginc
 		End If
 		MoveRelative(- inc)
 	End Method
@@ -270,9 +378,9 @@ Type dui_TScrollBar Extends dui_TGadget
 		If cinc > 0
 			inc = cinc
 		Else If inctype = 0
-			inc = gInc
+			inc = m_smallinc
 		Else If inctype = 1
-			inc = gBig
+			inc = m_biginc
 		End If
 		MoveRelative(inc, doevent)
 	End Method
@@ -282,7 +390,7 @@ Type dui_TScrollBar Extends dui_TGadget
 		returns: Nothing.
 	End Rem
 	Method MoveRelative(inc:Int, doevent:Int = True)
-		SetValue(gValue + inc, doevent)
+		SetValue(m_value + inc, doevent)
 	End Method
 	
 	Rem
@@ -298,15 +406,7 @@ Type dui_TScrollBar Extends dui_TGadget
 		returns: Nothing.
 	End Rem
 	Method MoveToEnd(doevent:Int = True)
-		SetValue(gMax, doevent)
-	End Method
-	
-	Rem
-		bbdoc: Get the value of the scroll bar
-		returns: The value of the scroll bar
-	End Rem
-	Method GetValue:Int()
-		Return gValue
+		SetValue(m_max, doevent)
 	End Method
 	
 	Rem
@@ -314,107 +414,32 @@ Type dui_TScrollBar Extends dui_TGadget
 		returns: Nothing.
 	End Rem
 	Method SetBarPosition(pos:Int)
-		gStart = pos
+		m_start = pos
 		
-		' Set the reference value, either gY or gX, and entire gadget length
-		Local ref:Float, glen:Int
-		Select gAlign
-			Case VERT_ALIGN
-				ref = gY
-				glen = gH
-			Case HORIZ_ALIGN
-				ref = gX
-				glen = gW
+		' Set the reference value, either m_y or m_x, and entire gadget length
+		Local ref:Float, templength:Int
+		Select m_align
+			Case dui_ALIGN_VERTICAL
+				ref = m_y
+				templength = m_height
+			Case dui_ALIGN_HORIZONTAL
+				ref = m_x
+				templength = m_width
 		End Select
 		
 		' Check that the bar hasn't gone too high/left
-		If gStart < ref + 15
-			gStart = ref + 15
-			gValue = 0
+		If m_start < ref + 15
+			m_start = ref + 15
+			m_value = 0
 		' Check that the bar doesn't go too low/right
-		Else If gStart > (ref + glen) - (gLength + 15)
-			gStart = (ref + glen) - (gLength + 15)
-			gValue = gMax - gRange
+		Else If m_start > (ref + templength) - (m_length + 15)
+			m_start = (ref + templength) - (m_length + 15)
+			m_value = m_max - m_range
 		' Set the value of the scroll bar according to the position
 		Else
-			gValue = Int((gStart - (ref + 15)) / gUnit)
+			m_value = Int((m_start - (ref + 15)) / m_unit)
 		End If
-		New dui_TEvent.Create(dui_EVENT_GADGETACTION, Self, gValue, 0, 0, Null)
-	End Method
-		
-	Rem
-		bbdoc: Set the entire length of the scrollbar area (includes buttons).
-		returns: Nothing.
-	End Rem
-	Method SetLength(_length:Float)
-		Select gAlign
-			Case VERT_ALIGN
-				gH = _length
-			Case HORIZ_ALIGN
-				gW = _length
-		End Select
-		UpdateBarLength()
-	End Method
-	
-	Rem
-		bbdoc: Set the range of the scrollbar.
-		about: The range of a scrollbar is the number of values the bar actually covers.<br/>
-		For example, if the bar was used to scroll lines of text, the range of the bar would be the number of lines visible in the text gadget.
-	End Rem
-	Method SetRange(_range:Int)
-		gRange = _range
-		If gRange < 1 Then gRange = 1
-		If (gValue + gRange) > gMax Then gValue = gMax - gRange
-		If gValue < 0 Then gValue = 0
-		UpdateBarLength()
-	End Method
-	
-	Rem
-		bbdoc: Get the range of the scrollbar.
-		returns: The range of the scrollbar.
-	End Rem
-	Method GetRange:Int()
-		Return gRange
-	End Method
-	
-	Rem
-		bbdoc: Set the max value for the scrollbar.
-		returns: Nothing.
-	End Rem
-	Method SetMax(_max:Int)
-		gMax = _max
-		If gMax < 1 Then gMax = 1
-		If (gValue + gRange) > gMax Then gValue = gMax - gRange
-		If gValue < 0 Then gValue = 0
-		UpdateBarLength()
-	End Method
-	
-	Rem
-		bbdoc: Get the max value for the scrollbar.
-		returns: The max value for the scrollbar.
-	End Rem
-	Method GetMax:Int()
-		Return gMax
-	End Method
-	
-	Rem
-		bbdoc: Set the increment.
-		returns: Nothing.
-		about: This is the value added/subtracted when the user presses either of the scrollbar buttons.
-	End Rem
-	Method SetInc(_inc:Int)
-		gInc = _inc
-		If gInc < 0 Then gInc = 0
-	End Method
-	
-	Rem
-		bbdoc: Set the big increment.
-		returns: Nothing.
-		about: This is the value added/subtracted when the user clicks in the empty area between the bar and the buttons at either end.		
-	End Rem
-	Method SetBigInc(_inc:Int)
-		gBig = _inc
-		If gBig < 0 Then gBig = 0
+		New dui_Event.Create(dui_EVENT_GADGETACTION, Self, m_value, 0, 0, Null)
 	End Method
 	
 	Rem
@@ -423,23 +448,28 @@ Type dui_TScrollBar Extends dui_TGadget
 		about: This calls #UpdateBarPos.
 	End Rem
 	Method UpdateBarLength()
-		'set gadget area length
-		Local gLen:Int
+		Local templength:Int
 		
-		Select gAlign
-			Case VERT_ALIGN gLen = (gH - 30)
-			Case HORIZ_ALIGN gLen = (gW - 30)
+		Select m_align
+			Case dui_ALIGN_VERTICAL
+				templength = (m_height - 30)
+			Case dui_ALIGN_HORIZONTAL
+				templength = (m_width - 30)
 		End Select
 		
 		'set the size of a unit
-		gUnit = gLen / Float(gMax)
+		m_unit = templength / Float(m_max)
 		
 		'set the length of the bar, in units
-		gLength = gUnit * gRange
+		m_length = m_unit * m_range
 		
 		'ensure length meets requirements
-		If gLength < 6 Then gLength = 6
-		If gLength > gLen Then gLength = gLen
+		If m_length < 6
+			m_length = 6
+		End If
+		If m_length > templength
+			m_length = templength
+		End If
 		
 		UpdateBarPos()
 	End Method
@@ -449,94 +479,22 @@ Type dui_TScrollBar Extends dui_TGadget
 		returns: Nothing.
 	End Rem
 	Method UpdateBarPos()
-		Select gAlign
-			Case VERT_ALIGN gStart = gY + 15 + (gUnit * gValue)			
-			Case HORIZ_ALIGN gStart = gX + 15 + (gUnit * gValue)
+		Select m_align
+			Case dui_ALIGN_VERTICAL
+				m_start = m_y + 15 + (m_unit * m_value)
+			Case dui_ALIGN_HORIZONTAL
+				m_start = m_x + 15 + (m_unit * m_value)
 		End Select
 	End Method
+	
+'#end region (Bar positioning and updating)
 	
 	Rem
 		bbdoc: Refresh the skin images for the scrollbar.
 		returns: Nothing.
 	End Rem
-	Function RefreshSkin()
-		Local _x:Int, _y:Int, index:Int
-		Local image:TImage, mainmap:TPixmap, pixmap:TPixmap[3]
-		
-		' Load in back area image
-		gBackImage = LoadImage(TDUIMain.SkinUrl + "/graphics/scrollback.png")
-		
-		' Load in four button images
-		gButtonImage[0] = LoadImage(TDUIMain.SkinUrl + "/graphics/scrollup.png")
-		gButtonImage[1] = LoadImage(TDUIMain.SkinUrl + "/graphics/scrolldown.png")
-		gButtonImage[2] = LoadImage(TDUIMain.SkinUrl + "/graphics/scrollleft.png")
-		gButtonImage[3] = LoadImage(TDUIMain.SkinUrl + "/graphics/scrollright.png")
-		
-		' Get the vertical scrollbar image
-		image = LoadImage(TDUIMain.SkinUrl + "/graphics/vscrollbar.png")
-		mainmap = LockImage(image)
-		
-		For index = 0 To 1
-			
-			gBarImage[index] = CreateImage(15, 3)
-			pixmap[index] = LockImage(gBarImage[index])
-			
-		Next
-		gBarImage[2] = CreateImage(15, 1)
-		pixmap[2] = LockImage(gBarImage[2])
-		
-		For _y = 0 To 6
-			For _x = 0 To 14
-				If _y < 3
-					pixmap[0].WritePixel(_x, _y, mainmap.ReadPixel(_x, _y))
-				End If
-				If _y = 3
-					pixmap[2].WritePixel(_x, _y - 3, mainmap.ReadPixel(_x, _y))
-				End If
-				If _y > 3
-					pixmap[1].WritePixel(_x, _y - 4, mainmap.ReadPixel(_x, _y))
-				End If
-			Next
-		Next
-		
-		'unlock images
-		For index = 0 To 2
-			UnlockImage(gBarImage[index])
-		Next
-		UnlockImage(image)
-		
-		'horizontal scrollbar image
-		image = LoadImage(TDUIMain.SkinUrl + "/graphics/hscrollbar.png")
-		mainmap = LockImage(image)
-		
-		'create the three images
-		For index = 0 To 1
-			gBarImage[index + 3] = CreateImage(3, 15)
-			pixmap[index] = LockImage(gBarImage[index + 3])
-		Next
-		gBarImage[5] = CreateImage(1, 15)
-		pixmap[2] = LockImage(gBarImage[5])
-		
-		' Copy the pixels across
-		For _x = 0 To 6
-			For _y = 0 To 14
-				If _x < 3
-					pixmap[0].WritePixel(_x, _y, mainmap.ReadPixel(_x, _y))
-				End If
-				If _x = 3
-					pixmap[2].WritePixel(_x - 3, _y, mainmap.ReadPixel(_x, _y))
-				End If
-				If _x > 3
-					pixmap[1].WritePixel(_x - 4, _y, mainmap.ReadPixel(_x, _y))
-				End If
-			Next
-		Next
-		
-		For index = 3 To 5
-			UnlockImage(gBarImage[index])
-		Next
-		UnlockImage(image)
-		
+	Function RefreshSkin(theme:dui_Theme)
+		m_renderer.Create(theme, "scrollbar")
 	End Function
 	
 End Type

@@ -1,39 +1,7 @@
 
 Rem
-	extra.bmx (Contains: dui_VirtualGraphics(), MouseIn and point-in routines, )
+	extra.bmx (Contains: dui_MouseIn(), dui_MouseInCircle(), dui_IsInViewport(),  )
 End Rem
-
-Rem
-	bbdoc: Set virtual graphics resolution.
-	returns: Nothing.
-End Rem
-Function dui_VirtualGraphics(width:Int = 640, Height:Int = 480)
-
-	?Win32
-	Local D3D7Driver:TD3D7Max2DDriver = TD3D7Max2DDriver(_max2dDriver)
-	
-	If D3D7Driver
-		Local Matrix:Float[] = [2.0 / width, 0.0, 0.0, 0.0,  ..
-			0.0, - 2.0 / Height, 0.0, 0.0,  ..
-			0.0, 0.0, 1.0, 0.0,  ..
-			- 1 - (1.0 / width), 1 + (1.0 / Height), 1.0, 1.0]
-		
-		D3D7Driver.device.SetTransform(D3DTS_PROJECTION, Matrix)
-		
-	Else
-	?
-		
-		glMatrixMode(GL_PROJECTION)
-		glLoadIdentity()
-		glortho(0, width, height, 0, 0, 1)
-		glMatrixMode(GL_MODELVIEW)
-		glLoadIdentity()
-		
-	?win32
-	End If
-	?
-	
-End Function
 
 Rem
 	bbdoc: Check if the mouse is within a rectangle.
@@ -41,13 +9,11 @@ Rem
 	about: Used by the GUI to determine if the mouse is within a given area.
 End Rem
 Function dui_MouseIn:Int(x:Int, y:Int, w:Int, h:Int)
-	
-	If MouseX() >= X And MouseX() <= (X + w) And MouseY() >= Y And MouseY() <= (Y + h)
+	If MouseX() >= x And MouseX() <= (x + w) And MouseY() >= y And MouseY() <= (y + h)
 		Return True
 	Else
 		Return False
 	End If
-	
 End Function
 
 Rem
@@ -56,14 +22,15 @@ Rem
 	about: Used by the GUI to determine if the mouse is within a given area.
 End Rem
 Function dui_MouseInCircle:Int(x:Int, y:Int, radius:Float)
-	
-	'uses basic trigonometry.
 	Local xdist:Float = Abs(x - MouseX())
 	Local ydist:Float = Abs(y - MouseY())
 	Local dist:Float = Sqr(Float(xdist * xdist) + Float(ydist * ydist))
 	
-	If dist < radius Then Return True Else Return false
-	
+	If dist < radius
+		Return True
+	Else
+		Return False
+	End If
 End Function
 
 Rem
@@ -72,32 +39,28 @@ Rem
 	about: Used by the system to avoid drawing things you can't see anyway
 End Rem
 Function dui_IsInViewport:Int(x:Int, y:Int, w:Int, h:Int)
+	Local pos:TVec2, size:TVec2
+	Local xc:Int, yc:Int
 	
-	'get viewport settings
-	Local vx:Int, vy:Int, vw:Int, vh:Int
-	GetViewport(vx, vy, vw, vh)
+	pos = TProtog2DDriver.GetViewportPosition()
+	size = TProtog2DDriver.GetViewportSize()
 	
-	'set up collision flags
-	Local xc:Int = False
-	Local yc:Int = False
+	If (x < pos.m_x) And (x + w) >= pos.m_x
+		xc = True
+	End If
+	If (x >= pos.m_x) And (x <= (pos.m_x + size.m_x))
+		xc = True
+	End If
 	
-	'check for overlap
-	'check if there's a collision on the x axis
-	If (X < vx) And (X + w) >= vx Then xc = True
-	If (X >= vx) And (X <= (vx + vw)) Then xc = True
+	If (y < pos.m_y) And (y + w) >= pos.m_y
+		yc = True
+	End If
+	If (y >= pos.m_y) And (y <= (pos.m_y + size.m_y))
+		yc = True
+	End If
 	
-	'check if there's a collision on the y axis
-	If (Y < vy) And (Y + w) >= vy Then yc = True
-	If (Y >= vy) And (Y <= (vy + vh)) Then yc = True
-	
-	'return the value
 	Return (yc And xc)
-	
-End Function	
-
-
-
-
+End Function
 
 
 

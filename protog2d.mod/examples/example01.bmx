@@ -126,7 +126,6 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 		
 		m_testtext.SetHCentering(MouseDown(MOUSE_LEFT))
 		m_testtext.SetVCentering(MouseDown(MOUSE_RIGHT))
-		
 	End Method
 	
 	Method OnExit()

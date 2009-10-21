@@ -196,7 +196,6 @@ Type TSNodeToken
 		returns: The token type as a string.
 	End Rem
 	Method TypeToString:String()
-		
 		Select m_type
 			Case NoToken
 				Return "NoToken"
@@ -218,12 +217,9 @@ Type TSNodeToken
 				Return "OpenBraceToken"
 			Case CloseBraceToken
 				Return "CloseBraceToken"
-				
 			Default
 				Return "UNKNOWNToken"
-				
 		End Select
-		
 	End Method
 	
 End Type
@@ -256,7 +252,10 @@ Type TSNodeParser
 	Method InitWithStream(url:Object, encoding:Int = SNPEncoding_UTF8)
 		Local ustream:TStream
 		
-		ustream = ReadStream(url)
+		ustream = TStream(url)
+		If ustream = Null
+			ustream = ReadStream(url)
+		End If
 		Assert ustream, "(duct.scriptparser.TSNodeParser) Failed to open stream"
 		
 		m_stream = TTextStream.Create(ustream, encoding)
@@ -267,7 +266,6 @@ Type TSNodeParser
 		m_token = Null
 		
 		NextChar() ' Get the first character in the script
-		
 	End Method
 	
 	Rem
@@ -288,7 +286,6 @@ Type TSNodeParser
 		m_token = Null
 		
 		NextChar() ' Get the first character in the script
-		
 	End Method
 	
 	Rem
@@ -304,7 +301,6 @@ Type TSNodeParser
 		returns: True if more data is left to be parsed/handled, or False if there is no more data in the stream.
 	End Rem
 	Method Parse:Int()
-		
 		'NextChar()
 		SkipWhitespace()
 		NextToken()
@@ -313,9 +309,7 @@ Type TSNodeParser
 		If m_curchar = CHAR_EOF Or m_token.m_type = EOFToken
 			Return False
 		End If
-		
 		Return True
-		
 	End Method
 	
 	Rem
@@ -324,25 +318,20 @@ Type TSNodeParser
 		about: The character read will be cached in m_curchar.
 	End Rem
 	Method NextChar:Int()
-		
 		If m_curchar = CHAR_NEWLINE
 			m_line:+1
 			m_col = 0
 		End If
-		
 		If m_stream.Eof() = False
 			m_curchar = m_stream.ReadChar()
 			m_col:+1
 		Else
 			m_curchar = CHAR_EOF
 		End If
-		
 		If m_curchar = CHAR_CARRIAGERETURN
 			NextChar()
 		End If
-		
 		Return m_curchar
-		
 	End Method
 	
 	Rem
@@ -372,9 +361,7 @@ Type TSNodeParser
 		about: The token will be cached in m_token.
 	End Rem
 	Method NextToken:TSNodeToken()
-		
 		m_token = New TSNodeToken
-		
 		Select m_curchar
 			Case CHAR_QUOTE
 				m_token.m_type = QuotedStringToken
@@ -390,18 +377,14 @@ Type TSNodeParser
 				m_token.m_type = OpenBraceToken
 			Case CHAR_CLOSEBRACE
 				m_token.m_type = CloseBraceToken
-				
 			Default
 				If m_numberset.Contains(m_curchar) = True
 					m_token.m_type = NumberToken
 				Else
 					m_token.m_type = StringToken
 				End If
-				
 		End Select
-		
 		m_token.SetBeginningPosition(m_line, m_col)
-		
 	End Method
 	
 	Rem
@@ -413,7 +396,6 @@ Type TSNodeParser
 		
 		'DebugLog("(TSNodeParser.ReadToken())")
 		'tktype = m_token.TypeToString()
-		
 		Select m_token.m_type
 			Case QuotedStringToken
 				ReadQuotedStringToken()
@@ -434,18 +416,13 @@ Type TSNodeParser
 				NextChar()
 			Case EOFToken
 				' Do nothing
-				
 			Default
 				Throw(New TSNodeException.Create(TSNodeException.ParserError, "TSNodeParser.ReadToken()", "Unhandled token: " + m_token.m_type))
-				
 		End Select
-		
 		'If tktype <> m_token.TypeToString()
 		'	DebugLog("(TSNodeParser.ReadToken()) " + tktype + " -> " + m_token.TypeToString() + " ~q" + m_token.ToString() + "~q")
 		'End If
-		
 		m_handler.HandleToken(m_token)
-		
 	End Method
 	
 	Rem
@@ -453,14 +430,10 @@ Type TSNodeParser
 		returns: Nothing.
 	End Rem
 	Method ReadNumberToken()
-		
 		'm_token.AddChar(m_curchar)
 		'NextChar()
-		
 		'DebugLog("(TSNodeParser.ReadNumberToken())")
-		
 		While m_curchar <> CHAR_EOF
-			
 			If m_curchar = CHAR_QUOTE
 				Throw(New TSNodeException.Create(TSNodeException.ParserError, "TSNodeParser.ReadNumberToken()", "Unexpected quote", m_token, Self))
 			Else If m_eolset.Contains(m_curchar) = True Or m_whitespaceset.Contains(m_curchar) = True Or m_curchar = CHAR_CLOSEBRACE Or m_curchar = CHAR_SINGLEQUOTE
@@ -481,11 +454,8 @@ Type TSNodeParser
 					Return
 				End If
 			End If
-			
 			NextChar()
-			
 		Wend
-		
 	End Method
 	
 	Rem
@@ -493,14 +463,10 @@ Type TSNodeParser
 		returns: Nothing.
 	End Rem
 	Method ReadDigitToken()
-		
 		'm_token.AddChar(m_curchar)
 		'NextChar()
-		
 		'DebugLog("(TSNodeParser.ReadDigitToken())")
-		
 		While m_curchar <> CHAR_EOF
-			
 			If m_curchar = CHAR_QUOTE
 				Throw(New TSNodeException.Create(TSNodeException.ParserError, "TSNodeParser.ReadNumberToken()", "Unexpected quote", m_token, Self))
 			Else If m_eolset.Contains(m_curchar) = True Or m_whitespaceset.Contains(m_curchar) = True Or m_curchar = CHAR_CLOSEBRACE Or m_curchar = CHAR_SINGLEQUOTE
@@ -517,11 +483,8 @@ Type TSNodeParser
 					Return
 				End If
 			End If
-			
 			NextChar()
-			
 		Wend
-		
 	End Method
 	
 	Rem
@@ -529,14 +492,10 @@ Type TSNodeParser
 		returns: Nothing.
 	End Rem
 	Method ReadStringToken()
-		
 		'm_token.AddChar(m_curchar)
 		'NextChar()
-		
 		'DebugLog("(TSNodeParser.ReadStringToken())")
-		
 		While m_curchar <> CHAR_EOF
-			
 			If m_curchar = CHAR_QUOTE
 				Throw(New TSNodeException.Create(TSNodeException.ParserError, "TSNodeParser.ReadStringToken()", "Unexpected quote", m_token, Self))
 			Else If m_eolset.Contains(m_curchar) = True Or m_whitespaceset.Contains(m_curchar) = True Or m_curchar = CHAR_CLOSEBRACE Or m_curchar = CHAR_SINGLEQUOTE
@@ -544,11 +503,8 @@ Type TSNodeParser
 			Else
 				m_token.AddChar(m_curchar)
 			End If
-			
 			NextChar()
-			
 		Wend
-		
 	End Method
 	
 	Rem
@@ -556,33 +512,25 @@ Type TSNodeParser
 		returns: Nothing.
 	End Rem
 	Method ReadQuotedStringToken()
-		
 		'DebugLog("(TSNodeParser.ReadQuotedStringToken())")
 		
 		' Skip the first character (will be the initial quote)
 		NextChar()
-		
 		Repeat
-			
 			Select m_curchar
 				Case CHAR_EOF
 					Throw(New TSNodeException.Create(TSNodeException.ParserError, "TSNodeParser.ReadQuotedStringToken()", "Encountered EOF whilst reading quoted string", m_token, Self))
 				Case CHAR_QUOTE
 					Exit
-					
 				Default
 					If m_eolset.Contains(m_curchar) = True
 						Throw(New TSNodeException.Create(TSNodeException.ParserError, "TSNodeParser.ReadQuotedStringToken()", "Unclosed quote (met EOL character)", m_token, Self))
 					Else
 						m_token.AddChar(m_curchar)
 					End If
-					
 			End Select
-			
 			NextChar()
-			
 		Forever
-		
 	End Method
 	
 	Rem
@@ -800,11 +748,9 @@ Type TSNodeException
 		returns: A string containing the exception's report.
 	End Rem
 	Method ToString:String()
-		
 		If m_token <> Null And m_parser <> Null
 			Return "(" + m_reporter + ") [" + ErrorToString(m_error) + "] from " + m_token.LineRep() + " to " + m_parser.LineRep() + ": " + m_message
 		End If
-		
 		If m_token <> Null
 			Return "(" + m_reporter + ") [" + ErrorToString(m_error) + "] at " + m_token.LineRep() + ": " + m_message
 		Else If m_parser <> Null
@@ -812,7 +758,6 @@ Type TSNodeException
 		Else
 			Return "(" + m_reporter + ") [" + ErrorToString(m_error) + "]: " + m_message
 		End If
-		
 	End Method
 	
 	Rem
@@ -820,18 +765,14 @@ Type TSNodeException
 		returns: The variable name/description for the given error code.
 	End Rem
 	Function ErrorToString:String(error:Int)
-		
 		Select error
 			Case ParserError
 				Return "ParserError"
 			Case HierarchyError
 				Return "HierarchyError"
-				
 			Default
 				Return "UNKNOWN"
-				
 		End Select
-		
 	End Function
 	
 End Type

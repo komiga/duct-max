@@ -1,182 +1,119 @@
 
 Rem
-	progressbar.bmx (Contains: dui_TProgressBar, )
+	progressbar.bmx (Contains: dui_ProgressBar, )
 End Rem
 
 Rem
 	bbdoc: The dui progress bar gadget type.
 End Rem
-Type dui_TProgressBar Extends dui_TGadget
+Type dui_ProgressBar Extends dui_Gadget
 	
-	Global gImage:TImage[9]
+	Global m_renderer:dui_GenericRenderer = New dui_GenericRenderer
 	
-	Field gCapX:Int
-	Field gColour:Int[][] = [[255, 255, 255], [255, 0, 0] ]
+	Field m_capx:Float
 	
-	Field gValue:Int
-	Field gText:String
+	Field m_value:Int
+	Field m_text:String
+	
+	Rem
+		bbdoc: Create a progress bar.
+		returns: The created progress bar.
+	End Rem
+	Method Create:dui_ProgressBar(name:String, text:String, x:Float, y:Float, w:Float, h:Float, parent:dui_Gadget)
+		_Init(name, x, y, w, h, parent, False)
+		SetText(text)
+		Return Self
+	End Method
+	
+'#region Render & update methods
+	
+	Rem
+		bbdoc: Render the progress bar.
+		returns: Nothing.
+	End Rem
+	Method Render(x:Float, y:Float)
+		Local relx:Float, rely:Float, fw:Float
 		
-		Rem
-			bbdoc: Create a progress bar.
-			returns: The created progress bar.
-		End Rem
-		Method Create:dui_TProgressBar(_name:String, _text:String, _x:Float, _y:Float, _w:Float, _h:Float, _parent:dui_TGadget)
+		If IsVisible() = True
+			relx = m_x + x
+			rely = m_y + y
 			
-			PopulateGadget(_name, _x, _y, _w, _h, _parent)
+			BindDrawingState(0)
+			m_renderer.RenderCells(relx, rely, Self, True, True, False)
 			
-			SetText(_text)
+			fw = (m_width - 10) * Float(m_value / 100.0)
+			m_renderer.RenderCell(4, relx + fw, rely, Self, -fw)
 			
-			Return Self
+			BindDrawingState(1)
+			m_renderer.RenderCell(4, relx, rely - 2, Self,, -4)
 			
-		End Method
+			BindTextDrawingState()
+			dui_FontManager.RenderString(m_text, m_font, m_capx + x, rely + 2)
+			
+			Super.Render(x, y)
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Refresh the the progress bar.
+		returns: Nothing.
+	End Rem
+	Method Refresh()
+		m_capx = (m_x + (m_width / 2)) - (dui_FontManager.StringWidth(m_text, m_font) / 2)
+	End Method
+	
+'#end region (Render & update methods)
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Set the progress bar's text.
+		returns: Nothing.
+		about: This will refresh the progress bar.
+	End Rem
+	Method SetText(text:String)
+		m_text = text
+		Refresh()
+	End Method
+	Rem
+		bbdoc: Get the progress bar's text.
+		returns: The progress bar's text.
+	End Rem
+	Method GetText:String()
+		Return m_text
+	End Method
+	
+	Rem
+		bbdoc: Set the current progress/value.
+		returns: Nothing.
+		about: @_value is clamped to 0 to 100.
+	End Rem
+	Method SetValue(value:Int, doevent:Int)
+		m_value = IntMax(IntMin(value, 0), 100)
 		
-		Rem
-			bbdoc: Render the progress bar.
-			returns: Nothing.
-		End Rem
-		Method Render(_x:Float, _y:Float)
-			Local rX:Float, rY:Float, fw:Float
-			
-			If IsVisible() = True
-				
-				SetDrawingState(0)
-				
-				rX = gX + _x
-				rY = gY + _y
-				
-				' Draw four corners
-				DrawImage(gImage[0], rX, rY)
-				DrawImage(gImage[2], (rX + gW) - 5, rY)
-				DrawImage(gImage[6], rX, (rY + gH) - 5)
-				DrawImage(gImage[8], (rX + gW) - 5, (rY + gH) - 5)
-				
-				' Draw four sides
-				DrawImageRect(gImage[1], rX + 5, rY, gW - 10, 5)
-				DrawImageRect(gImage[7], rX + 5, (rY + gH) - 5, gW - 10, 5)
-				DrawImageRect(gImage[3], rX, rY + 5, 5, gH - 10)
-				DrawImageRect(gImage[5], (rX + gW) - 5, rY + 5, 5, gH - 10)
-				
-				' Draw centre
-				fw = (gW - 10) * Float(gValue / 100.0)
-				
-				' Empty part
-				DrawImageRect(gImage[4], (rX + 5) + fw, rY + 5, (gW - 10) - fw, gH - 10)
-				
-				' Filled part
-				SetDrawingState(1)
-				DrawImageRect(gImage[4], rX + 5, ry + 2, fw, gH - 4)
-				
-				SetTextDrawingState(True)
-				DrawText(GetText(), gCapX + _x, rY + 3)
-				
-				Super.Render(_x, _y)
-				
-			End If
-			
-		End Method
-		
-		Rem
-			bbdoc: Refresh the the progress bar.
-			returns: Nothing.
-		End Rem
-		Method Refresh()
-			
-			gCapX = (gX + (gW / 2)) - (dui_TFont.GetFontStringWidth(gText, GetFont()) / 2)
-			
-		End Method
-		
-		Rem
-			bbdoc: Set the progress bar's text.
-			returns: Nothing.
-		End Rem
-		Method SetText(_text:String)
-			
-			gText = _text
-			Refresh()
-			
-		End Method
-		Rem
-			bbdoc: Get the progress bar's text.
-			returns: The progress bar's text.
-		End Rem
-		Method GetText:String()
-			
-			Return gText
-			
-		End Method
-		
-		Rem
-			bbdoc: Set the current progress/value.
-			returns: Nothing.
-			about: @_value is clamped to 0 to 100.
-		End Rem
-		Method SetValue(_value:Int, _doevent:Int)
-			
-			gValue = IntMax(IntMin(_value, 0), 100)
-			
-			If _doevent = True Then New dui_TEvent.Create(dui_EVENT_GADGETACTION, Self, GetValue(), 0, 0, Null)
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the current progress.
-			returns: The progress bar's progress/value.
-		End Rem
-		Method GetValue:Int()
-			
-			Return gValue
-			
-		End Method
-		
-		Rem
-			bbdoc: Set one of the gadget's colours.
-			returns: Nothing.
-			about: Sets the colour of the gadget.<br>
-			@_index can be: <br>
-			0 = Gadget colour<br>
-			1 = Fill colour
-		End Rem
-		Method SetColour(_r:Int, _g:Int, _b:Int, _index:Int = 0)
-			
-			If _index = 0 Or _index = 1
-				gColour[_index] = [_r, _g, _b]
-			End If
-			
-		End Method
-		
-		Rem
-			bbdoc: Refresh the progress bar's skin.
-			returns: Nothing.
-		End Rem
-		Function RefreshSkin()
-			Local x:Int, y:Int, index:Int, map:Int
-			Local image:TImage, mainmap:TPixmap, pixmap:TPixmap[9]
-			
-			image = LoadImage(TDUIMain.SkinUrl + "/graphics/progress.png")
-			mainmap = LockImage(image)
-			
-			For index = 0 To 8
-				gImage[index] = CreateImage(5, 5)
-				pixmap[index] = LockImage(gImage[index])
-			Next
-			
-			For y = 0 To 14
-				For x = 0 To 14
-					
-					map = ((y / 5) * 3) + (x / 5)
-					
-					pixmap[map].WritePixel((x Mod 5), (y Mod 5), mainmap.ReadPixel(x, y))
-					
-				Next
-			Next
-			
-			For index = 0 To 8
-				UnlockImage(gImage[index])
-			Next
-			UnlockImage(image)
-			
-		End Function
-		
+		If doevent = True
+			New dui_Event.Create(dui_EVENT_GADGETACTION, Self, m_value, 0, 0, Null)
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Get the current progress.
+		returns: The progress bar's progress/value.
+	End Rem
+	Method GetValue:Int()
+		Return m_value
+	End Method
+	
+'#end region (Field accessors)
+	
+	Rem
+		bbdoc: Refresh the progress bar's skin.
+		returns: Nothing.
+	End Rem
+	Function RefreshSkin(theme:dui_Theme)
+		m_renderer.Create(theme, "progressbar")
+	End Function
+	
 End Type
 
 

@@ -28,10 +28,13 @@ bbdoc: Scriptparser module
 End Rem
 Module duct.scriptparser
 
-ModuleInfo "Version: 0.49"
+ModuleInfo "Version: 0.50"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.50"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Fixed encoding references in TSNode.LoadScriptFromObject() and TSNode.LoadScriptFromString()"
 ModuleInfo "History: Version 0.49"
 ModuleInfo "History: Added parser encoding constants"
 ModuleInfo "History: Changed TSNodeToken to use a buffer"

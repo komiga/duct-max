@@ -1,66 +1,49 @@
 
 Rem
-	menu.bmx (Contains: dui_TMenu, )
+	menu.bmx (Contains: dui_Menu, )
 End Rem
 
 Rem
 	bbdoc: The dui menu gadget type.
 	about: Passing indexes as dui_SELECTED_ITEM is a shortcut to use the selected item index.
 End Rem
-Type dui_TMenu Extends dui_TGadget
+Type dui_Menu Extends dui_Gadget
 	
-	Global gImage:TImage[9]
-				
-	Field gCombo:dui_TComboBox		' Parent combo box gadget (for setting the caption)
-	Field gTable:dui_TTable			' Table gadget to store the item list
-	Field gMaxH:Int					' Maximum height (do not expand beyond this height)
+	Global m_renderer:dui_GenericRenderer = New dui_GenericRenderer
+	
+	Field m_combobox:dui_ComboBox		' Parent combo box gadget (for setting the caption)
+	Field m_table:dui_Table			' Table gadget to store the item list
+	Field m_maxheight:Int					' Maximum height (do not expand beyond this height)
 	
 	Rem
 		bbdoc: Create a menu.
 		returns: The created menu (itself).
 	End Rem
-	Method Create:dui_TMenu(_name:String, _x:Float, _y:Float, _w:Float, _h:Float, _ih:Float)
-		PopulateGadget(_name, _x, _y, _w, _h, Null, False)
+	Method Create:dui_Menu(name:String, x:Float, y:Float, w:Float, h:Float, _ih:Float)
+		_Init(name, x, y, w, h, Null, False)
 		Hide()
-		gTable = New dui_TTable.Create(_name + ":Table", 5.0, 5.0, _h - 10.0, "Select", _w - 25, _ih, False, Self)
-		gTable.SetAlpha(0.3, 1)
-		gTable.SetItemHighlight(False)
-		gMaxH = _h
+		m_table = New dui_Table.Create(name + ":Table", 5.0, 5.0, h - 10.0, "Select", w - 25, _ih, False, Self)
+		m_table.SetAlpha(0.3, 1)
+		m_table.SetItemHighlight(False)
+		m_maxheight = h
 		Refresh()
 		
 		TDUIMain.AddExtra(Self)
 		Return Self
 	End Method
 	
+'#region Render & update methods
+	
 	Rem
 		bbdoc: Render the menu.
 		returns: Nothing.
 	End Rem
-	Method Render(_x:Float, _y:Float)
-		Local rX:Float, rY:Float
-		
+	Method Render(x:Float, y:Float)
 		If IsVisible() = True
+			BindDrawingState()
+			m_renderer.RenderCells(x + m_x, y + m_y, Self)
 			
-			SetDrawingState()
-			
-			rX = gX + _x
-			rY = gY + _y
-				
-			' Draw four corners
-			DrawImage(gImage[0], rX, rY)
-			DrawImage(gImage[2], (rX + gW) - 5, rY)
-			DrawImage(gImage[6], rX, (rY + gH) - 5)
-			DrawImage(gImage[8], (rX + gW) - 5, (rY + gH) - 5)
-			
-			' Draw four sides
-			DrawImageRect(gImage[1], rX + 5, rY, gW - 10, 5)
-			DrawImageRect(gImage[7], rX + 5, (rY + gH) - 5, gW - 10, 5)
-			DrawImageRect(gImage[3], rX, rY + 5, 5, gH - 10)
-			DrawImageRect(gImage[5], (rX + gW) - 5, rY + 5, 5, gH - 10)
-			
-			' Draw centre
-			DrawImageRect(gImage[4], rX + 5, rY + 5, gW - 10, gH - 10)
-			Super.Render(_x, _y)
+			Super.Render(x, y)
 		End If
 	End Method
 	
@@ -68,11 +51,10 @@ Type dui_TMenu Extends dui_TGadget
 		bbdoc: Update the menu.
 		returns: Nothing.
 	End Rem
-	Method Update(_x:Int, _y:Int)
-		Super.Update(_x, _y)
-		' Check to see if the mouse is down, regardless of location
-		If IsVisible() = True And TDUIMain.IsGadgetActive(Self) And MouseDown(1)
-			UpdateMouseDown(_x, _y)
+	Method Update(x:Int, y:Int)
+		Super.Update(x, y)
+		If IsVisible() = True And TDUIMain.IsGadgetActive(Self) = True And MouseDown(1) = True
+			UpdateMouseDown(x, y)
 		End If
 	End Method
 	
@@ -80,11 +62,11 @@ Type dui_TMenu Extends dui_TGadget
 		bbdoc: Update the MouseOver state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseDown(_x:Int, _y:Int)
-		Super.UpdateMouseDown(_x, _y)
+	Method UpdateMouseDown(x:Int, y:Int)
+		Super.UpdateMouseDown(x, y)
 		If IsVisible() = True
 			' Hide the gadget and generate a close event
-			New dui_TEvent.Create(dui_EVENT_GADGETCLOSE, Self, 0, 0, 0, Self)
+			New dui_Event.Create(dui_EVENT_GADGETCLOSE, Self, 0, 0, 0, Self)
 			Hide()
 		End If
 	End Method
@@ -95,22 +77,26 @@ Type dui_TMenu Extends dui_TGadget
 	End Rem
 	Method Refresh()
 		' Refreshes the height of the menu gadget to accomodate items in the table
-		gH = (GetItemCount() * (gTable.gIH + 2)) + 8
-		If gH > gMaxH Then gH = gMaxH
+		m_height = (GetItemCount() * (m_table.m_itemheight + 2)) + 8
+		If m_height > m_maxheight Then m_height = m_maxheight
 		' Refresh the table size
-		gTable.gH = gH - 10
-		gTable.Refresh()
+		m_table.m_height = m_height - 10
+		m_table.Refresh()
 	End Method
+	
+'#end region (Render & update methods)
+	
+'#region Collections
 	
 	Rem
 		bbdoc: Create an item by data and add it to the menu.
 		returns: The item it created and added to the menu, or False if the item was not added (created item was Null or other unknown reason).
 	End Rem
-	Method AddItemByData:dui_TTableItem(_text:String, _data:Int = 0, _extra:Object = Null, _dorefresh:Int = True)
-		Local item:dui_TTableItem
+	Method AddItemByData:dui_TableItem(text:String, _data:Int = 0, _extra:Object = Null, dorefresh:Int = True)
+		Local item:dui_TableItem
 		
-		item = gTable.AddItemByData([_text], _data, _extra, _dorefresh)
-		If _dorefresh = True Then Refresh()
+		item = m_table.AddItemByData([text], _data, _extra, dorefresh)
+		If dorefresh = True Then Refresh()
 		Return item
 	End Method
 	
@@ -118,11 +104,11 @@ Type dui_TMenu Extends dui_TGadget
 		bbdoc: Add an item to the menu.
 		returns: True if the item was added, or False if it was not added (item is Null).
 	End Rem
-	Method AddItem:Int(_item:dui_TTableItem, _dorefresh:Int = True)
+	Method AddItem:Int(_item:dui_TableItem, dorefresh:Int = True)
 		Local succ:Int
 		
-		succ = gTable.AddItem(_item, _dorefresh)
-		If _dorefresh = True Then Refresh()
+		succ = m_table.AddItem(_item, dorefresh)
+		If dorefresh = True Then Refresh()
 		Return succ
 	End Method
 	
@@ -130,13 +116,13 @@ Type dui_TMenu Extends dui_TGadget
 		bbdoc: Remove an item from the menu.
 		returns: True if the item was removed, or False if it was not removed (invalid index).
 	End Rem
-	Method RemoveItemAtIndex:Int(_index:Int)
+	Method RemoveItemAtIndex:Int(index:Int)
 		Local success:Int, sindex:Int
 		
-		success = gTable.RemoveItemAtIndex(_index)
+		success = m_table.RemoveItemAtIndex(index)
 		If success = True
-			If _index = dui_SELECTED_ITEM Or _index = gTable.GetSelectedItemIndex()
-				If gTable.GetItemCount() = 0 Then sindex = -1
+			If index = dui_SELECTED_ITEM Or index = m_table.GetSelectedItemIndex()
+				If m_table.GetItemCount() = 0 Then sindex = -1
 			End If
 			Refresh()
 		End If
@@ -148,7 +134,7 @@ Type dui_TMenu Extends dui_TGadget
 		returns: Nothing.
 	End Rem
 	Method ClearItems()
-		gTable.ClearItems()
+		m_table.ClearItems()
 		SelectItem(- 1)
 	End Method
 	
@@ -157,24 +143,24 @@ Type dui_TMenu Extends dui_TGadget
 		returns: The number of items in the menu.
 	End Rem
 	Method GetItemCount:Int()
-		Return gTable.GetItemCount()
+		Return m_table.GetItemCount()
 	End Method
 	
 	Rem
 		bbdoc: Select an item in the menu.
 		returns: Nothing.
 	End Rem
-	Method SelectItem(_index:Int)
-		gTable.SelectItem(_index)
-		New dui_TEvent.Create(dui_EVENT_GADGETSELECT, Self, GetSelectedItemData(), 0, _index, GetSelectedItemExtra())
+	Method SelectItem(index:Int)
+		m_table.SelectItem(index)
+		New dui_Event.Create(dui_EVENT_GADGETSELECT, Self, GetSelectedItemData(), 0, index, GetSelectedItemExtra())
 	End Method
 	
 	Rem
 		bbdoc: Get the selected item.
 		returns: The selected item (could be Null).
 	End Rem
-	Method GetSelectedItem:dui_TTableItem()
-		Return gTable.GetSelectedItem()
+	Method GetSelectedItem:dui_TableItem()
+		Return m_table.GetSelectedItem()
 	End Method
 	
 	Rem
@@ -182,7 +168,7 @@ Type dui_TMenu Extends dui_TGadget
 		returns: The index of the selected item in the menu (-1 if the menu is empty).
 	End Rem
 	Method GetSelectedItemIndex:Int()
-		Return gTable.GetSelectedItemIndex()
+		Return m_table.GetSelectedItemIndex()
 	End Method
 	
 	Rem
@@ -190,7 +176,7 @@ Type dui_TMenu Extends dui_TGadget
 		returns: The text of the selected item.
 	End Rem
 	Method GetSelectedItemContent:String()
-		Return gTable.GetSelectedItemContentAtColumn(0)
+		Return m_table.GetSelectedItemContentAtColumn(0)
 	End Method
 	
 	Rem
@@ -198,7 +184,7 @@ Type dui_TMenu Extends dui_TGadget
 		returns: The data of the selected item.
 	End Rem
 	Method GetSelectedItemData:Int()
-		Return gTable.GetSelectedItemData()
+		Return m_table.GetSelectedItemData()
 	End Method
 	
 	Rem
@@ -206,77 +192,81 @@ Type dui_TMenu Extends dui_TGadget
 		returns: The extra object of the selected item.
 	End Rem
 	Method GetSelectedItemExtra:Object()
-		Return gTable.GetSelectedItemExtra()
+		Return m_table.GetSelectedItemExtra()
 	End Method
 	
 	Rem
 		bbdoc: Get an item at the index given.
 		returns: The item at the index, or Null if the index was invalid
 	End Rem
-	Method GetItemAtIndex:dui_TTableItem(_index:Int)
-		Return gTable.GetItemAtIndex(_index)
+	Method GetItemAtIndex:dui_TableItem(index:Int)
+		Return m_table.GetItemAtIndex(index)
 	End Method
 	
 	Rem
 		bbdoc: Get the text of an item.
-		returns: The text of the item at @_index (could be Null, but that doesn't mean it failed to grab the content).
+		returns: The text of the item at @index (could be Null, but that doesn't mean it failed to grab the content).
 	End Rem
-	Method GetItemContent:String(_index:Int)
-		Return gTable.GetItemContentAtIndex(_index, 0)
+	Method GetItemContent:String(index:Int)
+		Return m_table.GetItemContentAtIndex(index, 0)
 	End Method
 	
 	Rem
 		bbdoc: Get the data of an item at the index given.
 		returns: The data of the item at the index.
 	End Rem
-	Method GetItemData:Int(_index:Int)
-		Return gTable.GetItemDataAtIndex(_index)
+	Method GetItemData:Int(index:Int)
+		Return m_table.GetItemDataAtIndex(index)
 	End Method
 	
 	Rem
 		bbdoc: Get the extra object of an item at the index given.
 		returns: The extra object of the item at the index.
 	End Rem
-	Method GetItemExtra:Object(_index:Int)
-		Return gTable.GetItemExtraAtIndex(_index)
+	Method GetItemExtra:Object(index:Int)
+		Return m_table.GetItemExtraAtIndex(index)
 	End Method
 	
 	Rem
 		bbdoc: Set the text of an item at the index given.
 		returns: True if the content was set, or False if it was not set (invalid index).
 	End Rem
-	Method SetItemContent:String(_index:Int, _value:String)
-		Return gTable.SetItemContentAtIndex(_index, 0, _value)
+	Method SetItemContent:String(index:Int, _value:String)
+		Return m_table.SetItemContentAtIndex(index, 0, _value)
 	End Method
 	
 	Rem
 		bbdoc: Set the data of an item at the index given.
 		returns: True if the data was set, or False if it was not set (invalid index).
 	End Rem
-	Method SetItemData:Int(_index:Int, _data:Int)
-		Return gTable.SetItemDataAtIndex(_index, _data)
+	Method SetItemData:Int(index:Int, _data:Int)
+		Return m_table.SetItemDataAtIndex(index, _data)
 	End Method
 	
 	Rem
 		bbdoc: Set the extra object of an item at the index given.
 		returns: True if the extra object was set, or False if it was not set (invalid index).
 	End Rem
-	Method SetItemExtra:Int(_index:Int, _extra:Object)
-		Return gTable.SetItemExtraAtIndex(_index, _extra)
+	Method SetItemExtra:Int(index:Int, _extra:Object)
+		Return m_table.SetItemExtraAtIndex(index, _extra)
 	End Method
+	
+'#end region (Collections)
+	
+'#region Gadget function
 	
 	Rem
 		bbdoc: Activate the menu.
 		returns: Nothing.
 		about: This will disable all actions (except for menu actions) until something is selected.
 	End Rem
-	Method Activate(_x:Int, _y:Int)
-		gX = _x
-		gY = _y
+	Method Activate(x:Float, y:Float)
+		m_x = x
+		m_y = y
 		Show()
 		TDUIMain.SetActiveGadget(Self)
-		'gTable.gSelected = -1
-		New dui_TEvent.Create(dui_EVENT_GADGETOPEN, Self, 1, 0, 0, Null)
+		'm_table.m_selected = -1
+		New dui_Event.Create(dui_EVENT_GADGETOPEN, Self, 1, 0, 0, Null)
 	End Method
 	
 	Rem
@@ -284,7 +274,9 @@ Type dui_TMenu Extends dui_TGadget
 		returns: Nothing.
 	End Rem
 	Method TableSelect()
-		If gCombo <> Null Then gCombo.UpdateText()
+		If m_combobox <> Null
+			m_combobox.UpdateText()
+		End If
 		Deactivate()
 		Hide()
 	End Method
@@ -295,42 +287,22 @@ Type dui_TMenu Extends dui_TGadget
 	End Rem
 	Method Deactivate()
 		TDUIMain.ClearActiveGadget()
-		gState = IDLE_STATE
-		If gCombo <> Null
-			gCombo.UpdateText()
-			New dui_TEvent.Create(dui_EVENT_GADGETCLOSE, gCombo, 0, 0, 0, Self)
+		m_state = STATE_IDLE
+		If m_combobox <> Null
+			m_combobox.UpdateText()
+			New dui_Event.Create(dui_EVENT_GADGETCLOSE, m_combobox, 0, 0, 0, Self)
 		End If
-		New dui_TEvent.Create(dui_EVENT_GADGETCLOSE, Self, 0, 0, 0, Null)
+		New dui_Event.Create(dui_EVENT_GADGETCLOSE, Self, 0, 0, 0, Null)
 	End Method
+	
+'#end region (Gadget function)
 	
 	Rem
 		bbdoc: Refresh the skin for the menu.
 		returns: Nothing.
 	End Rem
-	Function RefreshSkin()
-		Local index:Int, x:Int, y:Int, map:Int
-		Local image:TImage, mainmap:TPixmap, pixmap:TPixmap[9]
-		
-		image = LoadImage(TDUIMain.SkinUrl + "/graphics/menu.png")
-		mainmap = LockImage(image)
-		
-		For index = 0 To 8
-			gImage[index] = CreateImage(5, 5)
-			pixmap[index] = LockImage(gImage[index])
-		Next
-		
-		For y = 0 To 14
-			For x = 0 To 14
-				' Get correct pixmap to write to
-				map = ((y / 5) * 3) + (x / 5)
-				pixmap[map].WritePixel((x Mod 5), (y Mod 5), mainmap.ReadPixel(x, y))
-			Next
-		Next
-		
-		For index = 0 To 8
-			UnlockImage(gImage[index])
-		Next
-		UnlockImage(image)
+	Function RefreshSkin(theme:dui_Theme)
+		m_renderer.Create(theme, "menu")
 	End Function
 	
 End Type

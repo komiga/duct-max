@@ -129,7 +129,7 @@ Type TProtogEntity Abstract
 		bbdoc: Render the entity.
 		returns: Nothing.
 	End Rem
-	Method Render() Abstract
+	Method Render(bind:Int = True) Abstract
 	
 	Rem
 		bbdoc: Update the entity.
@@ -330,13 +330,14 @@ Type TProtogTextEntity Extends TProtogEntity
 	Rem
 		bbdoc: Render the entity.
 		returns: Nothing.
+		about: @bind does nothing.
 	End Rem
-	Method Render()
+	Method Render(bind:Int = True)
 		m_color.Bind()
 		If m_replacer <> Null
-			m_font.DrawString(m_replacer.DoReplacements(), m_pos, m_hcenter, m_vcenter)
+			m_font.DrawStringVec(m_replacer.DoReplacements(), m_pos, m_hcenter, m_vcenter)
 		Else
-			m_font.DrawString(m_text, m_pos, m_hcenter, m_vcenter)
+			m_font.DrawStringVec(m_text, m_pos, m_hcenter, m_vcenter)
 		End If
 	End Method
 	
@@ -411,17 +412,10 @@ Type TProtogSpriteEntity Extends TProtogEntity
 		bbdoc: Create a new TProtogSpriteEntity.
 		returns: The new TProtogSpriteEntity (itself).
 		about: The default value for @pos and @color will be used if one is Null.<br/>
-		The default size will be the size of the given texture (if it is not Null).<br/>
-		If the given texture is Null, the size will be (128, 128), just to make it noticable.
+		The default size will be the size of the given texture (if it is not Null).
 	End Rem
 	Method Create:TProtogSpriteEntity(texture:TProtogTexture, pos:TVec2 = Null, color:TProtogColor = Null)
-		m_texture = texture
-		If m_texture <> Null
-			SetSizeParams(m_texture.m_width, m_texture.m_height)
-		Else
-			SetSizeParams(128.0, 128.0)
-		End If
-		
+		SetTexture(texture, True)
 		If pos = Null Then m_pos = GetDefaultPos().Copy() Else m_pos = pos
 		If color = Null Then m_color = GetDefaultColor().Copy() Else m_color = color
 		
@@ -445,6 +439,22 @@ Type TProtogSpriteEntity Extends TProtogEntity
 	End Rem
 	Method SetSizeParams(x:Float, y:Float)
 		m_size.Set(x, y)
+	End Method
+	
+	Rem
+		bbdoc: Set the entity's texture.
+		returns: Nothing.
+		about: If @updatesize is True, the entity's size will be set to the given texture (or to [128.0, 128.0] if the texture is Null).
+	End Rem
+	Method SetTexture(texture:TProtogTexture, updatesize:Int = True)
+		m_texture = texture
+		If updatesize = True
+			If m_texture <> Null
+				SetSizeParams(m_texture.m_width, m_texture.m_height)
+			Else
+				SetSizeParams(128.0, 128.0)
+			End If
+		End If
 	End Method
 	
 	Rem
@@ -472,14 +482,20 @@ Type TProtogSpriteEntity Extends TProtogEntity
 	Rem
 		bbdoc: Render the entity.
 		returns: Nothing.
+		about: If @bind is True, the texture will be bound before rendering.
 	End Rem
-	Method Render()
+	Method Render(bind:Int = True)
 		Local quad:TVec4
 		quad = New TVec4.CreateFromVec2(m_pos, m_pos.AddVecNew(m_size))
+		
 		m_color.Bind()
-		m_texture.Bind()
+		If bind = True
+			m_texture.Bind()
+		End If
 		m_texture.Render(quad, m_flipped)
-		m_texture.Unbind()
+		If bind = True
+			m_texture.Unbind()
+		End If
 	End Method
 	
 	Rem
@@ -489,7 +505,7 @@ Type TProtogSpriteEntity Extends TProtogEntity
 	Method Update()
 	End Method
 	
-'#region (Entity function)
+'#end region (Entity function)
 	
 '#region Data handlers
 	

@@ -1,76 +1,65 @@
 
 Rem
-	button.bmx (Contains: dui_TButton, )
+	button.bmx (Contains: dui_Button, )
 End Rem
 
+
 Rem
-	bbdoc: The dui button gadget Type.
+	bbdoc: The dui button gadget type.
 End Rem
-Type dui_TButton Extends dui_TGadget
+Type dui_Button Extends dui_Gadget
 	
-	Global gImage:TImage[9]	
+	Global m_renderer:dui_GenericRenderer = New dui_GenericRenderer
 	
-	Field gText:String
-	Field gCapX:Float, gCapY:Float
+	Field m_text:String
+	Field m_capx:Float, m_capy:Float
 	
-	Field gButtonImage:TImage
-	Field gBackground:Int = True
+	Field m_buttontexture:TProtogTexture
+	Field m_background:Int = True
 	
 	Rem
 		bbdoc: Create a button.
-		returns: The created button (itself).
-		about: @_image can be either a TImage or a String (it will be loaded for you).
+		returns: The new button (itself).
+		about: @texture can be either a TProtogTexture or a String (it will be loaded automatically).
 	End Rem
-	Method Create:dui_TButton(_name:String, _text:String, _image:Object, _x:Float, _y:Float, _w:Float, _h:Float, _parent:dui_TGadget, _background:Int = True)
+	Method Create:dui_Button(name:String, text:String, texture:Object, x:Float, y:Float, width:Float, height:Float, parent:dui_Gadget, background:Int = True)
+		_Init(name, x, y, width, height, parent, False)
 		
-		PopulateGadget(_name, _x, _y, _w, _h, _parent, False)
-		
-		SetText(_text, False)
-		SetBackground(_background)
-		
-		LoadImage(_image, False)
-		
+		SetText(text, False)
+		SetBackground(background)
+		LoadTexture(texture, False)
 		Refresh()
 		
 		Return Self
-		
 	End Method
+	
+'#region Render & update methods
 	
 	Rem
 		bbdoc: Render the button.
 		returns: Nothing.
 	End Rem
-	Method Render(_x:Float, _y:Float)
-		Local rX:Float, rY:Float
+	Method Render(x:Float, y:Float)
+		Local relx:Float, rely:Float
 		
 		If IsVisible() = True
-			SetDrawingState()
-			rX = gX + _x
-			rY = gY + _y
-			If gBackground = True
-				' Draw four corners
-				DrawImage(gImage[0], rX, rY)
-				DrawImage(gImage[2], (rX + gW) - 5, rY)
-				DrawImage(gImage[6], rX, (rY + gH) - 5)
-				DrawImage(gImage[8], (rX + gW) - 5, (rY + gH) - 5)
-				
-				' Draw four sides
-				DrawImageRect(gImage[1], rX + 5, rY, gW - 10, 5)
-				DrawImageRect(gImage[7], rX + 5, (rY + gH) - 5, gW - 10, 5)
-				DrawImageRect(gImage[3], rX, rY + 5, 5, gH - 10)
-				DrawImageRect(gImage[5], (rX + gW) - 5, rY + 5, 5, gH - 10)
-				
-				' Draw centre
-				DrawImageRect(gImage[4], rX + 5, rY + 5, gW - 10, gH - 10)
+			relx = m_x + x
+			rely = m_y + y
+			
+			BindDrawingState()
+			If m_background = True
+				m_renderer.RenderCells(relx, rely, Self)
 			End If
 			
-			If gButtonImage <> Null
-				DrawImage(gButtonImage, gCapX + _x, gCapY + _y)
+			If m_buttontexture <> Null
+				m_buttontexture.Bind()
+				m_buttontexture.RenderToPos(New TVec2.Create(m_capx + x, m_capy + y), False)
+				m_buttontexture.UnBind()
 			Else
-				SetTextDrawingState()
-				DrawText(gText, gCapX + _x, gCapY + _y)
+				BindTextDrawingState()
+				dui_FontManager.RenderString(m_text, m_font, m_capx + x, m_capy + y, True, True)
 			End If
-			Super.Render(_x, _y)
+			Super.Render(x, y)
 		End If
 	End Method
 	
@@ -78,39 +67,38 @@ Type dui_TButton Extends dui_TGadget
 		bbdoc: Update the MouseOver state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseOver(_x:Int, _y:Int)
+	Method UpdateMouseOver(x:Int, y:Int)
 		TDUIMain.SetCursor(dui_CURSOR_MOUSEOVER)
-		Super.UpdateMouseOver(_x, _y)
+		Super.UpdateMouseOver(x, y)
 	End Method
 	
 	Rem
 		bbdoc: Update the MouseDown state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseDown(_x:Int, _y:Int)
+	Method UpdateMouseDown(x:Int, y:Int)
 		TDUIMain.SetCursor(dui_CURSOR_MOUSEDOWN)
-		Super.UpdateMouseDown(_x, _y)
-		'New dui_TEvent.Create(dui_EVENT_GADGETACTION, Self, 0, 0, 0, Null)
+		Super.UpdateMouseDown(x, y)
+		'New dui_Event.Create(dui_EVENT_GADGETACTION, Self, 0, 0, 0, Null)
 	End Method
 	
 	Rem
 		bbdoc: Update the MouseRelease state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseRelease(_x:Int, _y:Int)
-		Local search:dui_TSearchPanel
+	Method UpdateMouseRelease(x:Int, y:Int)
+		Local search:dui_SearchPanel
 		
-		Super.UpdateMouseRelease(_x, _y)
-		
-		If dui_MouseIn(gX + _x, gY + _y, gW, gH) = True
-			search = dui_TSearchPanel(gParent)
+		Super.UpdateMouseRelease(x, y)
+		If dui_MouseIn(m_x + x, m_y + y, m_width, m_height) = True
+			search = dui_SearchPanel(m_parent)
 			If search <> Null
 				' Set the data of the search box to its null value
 				search.Deactivate()
 				search.SelectItem(Null)
 				search.Hide()
 			Else
-				New dui_TEvent.Create(dui_EVENT_GADGETACTION, Self, 0, 0, 0, Null)
+				New dui_Event.Create(dui_EVENT_GADGETACTION, Self, 0, 0, 0, Null)
 			End If
 		End If
 	End Method
@@ -120,26 +108,30 @@ Type dui_TButton Extends dui_TGadget
 		returns: Nothing.
 	End Rem
 	Method Refresh()
-		Local halfx:Float, halfy:Float
-		
-		If gButtonImage <> Null
-			halfx = gButtonImage.width / 2
-			halfy = gButtonImage.height / 2
+		If m_buttontexture <> Null
+			m_capx = (m_x + (m_width / 2)) - m_buttontexture.m_width / 2
+			m_capy = (m_y + (m_height / 2)) - m_buttontexture.m_height / 2
 		Else
-			halfx = dui_TFont.GetFontStringWidth(gText, GetFont()) / 2
-			halfy = dui_TFont.GetFontHeight(GetFont()) / 2
+			'halfx = dui_FontManager.StringWidth(m_text, m_font) / 2
+			'halfy = dui_FontManager.StringHeight(m_text, m_font) / 2
+			m_capx = m_x + (m_width / 2)
+			m_capy = m_y + (m_height / 2)
 		End If
-		gCapX = (gX + (gW / 2)) - halfx
-		gCapY = (gY + (gH / 2)) - halfy
 	End Method
+	
+'#end region (Render & update methods)
+	
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the button text.
 		returns: Nothing.
 	End Rem
-	Method SetText(_text:String, _dorefresh:Int = True)
-		gText = _text
-		If _dorefresh = True Then Refresh()
+	Method SetText(text:String, dorefresh:Int = True)
+		m_text = text
+		If dorefresh = True
+			Refresh()
+		End If
 	End Method
 	
 	Rem
@@ -147,80 +139,63 @@ Type dui_TButton Extends dui_TGadget
 		returns: The button text.
 	End Rem
 	Method GetText:String()
-		Return gText
+		Return m_text
 	End Method
 	
 	Rem
-		bbdoc: Set the button image.
+		bbdoc: Load the button's texture.
 		returns: Nothing.
+		about: If @url is a string the texture will be loaded from it.<br/>
+		If @url is a TProtogTexture, the texture will be set directly to it.
 	End Rem
-	Method SetImage(_image:TImage, _dorefresh:Int = True)
-		If _image <> Null
-			gButtonImage = _image
-			If _dorefresh = True Then Refresh()
-		End If
-	End Method
-	
-	Rem
-		bbdoc: Get the button image.
-		returns: The button image (the image might be Null - not set).
-	End Rem
-	Method GetImage:TImage()
-		Return gButtonImage
-	End Method
-	
-	Rem
-		bbdoc: Load the button image.
-		returns: Nothing.
-		about: This will set the button image to TImage( @_url ) or by loading @_url as an image (if it is a string).
-	End Rem
-	Method LoadImage(_url:Object, _dorefresh:Int = True)
-		Local _image:TImage
+	Method LoadTexture(url:Object, dorefresh:Int = True)
+		Local texture:TProtogTexture
 		
-		_image = TImage(_url)
-		If _image = Null And String(_url)
-			_image = brl.max2d.LoadImage(String(_url))
+		texture = TProtogTexture(url)
+		If texture = Null And String(url)
+			texture = New TProtogTexture.Create(LoadPixmap(String(url)), 0)
 		End If
-		SetImage(_image, _dorefresh)
+		SetTexture(texture, dorefresh)
+	End Method
+	
+	Rem
+		bbdoc: Set the button's texture.
+		returns: Nothing.
+		about: If the given texture is Null, and if @dorefresh is True (obviously) the refresh will still occur.
+	End Rem
+	Method SetTexture(texture:TProtogTexture, dorefresh:Int = True)
+		If texture <> Null
+			m_buttontexture = texture
+		End If
+		If dorefresh = True
+			Refresh()
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Get the button's texture.
+		returns: The button's texture (which may be Null).
+	End Rem
+	Method GetTexture:TProtogTexture()
+		Return m_buttontexture
 	End Method
 	
 	Rem
 		bbdoc: Turn the background drawing for the button on or off.
 		returns: Nothing.
 	End Rem
-	Method SetBackground(_background:Int)
-		gBackground = _background
+	Method SetBackground(background:Int)
+		m_background = background
 	End Method
+	
+'#end region (Field accessors)
 	
 	Rem
 		bbdoc: Refresh the skin for the button gadget.
 		returns: Nothing.
 	End Rem
-	Function RefreshSkin()
-		Local x:Int, y:Int, index:Int, map:Int
-		Local image:TImage, mainmap:TPixmap, pixmap:TPixmap[9]
-		
-		' Load in skin image
-		image = LoadImage(TDUIMain.SkinUrl + "/graphics/button.png")
-		mainmap = LockImage(image)
-		
-		For index = 0 To 8
-			gImage[index] = CreateImage(5, 5)
-			pixmap[index] = LockImage(gImage[index])
-		Next
-		
-		For y = 0 To 14
-			For x = 0 To 14
-				' Get correct pixmap to write to
-				map = ((y / 5) * 3) + (x / 5)
-				pixmap[map].WritePixel((x Mod 5), (y Mod 5), mainmap.ReadPixel(x, y))
-			Next
-		Next
-		
-		For index = 0 To 8
-			UnlockImage(gImage[index])
-		Next
-		UnlockImage(image)
+	Function RefreshSkin(theme:dui_Theme)
+		m_renderer.Create(theme, "button")
 	End Function
 	
 End Type

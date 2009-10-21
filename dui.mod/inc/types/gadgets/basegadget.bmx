@@ -1,72 +1,74 @@
 
 Rem
-	basegadget.bmx (Contains: _dui_TBaseGadget, dui_TGadget, )
+	basegadget.bmx (Contains: dui_Gadget, )
 End Rem
-
 
 Rem
-	bbdoc: The dui gadget Type.
+	bbdoc: The dui gadget type.
 End Rem
-Type dui_TGadget
+Type dui_Gadget
 	
-	Const IDLE_STATE:Int = 0			'Gadget is idle
-	Const MOUSEOVER_STATE:Int = 1		'Mouse is over the gadget
-	Const MOUSEDOWN_STATE:Int = 2		'Mouse button is down
-	Const MOUSERELEASE_STATE:Int = 3	'Mouse button is released
+	Const STATE_IDLE:Int = 0			' Gadget is idle
+	Const STATE_MOUSEOVER:Int = 1		' Mouse is over the gadget
+	Const STATE_MOUSEDOWN:Int = 2		' Mouse button is down
+	Const STATE_MOUSERELEASE:Int = 3	' Mouse button is released
 	
 	Const BOUNDARY:Int = 2
 	Const DOUBLEBOUNDARY:Int = 4
 	
-	Global DefaultColour:Int[][] = [[255, 255, 255], [0, 0, 0], [255, 255, 255] ]
-	Global DefaultTextColour:Int[][] = [[0, 0, 0], [255, 255, 255], [0, 0, 0] ]
-	Global DefaultAlpha:Float[] = [1.0, 1.0, 1.0]
-	Global DefaultTextAlpha:Float[] = [1.0, 1.0, 1.0]
+	Global m_defaultcolor:TProtogColor[] = [New TProtogColor.Create(1.0, 1.0, 1.0, 1.0),  ..
+		New TProtogColor.Create(0.0, 0.0, 0.0, 1.0),  ..
+		New TProtogColor.Create(1.0, 1.0, 1.0, 1.0)]
+	
+	Global m_defaulttextcolor:TProtogColor[] = [New TProtogColor.Create(0.0, 0.0, 0.0, 1.0),  ..
+		New TProtogColor.Create(1.0, 1.0, 1.0, 1.0),  ..
+		New TProtogColor.Create(0.0, 0.0, 0.0, 1.0)]
 	
 	Global m_oz:Int 			' Old MouseZ position
 	
-	Field gName:String
+	Field m_name:String
+	Field m_x:Float, m_y:Float, m_width:Float, m_height:Float
 	
-	Field gX:Float, gY:Float
-	Field gW:Float, gH:Float
+	Field m_parent:dui_Gadget
+	Field m_children:TListEx = New TListEx
 	
-	Field gParent:dui_TGadget
-	Field gChildren:TListEx = New TListEx
+	Field m_color:TProtogColor[], m_textcolor:TProtogColor[]
+	Field m_font:TProtogFont
 	
-	Field gColour:Int[] = [DefaultColour[0][0], DefaultColour[0][1], DefaultColour[0][2] ]
-	Field gTextColour:Int[] = [DefaultTextColour[0][0], DefaultTextColour[0][1], DefaultTextColour[0][2] ]
-	Field gAlpha:Float = DefaultAlpha[0]
-	Field gTextAlpha:Float = DefaultTextAlpha[0]
-	Field gFont:dui_TFont
-	
-	Field visible:Int = True
-	Field gState:Int
+	Field m_visible:Int = True
+	Field m_state:Int = STATE_IDLE
 	
 	Rem
-		bbdoc: Populate the gadget with base values.
+		bbdoc: Initiate the gadget.
 		returns: Nothing.
 	End Rem
-	Method PopulateGadget(_name:String, _x:Float, _y:Float, _w:Float, _h:Float, _parent:dui_TGadget, _dorefresh:Int = True)
-		SetName(_name)
-		SetPosition(_x, _y)
-		SetDimensions(_w, _h, _dorefresh)
-		SetFont(dui_TFont.default_font, _dorefresh)
-		SetParent(_parent)
+	Method _Init(name:String, x:Float, y:Float, w:Float, h:Float, parent:dui_Gadget, dorefresh:Int)
+		m_color = [m_defaultcolor[0].Copy(), m_defaultcolor[1].Copy(), m_defaultcolor[2].Copy() ]
+		m_textcolor = [m_defaulttextcolor[0].Copy(), m_defaulttextcolor[1].Copy(), m_defaulttextcolor[2].Copy() ]
+		
+		SetName(name)
+		SetPosition(x, y)
+		SetSize(w, h, dorefresh)
+		SetFont(Null, dorefresh)
+		SetParent(parent)
 	End Method
+	
+'#region Render & update methods
 	
 	Rem
 		bbdoc: Render the gadget.
 		returns: Nothing.
 	End Rem
-	Method Render(_x:Float, _y:Float)
-		If gChildren.Count() > 0
-			TDrawState.Push()
-			dui_SetViewport(gX + _x + BOUNDARY, gY + _y + BOUNDARY, gW - DOUBLEBOUNDARY, gH - DOUBLEBOUNDARY)
+	Method Render(x:Float, y:Float)
+		If m_children.Count() > 0
+			TProtogDrawState.Push(False, False, False, True, False, False)
+			dui_SetViewport(m_x + x + BOUNDARY, m_y + y + BOUNDARY, m_width - DOUBLEBOUNDARY, m_height - DOUBLEBOUNDARY)
 			
-			For Local child:dui_TGadget = EachIn gChildren
-				child.Render(gX + _x, gY + _y)
+			For Local child:dui_Gadget = EachIn m_children
+				child.Render(m_x + x, m_y + y)
 			Next
 			
-			TDrawState.Pop()
+			TProtogDrawState.Pop(False, False, False, True, False, False)
 		End If
 	End Method
 	
@@ -74,100 +76,96 @@ Type dui_TGadget
 		bbdoc: Update the gadget.
 		returns: Nothing.
 	End Rem
-	Method Update(_x:Int, _y:Int)
-		
-		' Check for existing mouse down states
-		If gState = MOUSEDOWN_STATE
+	Method Update(x:Int, y:Int)
+		If m_state = STATE_MOUSEDOWN
 			If MouseDown(1) = True
-				UpdateMouseDown(_x, _y)
+				UpdateMouseDown(x, y)
 				Return
 			End If
 			If MouseDown(1) = False
-				UpdateMouseRelease(_x, _y)
+				UpdateMouseRelease(x, y)
 				Return
 			End If
 		End If
 		
 		If IsVisible() = True
-			' Always update child gadgets every frame
-			For Local child:dui_TGadget = EachIn New TListReversed.Create(gChildren)
-				child.Update(gX + _x, gY + _y)
+			For Local child:dui_Gadget = EachIn New TListReversed.Create(m_children)
+				child.Update(m_x + x, m_y + y)
 			Next
 			
-			' Set to the idle state
-			gState = IDLE_STATE
-			' Check for other active gadgets
+			m_state = STATE_IDLE
 			If TDUIMain.IsGadgetActive(Self) = True
-				' Test for mouse over the gadget
-				If dui_MouseIn(gX + _x, gY + _y, gW, gH) = True
-					UpdateMouseOver(_x, _y)
-					' Check for button press
-					If MouseDown(1) Then UpdateMouseDown(_x, _y)
+				If dui_MouseIn(m_x + x, m_y + y, m_width, m_height) = True
+					UpdateMouseOver(x, y)
+					If MouseDown(1)
+						UpdateMouseDown(x, y)
+					End If
 				End If
 			End If
 		End If
-		
 	End Method
 	
 	Rem
 		bbdoc: Update the MouseOver state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseOver(_x:Int, _y:Int)
-		gState = MOUSEOVER_STATE
-		' Attempt to set it as the focus gadget for mouseover
-		'TDUIMain.SetFocusedGadget(Self, MouseX() - (gX + _x), MouseY() - (gY + _y))
-		TDUIMain.SetFocusedGadget(Self, _x - GetAbsoluteX(), _y - GetAbsoluteY())
+	Method UpdateMouseOver(x:Int, y:Int)
+		m_state = STATE_MOUSEOVER
+		'TDUIMain.SetFocusedGadget(Self, MouseX() - (m_x + x), MouseY() - (m_y + y))
+		TDUIMain.SetFocusedGadget(Self, x - GetAbsoluteX(), y - GetAbsoluteY())
 	End Method
 	
 	Rem
 		bbdoc: Update the MouseDown state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseDown(_x:Int, _y:Int)
+	Method UpdateMouseDown(x:Int, y:Int)
 		TDUIMain.SetActiveGadget(Self)
-		gState = MOUSEDOWN_STATE
+		m_state = STATE_MOUSEDOWN
 	End Method
 	
 	Rem
 		bbdoc: Update the MouseRelease state.
 		returns: Nothing.
 	End Rem
-	Method UpdateMouseRelease(_x:Int, _y:Int)
+	Method UpdateMouseRelease(x:Int, y:Int)
 		TDUIMain.ClearActiveGadget()
-		gState = MOUSERELEASE_STATE
+		m_state = STATE_MOUSERELEASE
 	End Method
 	
 	Rem
-		bbdoc: Send a key code for interpretation to the gadget (experimental).
+		bbdoc: Refresh the gadget.
 		returns: Nothing.
 	End Rem
-	Method SendKey(_key:Int, _type:Int = 0)
-		' Base gadget does nothing for the key
+	Method Refresh()
+	End Method
+	
+'#end region Render & update methods
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Set the name of the gadget.
+		returns: Nothing.
+	End Rem
+	Method SetName(name:String)
+		m_name = name
 	End Method
 	
 	Rem
-		bbdoc: Set the standard drawing state.
-		returns: Nothing.
-		about: This will set the drawing color and alpha to the gadget's color and alpha. See also #SetTextDrawingState.
-		@_index is used for some gadgets.
+		bbdoc: Get the name of the gadget.
+		returns: The gadget's name.
 	End Rem
-	Method SetDrawingState(_index:Int = 0)
-		'brl.max2d.SetBlend(ALPHABLEND)
-		brl.max2d.SetColor(gColour[0], gColour[1], gColour[2])
-		brl.max2d.SetAlpha(gAlpha)
+	Method GetName:String()
+		Return m_name
 	End Method
 	
 	Rem
-		bbdoc: Set the text drawing state.
-		returns: Nothing.
-		about: This will set the drawing color and alpha to the gadget's text color and alpha. See also #SetDrawingState.
-		@_index is used for some gadgets.
+		bbdoc: Get the absolute position of the gadget.
+		returns: The absolute position of the gadget.
 	End Rem
-	Method SetTextDrawingState(_setfont:Int = True, _index:Int = 0)
-		brl.max2d.SetColor(gTextColour[0], gTextColour[1], gTextColour[2])
-		brl.max2d.SetAlpha(gTextAlpha)
-		If _setfont = True Then dui_TFont.SetDrawingFont(gFont)
+	Method GetAbsolutePosition:TVec2()
+		Return New TVec2.Create(GetAbsoluteX(), GetAbsoluteY())
 	End Method
 	
 	Rem
@@ -175,10 +173,10 @@ Type dui_TGadget
 		returns: The absolute x position of the gadget.
 	End Rem
 	Method GetAbsoluteX:Float()
-		If gParent <> Null
-			Return gX + gParent.GetAbsoluteX()
+		If m_parent <> Null
+			Return m_x + m_parent.GetAbsoluteX()
 		Else
-			Return gX
+			Return m_x
 		End If
 	End Method
 	
@@ -187,27 +185,11 @@ Type dui_TGadget
 		returns: The absolute y position of the gadget.
 	End Rem
 	Method GetAbsoluteY:Float()
-		If gParent <> Null
-			Return gY + gParent.GetAbsoluteY()
+		If m_parent <> Null
+			Return m_y + m_parent.GetAbsoluteY()
 		Else
-			Return gY
+			Return m_y
 		End If
-	End Method
-	
-	Rem
-		bbdoc: Set the name of the gadget.
-		returns: Nothing.
-	End Rem
-	Method SetName(_name:String)
-		gName = _name
-	End Method
-	
-	Rem
-		bbdoc: Get the name of the gadget.
-		returns: The gadget's name.
-	End Rem
-	Method GetName:String()
-		Return gName
 	End Method
 	
 	Rem
@@ -215,60 +197,77 @@ Type dui_TGadget
 		returns: Nothing.
 		about: The position is relative to the parent of the gadget.
 	End Rem
-	Method SetPosition(_x:Float, _y:Float)
-		gX = _x
-		gY = _y
+	Method SetPosition(x:Float, y:Float)
+		m_x = x
+		m_y = y
 	End Method
 	
 	Rem
-		bbdoc: Move the gadget.
-		returns: Nothing.
-		about: Moves the gadget to a new position relative to its current position.
+		bbdoc: Get the gadget's x position.
+		returns: The gadget's x position.
 	End Rem
-	Method MoveGadget(_xoff:Float, _yoff:Float)
-		SetPosition(gX + _xoff, gY + _yoff)
+	Method GetX:Float()
+		Return m_x
 	End Method
 	
 	Rem
-		bbdoc: Set the dimensions of the gadget
-		returns: Nothing.
-		about: This refreshes the gadget (positions, text, etc).
+		bbdoc: Get the gadget's y position.
+		returns: The gadget's y position.
 	End Rem
-	Method SetDimensions(_w:Float, _h:Float, _dorefresh:Int = True)
-		gW = _w
-		gH = _h
-		If _dorefresh = True Then Refresh()
+	Method GetY:Float()
+		Return m_y
 	End Method
 	
-	'Rem
-	'	bbdoc: Change the dimensions on an offset.
-	'	returns: Nothing.
-	'	about: Sets the dimensions, relative to its current dimensions. The dimension version of #MoveGadget.
-	'End Rem
-	'Method ChangeDimensions(woff:Int, hoff:Int)
-	'	gW = gW + woff
-	'	gH = gH + hoff
-	'	Refresh()
-	'End Method
+	Rem
+		bbdoc: Set the size of the gadget.
+		returns: Nothing.
+		about: If @dorefresh is True, the gadget will be refreshed (updates positions, text, etc).
+	End Rem
+	Method SetSize(width:Float, height:Float, dorefresh:Int = True)
+		m_width = width
+		m_height = height
+		If dorefresh = True
+			Refresh()
+		End If
+	End Method
 	
 	Rem
-		bbdoc: Set the gadget's font
-		returns: Nothing.
+		bbdoc: Get the gadget's width.
+		returns: The gadget's width.
 	End Rem
-	Method SetFont(_font:dui_TFont, _dorefresh:Int = True)
-		gFont = _font
-		If _dorefresh = True Then Refresh()
+	Method GetWidth:Float()
+		Return m_width
+	End Method
+	
+	Rem
+		bbdoc: Get the gadget's height.
+		returns: The gadget's height.
+	End Rem
+	Method GetHeight:Float()
+		Return m_height
+	End Method
+	
+	Rem
+		bbdoc: Set the gadget's font.
+		returns: Nothing.
+		about: If @dorefresh is True, the gadget will be refreshed (updates positions, text, etc).
+	End Rem
+	Method SetFont(font:TProtogFont, dorefresh:Int = True)
+		m_font = font
+		If dorefresh = True
+			Refresh()
+		End If
 	End Method
 	
 	Rem
 		bbdoc: Get the gadget's font.
 		returns: The gadget's font.
 	End Rem
-	Method GetFont:dui_TFont()
-		'If gFont = Null
-		'	Return dui_TFont.default_font
+	Method GetFont:TProtogFont()
+		'If m_font = Null
+		'	Return dui_Font.default_font
 		'Else
-			Return gFont
+			Return m_font
 		'End If
 	End Method
 	
@@ -276,116 +275,225 @@ Type dui_TGadget
 		bbdoc: Set the gadget's parent.
 		returns: Nothing.
 	End Rem
-	Method SetParent(_parent:dui_TGadget)
-		If _parent <> Null
+	Method SetParent(parent:dui_Gadget)
+		If parent <> Null
 			' AddChild sets the parent for this gadget
-			_parent.AddChild(Self)
+			parent.AddChild(Self)
 		End If
 	End Method
-	
 	Rem
 		bbdoc: Get the gadget's parent.
 		returns: The gadget's parent.
 	End Rem
-	Method GetParent:dui_TGadget()
-		Return gParent
+	Method GetParent:dui_Gadget()
+		Return m_parent
 	End Method
 	
-	Rem
-		bbdoc: Set the colour of the gadget.
-		returns: Nothing.
-		about: @_index is used in some gadgets.
-	End Rem
-	Method SetColour(_r:Int, _g:Int, _b:Int, _index:Int = 0)
-		gColour = [_r, _g, _b]
-	End Method
+'#end region (Field accessors)
+	
+'#region Color setters/getters
 	
 	Rem
-		bbdoc: Set the colour of the gadget using a hexidecimal string.
+		bbdoc: Set the color of the gadget.
 		returns: Nothing.
 	End Rem
-	Method HexColour(_col:String, _index:Int = 0)
-		Local r:Int, g:Int, b:Int
-		dui_HexColour(_col, r, g, b)
-		SetColour(r, g, b, _index)
-	End Method
-	
-	Rem
-		bbdoc: Set the text colour.
-		returns: Nothing.
-	End Rem
-	Method SetTextColour(_r:Int, _g:Int, _b:Int, _index:Int = 0)
-		gTextColour = [_r, _g, _b]
-	End Method
-	
-	Rem
-		bbdoc: Set the text colour using a hexadecimal string.
-		returns: Nothing.
-	End Rem
-	Method HexTextColour(_col:String, _index:Int = 0)
-		Local r:Int, g:Int, b:Int
-		dui_HexColour(_col, r, g, b)
-		SetTextColour(r, g, b, _index)
-	End Method
-	
-	Rem
-		bbdoc: Set the gadget's alpha.
-		returns: Nothing.
-	End Rem
-	Method SetAlpha(_a:Float, _index:Int = 0, hierarchical:Int = False)
-		gAlpha = _a
-		
-		If hierarchical = True
-			Local gadget:dui_TGadget
-			For gadget = EachIn gChildren
-				gadget.SetAlpha(gAlpha, _index, True)
-			Next
+	Method SetColor(color:TProtogColor, alpha:Int = True, index:Int = 0, recursive:Int = False)
+		If index > - 1 And index < m_color.Length
+			m_color[index].SetFromColor(color, alpha)
+			
+			If recursive = True
+				Local gadget:dui_Gadget
+				For gadget = EachIn m_children
+					gadget.SetColor(color, alpha, index, True)
+				Next
+			End If
 		End If
 	End Method
 	
 	Rem
-		bbdoc: Get the gadget's alpha.
-		returns: The gadget's alpha value.
-	End Rem
-	Method GetAlpha:Float(_index:Int = 0)
-		Return gAlpha
-	End Method
-	
-	Rem
-		bbdoc: Set the gadget's text alpha.
+		bbdoc: Set the color of the gadget by the parameters given.
 		returns: Nothing.
 	End Rem
-	Method SetTextAlpha(_a:Float, _index:Int = 0)
-		gTextAlpha = _a
-	End Method
-	
-	Rem
-		bbdoc: Get the gadget's text alpha.
-		returns: The gadget's text alpha value.
-	End Rem
-	Method GetTextAlpha:Float(_index:Int = 0)
-		Return gTextAlpha
-	End Method
-	
-	Rem
-		bbdoc: Add a child to the gadget.
-		returns: Nothing.
-	End Rem
-	Method AddChild(_gadget:dui_TGadget)
-		If _gadget <> Null
-			gChildren.AddLast(_gadget)
-			_gadget.gParent = Self
+	Method SetColorParams(red:Float, green:Float, blue:Float, index:Int = 0, recursive:Int = False)
+		If index > - 1 And index < m_color.Length
+			m_color[index].SetColor(red, green, blue)
+			
+			If recursive = True
+				Local gadget:dui_Gadget
+				For gadget = EachIn m_children
+					gadget.SetColorParams(red, green, blue, index, True)
+				Next
+			End If
 		End If
+	End Method
+	
+	Rem
+		bbdoc: Get the color of the gadget.
+		returns: The color for the gadget at the given index, or Null if the given index was invalid.
+	End Rem
+	Method GetColor:TProtogColor(index:Int = 0)
+		If index > - 1 And index < m_color.Length
+			Return m_color[index]
+		End If
+		Return Null
+	End Method
+	
+	Rem
+		bbdoc: Set the text color of the gadget.
+		returns: Nothing.
+	End Rem
+	Method SetTextColor(color:TProtogColor, alpha:Int = True, index:Int = 0, recursive:Int = False)
+		If index > - 1 And index < m_textcolor.Length
+			m_textcolor[index].SetFromColor(color, alpha)
+			
+			If recursive = True
+				Local gadget:dui_Gadget
+				For gadget = EachIn m_children
+					gadget.SetTextColor(color, alpha, index, True)
+				Next
+			End If
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Set the text color of the gadget by the parameters given.
+		returns: Nothing.
+	End Rem
+	Method SetTextColorParams(red:Float, green:Float, blue:Float, index:Int = 0, recursive:Int = False)
+		If index > - 1 And index < m_textcolor.Length
+			m_textcolor[index].SetColor(red, green, blue)
+			
+			If recursive = True
+				Local gadget:dui_Gadget
+				For gadget = EachIn m_children
+					gadget.SetTextColorParams(red, green, blue, index, True)
+				Next
+			End If
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Get the text color of the gadget.
+		returns: The text color for the gadget at the given index, or Null if the given index was invalid.
+	End Rem
+	Method GetTextColor:TProtogColor(index:Int = 0)
+		If index > - 1 And index < m_textcolor.Length
+			Return m_textcolor[index]
+		End If
+		Return Null
+	End Method
+	
+	Rem
+		bbdoc: Set the alpha of the gadget.
+		returns: Nothing.
+	End Rem
+	Method SetAlpha(alpha:Float, index:Int = 0, recursive:Int = False)
+		If index > - 1 And index < m_color.Length
+			m_color[index].SetAlpha(alpha)
+			
+			If recursive = True
+				Local gadget:dui_Gadget
+				For gadget = EachIn m_children
+					gadget.SetAlpha(alpha, index, True)
+				Next
+			End If
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Get the alpha value of the gadget at the given index.
+		returns: The alpha value at the given index, or 1.0 if the given index was invalid.
+	End Rem
+	Method GetAlpha:Float(index:Int = 0)
+		If index > - 1 And index < m_color.Length
+			Return m_color[index].GetAlpha()
+		End If
+		Return 1.0
+	End Method
+	
+	Rem
+		bbdoc: Set the text alpha of the gadget.
+		returns: Nothing.
+	End Rem
+	Method SetTextAlpha(alpha:Float = 0, index:Int = 0, recursive:Int = False)
+		If index > - 1 And index < m_textcolor.Length
+			m_textcolor[index].SetAlpha(alpha)
+			
+			If recursive = True
+				Local gadget:dui_Gadget
+				For gadget = EachIn m_children
+					gadget.SetTextAlpha(alpha, index, True)
+				Next
+			End If
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Get the text alpha value of the gadget at the given index.
+		returns: The alpha value at the given index, or 1.0 if the given index was invalid.
+	End Rem
+	Method GetTextAlpha:Float(index:Int = 0)
+		If index > - 1 And index < m_textcolor.Length
+			Return m_textcolor[index].GetAlpha()
+		End If
+		Return 1.0
+	End Method
+	
+'#end region (Color setters/getters)
+	
+'#region Gadget function
+	
+	Rem
+		bbdoc: Bind the gadget's standard drawing state.
+		returns: Nothing.
+		about: This will set the drawing color and alpha to the gadget's color and alpha. See also #BindTextDrawingState.
+	End Rem
+	Method BindDrawingState(index:Int = 0)
+		If index > - 1 And index < m_color.Length
+			TProtog2DDriver.BindPColor(m_color[index], True)
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Bind the gadget's text drawing state.
+		returns: Nothing.
+		about: This will set the drawing color and alpha to the gadget's text color and alpha. See also #BindDrawingState.
+	End Rem
+	Method BindTextDrawingState(index:Int = 0)
+		If index > - 1 And index < m_textcolor.Length
+			TProtog2DDriver.BindPColor(m_textcolor[index], True)
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Move the gadget by the given vector (position adds to it).
+		returns: Nothing.
+		about: Moves the gadget to a new position relative to its current position.<br/>
+		If the given vector is Null, the position will not be changed.
+	End Rem
+	Method MoveGadgetVec(vec:TVec2)
+		If vec <> Null
+			MoveGadget(vec.m_x, vec.m_y)
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Move the gadget by the parameters given.
+		returns: Nothing.
+		about: Moves the gadget to a new position relative to its current position.
+	End Rem
+	Method MoveGadget(xoff:Float, yoff:Float)
+		m_x:+xoff
+		m_y:+yoff
 	End Method
 	
 	Rem
 		bbdoc: Set the gadget visibility.
 		returns: Nothing.
-		about: @_visible can be True (shown) or False (hidden).
+		about: @visible can be True (shown) or False (hidden).
 	End Rem
-	Method SetVisible(_visible:Int)
-		' Invert _visible
-		visible = _visible
+	Method SetVisible(visible:Int)
+		m_visible = visible
 	End Method
 	
 	Rem
@@ -393,8 +501,8 @@ Type dui_TGadget
 		returns: Nothing.
 	End Rem
 	Method ToggleVisibility()
-		' SetVisible 
-		SetVisible(visible~1)
+		' Invert
+		SetVisible(m_visible)
 	End Method
 	
 	Rem
@@ -420,29 +528,49 @@ Type dui_TGadget
 		returns: True if the gadget is visible, or False if it is not visible.
 	End Rem
 	Method IsVisible:Int()
-		Return visible
+		Return m_visible
+	End Method
+	
+	Rem
+		bbdoc: Send a key code for interpretation to the gadget (experimental).
+		returns: Nothing.
+	End Rem
+	Method SendKey(key:Int, _type:Int = 0)
+		' Base gadget does nothing for the key
+	End Method
+	
+'#end region (Gadget function)
+	
+'#region Collections
+	
+	Rem
+		bbdoc: Add a child to the gadget.
+		returns: Nothing.
+	End Rem
+	Method AddChild(gadget:dui_Gadget)
+		If gadget <> Null
+			m_children.AddLast(gadget)
+			gadget.m_parent = Self
+		End If
 	End Method
 	
 	Rem
 		bbdoc: Retrieve a gadget by its name.
-		returns: A dui_TGadget or Null if the gadget by the given name was not found.
+		returns: A dui_Gadget or Null if the gadget by the given name was not found.
 	End Rem
-	Method GetChildByName:dui_TGadget(_name:String)
-		If _name <> Null
-			_name = _name.ToLower()
-			For Local _gadget:dui_TGadget = EachIn gChildren
-				If _gadget.gName.ToLower() = _name Then Return _gadget
+	Method GetChildByName:dui_Gadget(name:String)
+		If name <> Null
+			name = name.ToLower()
+			For Local gadget:dui_Gadget = EachIn m_children
+				If gadget.m_name.ToLower() = name
+					Return gadget
+				End If
 			Next
 		End If
 		Return Null
 	End Method
 	
-	Rem
-		bbdoc: Refresh the gadget.
-		returns: Nothing.
-	End Rem
-	Method Refresh()
-	End Method
+'#end region (Collections)
 	
 End Type
 

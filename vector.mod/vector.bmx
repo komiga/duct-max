@@ -34,6 +34,7 @@ ModuleInfo "Author: Yahfree (most of TVec2, public domain), modified and adapted
 ModuleInfo "License: MIT"
 
 ModuleInfo "History: Version 0.25"
+ModuleInfo "History: Added the CreateFromVec2 method to TVec4"
 ModuleInfo "History: Added DeSerialize and Serialize methods to all vector types"
 ModuleInfo "History: Changed formatting"
 ModuleInfo "History: Version 0.24"

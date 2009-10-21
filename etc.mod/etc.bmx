@@ -28,10 +28,12 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.15"
+ModuleInfo "Version: 0.16"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.16"
+ModuleInfo "History: Added IsDivisible()"
 ModuleInfo "History: Version 0.15"
 ModuleInfo "History: Added TListEx"
 ModuleInfo "History: Added TTextReplacer example"

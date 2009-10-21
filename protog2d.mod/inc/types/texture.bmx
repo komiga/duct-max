@@ -111,6 +111,8 @@ Type TGLTexture
 		End If
 	End Method
 	
+'#region Constructors
+	
 	Rem
 		bbdoc: Create a new GLTexture from the OpenGL texture handle given.
 		returns: The new GLTexture (itself).
@@ -192,22 +194,18 @@ Type TGLTexture
 			
 			' Smear the right/bottom edges if necessary
 			If texture_width > width Or texture_height > height
-				
 				texture_pixmap = TPixmap.Create(texture_width, texture_height, PF_RGBA8888)
 				texture_pixmap.Paste(pixmap, 0, 0)
 				
 				If texture_width > width
 					texture_pixmap.Paste(pixmap.Window(width - 1, 0, 1, height), width, 0)
 				End If
-				
 				If texture_height > height
 					texture_pixmap.Paste(pixmap.Window(0, height - 1, width, 1), 0, height)
-					
 					If texture_width > width
 						texture_pixmap.Paste(pixmap.Window(width - 1, height - 1, 1, 1), width, height)
 					End If
 				End If
-				
 			End If
 			
 			m_uv.m_z = Float(width) / Float(texture_width)
@@ -226,6 +224,8 @@ Type TGLTexture
 		
 		Return Self
 	End Method
+	
+'#end region (Constructors)
 	
 	Rem
 		bbdoc: Bind the texture.
@@ -276,7 +276,6 @@ Type TGLTexture
 	Method SetUV(vector:TVec4)
 		m_uv = vector
 	End Method
-	
 	Rem
 		bbdoc: Get the UV mapping vector for this GLTexture.
 		returns: The UV mapping vector for this GLTexture.
@@ -353,8 +352,9 @@ Type TGLTexture
 		End If
 		
 		Repeat
-			glPixelStorei(GL_UNPACK_ROW_LENGTH, pixmap.pitch / BytesPerPixel[pixmap.format])
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, pixmap.pitch / BytesPerPixel[PF_RGBA8888])
 			glTexSubImage2D(target, mip_level, 0, 0, pixmap.width, pixmap.height, GL_RGBA, GL_UNSIGNED_BYTE, pixmap.pixels)
+			'glTexSubImage2DEXT()
 			
 			If flags & TEXTURE_MIPMAP = False
 				Exit
@@ -584,7 +584,23 @@ Type TProtogTexture
 		m_gltexture.Render(quad, flipped)
 	End Method
 	
-'#region (OpenGL)
+	Rem
+		bbdoc: Render the texture to the given vector, using the texture's width and height (does not bind the texture).
+		returns: Nothing.
+	End Rem
+	Method RenderToPos(pos:TVec2, flipped:Int = False)
+		m_gltexture.Render(New TVec4.CreateFromVec2(pos, pos.AddVecNew(New TVec2.Create(Float(m_width), Float(m_height)))), flipped)
+	End Method
+	
+	Rem
+		bbdoc: Render the texture to the given parameters, using the texture's width and height (does not bind the texture).
+		returns: Nothing.
+	End Rem
+	Method RenderToPosParams(x:Float, y:Float, flipped:Int = False)
+		RenderToPos(New TVec2.Create(x, y), flipped)
+	End Method
+	
+'#end region (OpenGL)
 	
 '#region Data handlers
 	
@@ -653,7 +669,6 @@ Type TProtogTexture
 		If upload = True
 			UploadPixmap()
 		End If
-		
 	End Method
 	
 	Rem
@@ -693,7 +708,6 @@ Type TProtogAnimTexture
 		about: If @upload is True the pixmap will be uploaded to OpenGL (creates the GL texture).
 	End Rem
 	Method Create:TProtogAnimTexture(pixmap:TPixmap, startframe:Int, framecount:Int, frame_width:Float, frame_height:Float, flags:Int, upload:Int = True)
-		
 		m_flags = flags
 		
 		SetStartFrame(startframe)
@@ -705,8 +719,9 @@ Type TProtogAnimTexture
 		RecalculateFrames()
 		
 		Return Self
-		
 	End Method
+	
+'#region Frames
 	
 	Rem
 		bbdoc: Set the current frame for the animation.
@@ -716,19 +731,28 @@ Type TProtogAnimTexture
 	End Rem
 	Method SetCurrentFrame(frame:Int, force:Int = False)
 		If m_currentframe <> frame Or force = True
-			m_currentframe = frame
-			m_gltexture.SetUV(m_uv[m_currentframe])
+			If HasFrame(frame) = True
+				m_currentframe = frame
+				m_gltexture.m_uv = m_uv[m_currentframe]
+			End If
 		End If
 	End Method
 	
 	Rem
 		bbdoc: Recalculate the frame coordinates.
-		returns: Nothing
+		returns: Nothing.
+		about: The current frame will be set again if it is still a valid frame, otherwise the first frame (0) is set.
 	End Rem
 	Method RecalculateFrames()
 		Local tx:Float, ty:Float, x_cells:Int
-		Local xdelta:Float = m_width / Pow2Size(m_width)
-		Local ydelta:Float = m_height / Pow2Size(m_height)
+		Local xdelta:Float, ydelta:Float
+		If m_flags & TEXTURE_RECTANGULAR
+			xdelta = 1
+			ydelta = 1
+		Else
+			xdelta = m_width / Pow2Size(m_width)
+			ydelta = m_height / Pow2Size(m_height)
+		End If
 		
 		x_cells = m_width / m_frame_width
 		
@@ -751,7 +775,6 @@ Type TProtogAnimTexture
 			vector.m_w = Float(ty + m_frame_height * ydelta) / Float(m_height)
 			
 			m_uv[frame] = vector
-			
 		Next
 		
 		If HasFrame(m_currentframe) = True
@@ -773,6 +796,8 @@ Type TProtogAnimTexture
 		Return False
 	End Method
 	
+'#end region (Frames)
+	
 '#region OpenGL
 	
 	Rem
@@ -789,6 +814,22 @@ Type TProtogAnimTexture
 	End Rem
 	Method Unbind()
 		m_gltexture.Unbind()
+	End Method
+	
+	Rem
+		bbdoc: Render the current frame to the given rectangle (does not bind the texture).
+		returns: Nothing.
+	End Rem
+	Method Render(quad:TVec4, flipped:Int = False)
+		m_gltexture.Render(quad, flipped)
+	End Method
+	
+	Rem
+		bbdoc: Render the current frame to the given position, using the cell width and height (does not bind the texture).
+		returns: Nothing.
+	End Rem
+	Method RenderToPos(pos:TVec2, flipped:Int = False)
+		m_gltexture.Render(New TVec4.CreateFromVec2(pos, pos.AddVecNew(New TVec2.Create(Float(m_frame_width), Float(m_frame_height)))), flipped)
 	End Method
 	
 '#region (OpenGL)
