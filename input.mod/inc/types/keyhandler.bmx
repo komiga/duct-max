@@ -27,32 +27,33 @@ End Rem
 
 Rem
 	bbdoc: The BindRecognizeException type.
-	about: Contains and is used to throw errors when TInputIdentifier.GetFromNodeByAction(...) <br />
+	about: Contains and is used to throw errors when TInputIdentifier.GetFromNodeByAction(...) <br/>
 	fails to recognize the bind identifer (invalid value state, unusable input identifier type, or 
 	unrecognized input code).
 End Rem
 Type TBindRecognizeException
 	
 	Field m_info:String
+	
+	Rem
+		bbdoc: Create a TBindRecognizeException.
+		returns: The new TBindRecognizeException (itself).
+	End Rem
+	Method Create:TBindRecognizeException(info:String)
+		m_info = info
+		Return Self
+	End Method
+	
+	Method ToString:String()
+		Local output:String
 		
-		Method Create:TBindRecognizeException(info:String)
-			
-			m_info = info
-			
-			Return Self
-			
-		End Method
-		
-		Method ToString:String()
-			Local output:String
-			
-			output = "Failed to recognize bind identifier, unrecognized input code"
-			If m_info <> Null Then output:+" (" + m_info + ")"
-			
-			Return output
-			
-		End Method
-		
+		output = "Failed to recognize bind identifier, unrecognized input code"
+		If m_info <> Null
+			output:+" (" + m_info + ")"
+		End If
+		Return output
+	End Method
+	
 End Type
 
 
@@ -60,17 +61,14 @@ Rem
 	bbdoc: TInputIdentifier input code/type: Unbound
 End Rem
 Const INPUT_UNBOUND:Int = 0
-
 Rem
 	bbdoc: TInputIdentifier input type: Keyboard
 End Rem
 Const INPUT_KEYBOARD:Int = 1
-
 Rem
 	bbdoc: TInputIdentifier input type: Mouse
 End Rem
 Const INPUT_MOUSE:Int = 2
-
 
 Rem
 	bbdoc: The InputIdentifier type.
@@ -80,318 +78,251 @@ Type TInputIdentifier
 	
 	Field m_action:String
 	Field m_input_type:Int, m_input_code:Int ', m_input_scode:String
+	
+	Rem
+		bbdoc: The template for InputIdentifiers.
+		about: Definition: bind "INPUTCODE" "INPUTACTION".
+	End Rem
+	Global m_template:TTemplate = New TTemplate.Create(["bind"], [[TV_STRING, TV_INTEGER], [TV_STRING] ], False, False, Null)
+	
+	Method New()
+		m_input_code = INPUT_UNBOUND
+		m_input_type = INPUT_UNBOUND
+		'm_input_scode = Null
+	End Method
+	
+	Rem
+		bbdoc: Create an InputIdentifier.
+		returns: The new InputIdentifier (itself).
+		about: @input_type can be either INPUT_UNBOUND, INPUT_KEYBOARD or INPUT_MOUSE.<br />
+		@input_code can also be INPUT_UNBOUND (which it is, by default).
+	End Rem
+	Method Create:TInputIdentifier(input_code:Int, input_type:Int, action:String) ', input_scode:String
+		Bind(input_code, input_type)
+		SetAction(action)
+		Return Self
+	End Method
+	
+'#region Binding
+	
+	Rem
+		bbdoc: Unbind the InputIdentifier.
+		returns: Nothing.
+		about: This method will set both the input code and the input type to INPUT_UNBOUND.
+	End Rem
+	Method UnBind()
+		Bind(INPUT_UNBOUND, INPUT_UNBOUND)
+	End Method
+	
+	Rem
+		bbdoc: Bind the InputIdentifier.
+		returns: Nothing.
+	End Rem
+	Method Bind(input_code:Int, input_type:Int)
+		SetInputCode(input_code)
+		SetInputType(input_type)
+		'SetInputCodeString(input_scode)
+	End Method
+	
+'#end region (Binding)
+	
+'#region State
+	
+	Rem
+		bbdoc: Get the (down) state of the InputIdentifier.
+		returns: True if the action for this identifier is being performed, or False if it has not.
+	End Rem
+	Method GetStateDown:Int()
+		Local istate:Int
 		
-		Rem
-			bbdoc: The template for InputIdentifiers.
-			about: Definition: bind "INPUTCODE" "INPUTACTION".
-		End Rem
-		Global template:TTemplate = New TTemplate.Create(["bind"], [[TV_STRING, TV_INTEGER], [TV_STRING] ], False, False, Null)
-		
-		Method New()
-			
-			m_input_code = INPUT_UNBOUND
-			m_input_type = INPUT_UNBOUND
-			
-			'm_input_scode = Null
-			
-		End Method
-		
-		Rem
-			bbdoc: Create a new InputIdentifier.
-			returns: The new InputIdentifier (itself).
-			about: @input_type can be either INPUT_UNBOUND, INPUT_KEYBOARD or INPUT_MOUSE.<br />
-			@input_code can also be INPUT_UNBOUND (which it is, by default).
-		End Rem
-		Method Create:TInputIdentifier(input_code:Int, input_type:Int, action:String) ', input_scode:String
-			
-			Bind(input_code, input_type)
-			SetAction(action)
-			
-			Return Self
-			
-		End Method
-		
-		Rem
-			bbdoc: Unbind the InputIdentifier.
-			returns: Nothing.
-			about: This method will set both the input code and the input type to INPUT_UNBOUND.
-		End Rem
-		Method UnBind()
-			
-			Bind(INPUT_UNBOUND, INPUT_UNBOUND)
-			
-		End Method
-		
-		Rem
-			bbdoc: Bind the InputIdentifier.
-			returns: Nothing.
-		End Rem
-		Method Bind(input_code:Int, input_type:Int)
-			
-			SetInputCode(input_code)
-			SetInputType(input_type)
-			'SetInputCodeString(input_scode)
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the (down) state of the InputIdentifier.
-			returns: True if the action for this identifier is being performed, or False if it has not.
-		End Rem
-		Method GetStateDown:Int()
-			Local istate:Int
-			
-			If m_input_code <> INPUT_UNBOUND
-				If m_input_type = INPUT_KEYBOARD
-					
-					istate = KeyDown(m_input_code)
-					
-				Else If m_input_type = INPUT_MOUSE
-					
-					istate = MouseDown(m_input_code)
-					
-				End If
+		If m_input_code <> INPUT_UNBOUND
+			If m_input_type = INPUT_KEYBOARD
+				istate = KeyDown(m_input_code)
+			Else If m_input_type = INPUT_MOUSE
+				istate = MouseDown(m_input_code)
 			End If
-			
-			Return istate
-			
-		End Method
+		End If
+		Return istate
+	End Method
+	
+	Rem
+		bbdoc: Get the (hit) state of the InputIdentifier.
+		returns: True if the action for this identifier has been performed, or False if it has not.
+	End Rem
+	Method GetStateHit:Int()
+		Local istate:Int
 		
-		Rem
-			bbdoc: Get the (hit) state of the InputIdentifier.
-			returns: True if the action for this identifier has been performed, or False if it has not.
-		End Rem
-		Method GetStateHit:Int()
-			Local istate:Int
-			
-			If m_input_code <> INPUT_UNBOUND
-				If m_input_type = INPUT_KEYBOARD
-					
-					istate = KeyHit(m_input_code)
-					
-				Else If m_input_type = INPUT_MOUSE
-					
-					istate = MouseHit(m_input_code)
-					
-				End If
+		If m_input_code <> INPUT_UNBOUND
+			If m_input_type = INPUT_KEYBOARD
+				istate = KeyHit(m_input_code)
+			Else If m_input_type = INPUT_MOUSE
+				istate = MouseHit(m_input_code)
 			End If
-			
-			Return istate
-			
-		End Method
-		
-		'#region Field accessors
-		
-		Rem
-			bbdoc: Set the input code for the InputIdentifier.
-			returns: Nothing.
-		End Rem
-		Method SetInputCode(input_code:Int)
-			
-			m_input_code = input_code
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the input code for the InputIdentifier.
-			returns: The input code for the identifier.
-		End Rem
-		Method GetInputCode:Int()
-			
-			Return m_input_code
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the input code string (textual identifier) for the InputIdentifier.
-			returns: The input code string (textual identifier) for the identifier, or Null ("") if it's unbound.
-		End Rem
-		Method GetInputCodeAsString:String()
-			
-			If m_input_code <> INPUT_UNBOUND
-				If m_input_type = INPUT_KEYBOARD
-					Return TInputConv.KeyCodeToString(m_input_code)
-				Else If m_input_type = INPUT_MOUSE
-					Return TInputConv.MouseCodeToString(m_input_code)
-				End If
+		End If
+		Return istate
+	End Method
+	
+'#end region (State)
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Set the input code for the InputIdentifier.
+		returns: Nothing.
+	End Rem
+	Method SetInputCode(input_code:Int)
+		m_input_code = input_code
+	End Method
+	Rem
+		bbdoc: Get the input code for the InputIdentifier.
+		returns: The input code for the identifier.
+	End Rem
+	Method GetInputCode:Int()
+		Return m_input_code
+	End Method
+	
+	Rem
+		bbdoc: Get the input code string (textual identifier) for the InputIdentifier.
+		returns: The input code string (textual identifier) for the identifier, or Null ("") if it's unbound.
+	End Rem
+	Method GetInputCodeAsString:String()
+		If m_input_code <> INPUT_UNBOUND
+			If m_input_type = INPUT_KEYBOARD
+				Return TInputConv.KeyCodeToString(m_input_code)
+			Else If m_input_type = INPUT_MOUSE
+				Return TInputConv.MouseCodeToString(m_input_code)
 			End If
-			
-			Return Null
-			
-		End Method
+		End If
+		Return Null
+	End Method
+	
+	Rem
+		bbdoc: Set the input type for the InputIdentifier (either INPUT_KEYBOARD or INPUT_MOUSE).
+		returns: Nothing.
+	End Rem
+	Method SetInputType(input_type:Int)
+		m_input_type = input_type
+	End Method
+	Rem
+		bbdoc: Get the input type for the InputIdentifier (either INPUT_KEYBOARD or INPUT_MOUSE).
+		returns: The input type for the identifer.
+	End Rem
+	Method GetInputType:Int()
+		Return m_input_type
+	End Method
+	
+	Rem
+		bbdoc: Set the action for the InputIdentifier.
+		returns: Nothing.
+	End Rem
+	Method SetAction(action:String)
+		m_action = action
+	End Method
+	Rem
+		bbdoc: Get the action for the InputIdentifier.
+		returns: The action of the identifer.
+	End Rem
+	Method GetAction:String()
+		Return m_action
+	End Method
+	
+'#end region (Field accessors)
+	
+'#region Data handling
+	
+	Rem
+		bbdoc: Stuff the InputIdentifier into an scriptable Identifier.
+		returns: A TIdentifier object.
+	End Rem
+	Method ToIdentifier:TIdentifier()
+		Local iden:TIdentifier = New TIdentifier.CreateByData("bind")
 		
-		Rem
-			bbdoc: Set the input type for the InputIdentifier (either INPUT_KEYBOARD or INPUT_MOUSE).
-			returns: Nothing.
-		End Rem
-		Method SetInputType(input_type:Int)
-			
-			m_input_type = input_type
-			
-		End Method
+		iden.AddValue(New TStringVariable.Create("", GetInputCodeAsString()))
+		iden.AddValue(New TStringVariable.Create("", m_action))
+		Return iden
+	End Method
+	
+	Rem
+		bbdoc: Get an InputIdentifier from an SNode (a Script Node), based on the given action.
+		returns: An InputIdentifier, or Null if the given action was not found (may also throw a TBindRecognizeException if the code is unrecognized).
+		about: This is based on the 'bind' Template (from a script), e.g. `bind "up" forward` (where `bind` is the identifer, `up` the input code and `forward` the action).<br />
+		@action is not case sensitive.<br />
+		NOTE: This is not recursive, it will only look within the given node (not searching child nodes, parent node, etc).
+	End Rem
+	Function GetFromNodeByAction:TInputIdentifier(node:TSNode, action:String)
+		Local iiden:TInputIdentifier, iden:TIdentifier
 		
-		Rem
-			bbdoc: Get the input type for the InputIdentifier (either INPUT_KEYBOARD or INPUT_MOUSE).
-			returns: The input type for the identifer.
-		End Rem
-		Method GetInputType:Int()
-			
-			Return m_input_type
-			
-		End Method
-		
-		Rem
-			bbdoc: Set the action for the InputIdentifier.
-			returns: Nothing.
-		End Rem
-		Method SetAction(action:String)
-			
-			m_action = action
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the action for the InputIdentifier.
-			returns: The action of the identifer.
-		End Rem
-		Method GetAction:String()
-			
-			Return m_action
-			
-		End Method
-		
-		'#end region
-		
-		Rem
-			bbdoc: Stuff the InputIdentifier into an scriptable Identifier.
-			returns: A TIdentifier object.
-		End Rem
-		Method ToIdentifier:TIdentifier()
-			Local iden:TIdentifier = New TIdentifier.CreateByData("bind")
-			
-			iden.AddValue(New TStringVariable.Create("", GetInputCodeAsString()))
-			iden.AddValue(New TStringVariable.Create("", m_action))
-			
-			Return iden
-			
-		End Method
-		
-		Rem
-			bbdoc: Get an InputIdentifier from an SNode (a Script Node), based on the given action.
-			returns: An InputIdentifier, or Null if the given action was not found (may also throw a TBindRecognizeException if the code is unrecognized).
-			about: This is based on the 'bind' Template (from a script), e.g. `bind "up" forward` (where `bind` is the identifer, `up` the input code and `forward` the action).<br />
-			@action is not case sensitive.<br />
-			NOTE: This is not recursive, it will only look within the given node (not searching child nodes, parent node, etc).
-		End Rem
-		Function GetFromNodeByAction:TInputIdentifier(node:TSNode, action:String)
-			Local iiden:TInputIdentifier, iden:TIdentifier
-			
-			action = action.ToLower()
-			
-			If node <> Null
-				
-				For iden = EachIn node.GetChildren()
-					
-					Try
-						
-						iiden = GetFromIdentifier(iden)
-						
-						If iiden <> Null
-							If iiden.GetAction().ToLower() = action
-								
-								Return iiden
-								
-							End If
+		action = action.ToLower()
+		If node <> Null
+			For iden = EachIn node.GetChildren()
+				Try
+					iiden = GetFromIdentifier(iden)
+					If iiden <> Null
+						If iiden.GetAction().ToLower() = action
+							Return iiden
 						End If
-						
-					Catch ex:TBindRecognizeException
-						
-						DebugLog("TInputIdentifier.GetFromNodeByAction(); Exception caught: " + ex.ToString())
-						
-					End Try
-					
-				Next
-				
-			End If
-			
-			' Failed to find the InputIdentifier for the given action
-			Return Null
-			
-		End Function
+					End If
+				Catch ex:TBindRecognizeException
+					DebugLog("TInputIdentifier.GetFromNodeByAction(); Exception caught: " + ex.ToString())
+				End Try
+			Next
+		End If
 		
-		Rem
-			bbdoc: Get an InputIdentifier from an Identifier.
-			returns: A InputIdentifier, or Null if the identifier was not a bind identifier (may also throw a TBindRecognizeException if the code is unrecognized).
-			about: This is based on the 'bind' Template (from a script), e.g. `bind "up" forward` (where `bind` is the identifer, `up` the input code and `forward` the action).
-		End Rem
-		Function GetFromIdentifier:TInputIdentifier(iden:TIdentifier)
-			Local var1:TStringVariable, var2:TVariable, input_type:Int, input_code:Int, ic_raw:String
-			
-			If iden <> Null
+		' Failed to find the InputIdentifier for the given action
+		Return Null
+	End Function
+	
+	Rem
+		bbdoc: Get an InputIdentifier from an Identifier.
+		returns: An InputIdentifier, or Null if the identifier was not a bind identifier (may also throw a TBindRecognizeException if the code is unrecognized).
+		about: This is based on the 'bind' Template (from a script), e.g. `bind "up" forward` (where `bind` is the identifer, `up` the input code and `forward` the action).
+	End Rem
+	Function GetFromIdentifier:TInputIdentifier(iden:TIdentifier)
+		Local var1:TStringVariable, var2:TVariable
+		Local input_type:Int, input_code:Int, ic_raw:String
+		
+		If iden <> Null
+			If m_template.ValidateIdentifier(iden) = True
+				var1 = TStringVariable(iden.GetValues().ValueAtIndex(1))
+				var2 = TVariable(iden.GetValues().ValueAtIndex(0))
 				
-				If template.ValidateIdentifier(iden) = True
-					
-					var1 = TStringVariable(iden.GetValues().ValueAtIndex(1))
-					var2 = TVariable(iden.GetValues().ValueAtIndex(0))
-					
-					If TStringVariable(var2)
-						ic_raw = TStringVariable(var2).Get()
-					Else If TIntVariable(var2)
-						ic_raw = String(TIntVariable(var2).Get())
-					End If
-					
-					input_type = INPUT_KEYBOARD
-					input_code = TInputConv.StringToKeyCode(ic_raw)
-					
-					' Not a key code?
-					If input_code = INPUT_UNBOUND
-						input_type = INPUT_MOUSE
-						input_code = TInputConv.StringToMouseCode(ic_raw)
-					End If
-					
-					' Good code?
-					If input_code <> INPUT_UNBOUND
-						
-						Return New TInputIdentifier.Create(input_code, input_type, var1.Get())
-						
-					Else
-						
-						Throw(New TBindRecognizeException.Create(iden.ConvToString()))
-						
-					End If
-					
-				Else
-					
-					DebugLog("TInputIdentifier.GetFromIdentifier(); Identifier: '" + iden.ConvToString() + "' did not match the bind template")
-					
+				If TStringVariable(var2)
+					ic_raw = TStringVariable(var2).Get()
+				Else If TIntVariable(var2)
+					ic_raw = String(TIntVariable(var2).Get())
 				End If
 				
+				input_type = INPUT_KEYBOARD
+				input_code = TInputConv.StringToKeyCode(ic_raw)
+				
+				' Not a key code?
+				If input_code = INPUT_UNBOUND
+					input_type = INPUT_MOUSE
+					input_code = TInputConv.StringToMouseCode(ic_raw)
+				End If
+				
+				' Good code?
+				If input_code <> INPUT_UNBOUND
+					Return New TInputIdentifier.Create(input_code, input_type, var1.Get())
+				Else
+					Throw(New TBindRecognizeException.Create(iden.ConvToString()))
+				End If
+			Else
+				DebugLog("TInputIdentifier.GetFromIdentifier(); Identifier: '" + iden.ConvToString() + "' did not match the bind template")
 			End If
-			
-			Return Null
-			
-		End Function
+		End If
 		
+		Return Null
+	End Function
+	
+	Rem
+		bbdoc: Validate the given identifier.
+		returns: True if the given identifier matches the bind template.
+	End Rem
+	Function ValidateIdentifier:Int(identifier:TIdentifier)
+		Return m_template.ValidateIdentifier(identifier)
+	End Function
+	
+'#end region (Data handling)
+	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

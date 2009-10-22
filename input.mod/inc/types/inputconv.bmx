@@ -36,15 +36,12 @@ Type TInputConv
 		returns: A mousecode, or 0 if the string is not a valid mouse code.
 	End Rem
 	Function StringToMouseCode:Int(miden:String)
-		
 		Select miden.ToLower()
 			Case "mouse1", "mouser", "mouseright" Return MOUSE_RIGHT
 			Case "mouse2", "mousel", "mouseleft" Return MOUSE_LEFT
 			Case "mouse3", "mwheel", "mousem", "mousemiddle" Return MOUSE_MIDDLE
 		End Select
-		
 		Return 0
-		
 	End Function
 	
 	Rem
@@ -52,15 +49,12 @@ Type TInputConv
 		returns: A string for the given mouse code, or Null if the mouse code was not recognized.
 	End Rem
 	Function MouseCodeToString:String(mousecode:Int)
-		
 		Select mousecode
 			Case MOUSE_RIGHT Return "mouseright"
 			Case MOUSE_LEFT Return "mouseleft"
 			Case MOUSE_MIDDLE Return "mousemiddle"
 		End Select
-		
 		Return Null
-		
 	End Function
 	
 	Rem
@@ -68,9 +62,7 @@ Type TInputConv
 		returns: A keycode, or 0 if the string is not a valid key code.
 	End Rem
 	Function StringToKeyCode:Int(kiden:String)
-		
 		Select kiden.ToLower()
-			
 			' Function keys
 			Case "f1" Return KEY_F1
 			Case "f2" Return KEY_F2
@@ -187,11 +179,8 @@ Type TInputConv
 			
 			' Other
 			Case "escape", "esc" Return KEY_ESCAPE
-			
 		End Select
-		
 		Return 0
-		
 	End Function
 	
 	Rem
@@ -199,9 +188,7 @@ Type TInputConv
 		returns: A string for the given keycode, or Null if the keycode was not recognized.
 	EndRem
 	Function KeyCodeToString:String(keycode:Int)
-		
 		Select keycode
-			
 			' Function keys
 			Case KEY_F1 Return "f1"
 			Case KEY_F2 Return "f2"
@@ -318,36 +305,8 @@ Type TInputConv
 			
 			' Other
 			Case KEY_ESCAPE Return "escape"
-			
 		End Select
-		
 		Return Null
-		
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

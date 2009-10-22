@@ -28,10 +28,12 @@ bbdoc: Input handling module
 End Rem
 Module duct.Input
 
-ModuleInfo "Version: 0.38"
+ModuleInfo "Version: 0.39"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.39"
+ModuleInfo "History: Another cleanup; fixed documentation, added some standard methods"
 ModuleInfo "History: Version 0.38"
 ModuleInfo "History: General code cleanup"
 ModuleInfo "History: Version 0.37"
