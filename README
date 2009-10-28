@@ -1,0 +1,4 @@
+Cloning:
+$ cd c:/blitzmax/mod
+$ git clone git://github.com/komiga/duct.git duct.mod
+
