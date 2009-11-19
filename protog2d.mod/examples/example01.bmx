@@ -134,21 +134,3 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

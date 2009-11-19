@@ -10,4 +10,3 @@ void main() {
 	//color = mix(lum, color, alpha);
 	gl_FragColor = lum * (1.0 - alpha) + color;
 }
-

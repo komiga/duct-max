@@ -8,4 +8,3 @@ void main(void)
 	gl_FragColor.rgb += hue;
 	gl_FragColor.a = 1.0;
 }
-

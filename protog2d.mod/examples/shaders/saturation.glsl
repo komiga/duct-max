@@ -8,4 +8,3 @@ void main() {
 	
 	gl_FragColor  =  mix(relative, color, intensity);
 }
-

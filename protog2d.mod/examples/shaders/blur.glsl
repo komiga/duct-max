@@ -1,4 +1,3 @@
-
 //@fragment
 vec2 blurscale = vec2(2.0, 2.0);
 
@@ -8,9 +7,7 @@ float blurfactors[15] = float[15]
 	0.0257, 0.0488,
 	0.0799, 0.1133,
 	0.1394,
-	
 	0.1494,			// Center
-	
 	0.1394,
 	0.1133, 0.0799,
 	0.0488, 0.0257,
@@ -25,4 +22,3 @@ void main() {
 	
 	gl_FragColor = color;
 }
-
