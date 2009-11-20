@@ -90,7 +90,7 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 		m_infotext = New TProtogTextEntity.Create("fps: {fps} - vsync: {vsync} - shaders: {shaders}~n" + ..
 			"~tControls: F1 - vsync on/off~n" + ..
 			"~tSpace - Shaders on/off~n" + ..
-			"~tF1-F3 - Toggle individual shaders",  ..
+			"~tF2-F3 - Toggle individual shaders",  ..
 		, New TVec2.Create(2.0, 2.0), m_color_grey)
 		
 		m_infotext.SetupReplacer()
@@ -184,7 +184,8 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	Method LoadShader:TProtogShader(file:String, mat:TProtogMaterial)
 		Local shader:TProtogShader
 		Try
-			shader = New TProtogShader.CreateFromDualFile(file, mat, False, True)
+			shader = New TProtogShader.CreateFromSourceFiles("shaders/vert.glsl", file, mat)
+			'shader = New TProtogShader.CreateFromDualFile(file, mat, False, True)
 		Catch e:Object
 			DebugLog("Exception caught: ~n" + e.ToString())
 			End
