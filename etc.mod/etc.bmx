@@ -28,10 +28,16 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.16"
+ModuleInfo "Version: 0.18"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.18"
+ModuleInfo "History: More formatting.."
+ModuleInfo "History: CreateFileExplicitly now returns True/False on success/failure"
+ModuleInfo "History: Version 0.17"
+ModuleInfo "History: Wooops, forgot to return in ReadLString()"
+ModuleInfo "History: A bit of formatting"
 ModuleInfo "History: Version 0.16"
 ModuleInfo "History: Added IsDivisible()"
 ModuleInfo "History: Version 0.15"
@@ -78,26 +84,3 @@ Include "inc/types/fpscounter.bmx"
 Include "inc/types/mstimer.bmx"
 Include "inc/types/replacer.bmx"
 Include "inc/types/listex.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

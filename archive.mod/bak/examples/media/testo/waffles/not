@@ -1,0 +1,99 @@
+
+SuperStrict
+
+Framework brl.blitz
+Import brl.stream
+Import duct.archive
+
+Local archive:TArchive = New TArchive.Create("archive1.arc")
+Local stream:TStream, file:TArchivedFile, folder:TArchivedFolder
+
+folder = New TArchivedFolder.Create("media")
+archive.GetEntries().AddEntry(folder)
+
+stream = ReadStream("media/text.txt")
+If stream <> Null
+	file = New TArchivedFile.Create("text.txt", Null)
+	file.SetDataFromStream(stream)
+	folder.AddEntry(file)
+	stream.Close()
+End If
+
+stream = WriteStream("media/archive1.arc")
+archive.Serialize(stream)
+stream.Close()
+archive = Null
+
+stream = ReadStream("media/archive1.arc")
+archive = New TArchive.Deserialize(stream)
+stream.Close()
+
+folder = archive.GetEntries().GetFolderWithName("media")
+file = folder.GetFileWithName("text.txt")
+file.GetData().Save("media/text2.txt")
+
+SuperStrict
+
+Framework brl.blitz
+Import brl.stream
+Import duct.archive
+
+Local archive:TArchive = New TArchive.Create("archive1.arc")
+Local stream:TStream, file:TArchivedFile, folder:TArchivedFolder
+
+folder = New TArchivedFolder.Create("media")
+archive.GetEntries().AddEntry(folder)
+
+stream = ReadStream("media/text.txt")
+If stream <> Null
+	file = New TArchivedFile.Create("text.txt", Null)
+	file.SetDataFromStream(stream)
+	folder.AddEntry(file)
+	stream.Close()
+End If
+
+stream = WriteStream("media/archive1.arc")
+archive.Serialize(stream)
+stream.Close()
+archive = Null
+
+stream = ReadStream("media/archive1.arc")
+archive = New TArchive.Deserialize(stream)
+stream.Close()
+
+folder = archive.GetEntries().GetFolderWithName("media")
+file = folder.GetFileWithName("text.txt")
+file.GetData().Save("media/text2.txt")
+
+SuperStrict
+
+Framework brl.blitz
+Import brl.stream
+Import duct.archive
+
+Local archive:TArchive = New TArchive.Create("archive1.arc")
+Local stream:TStream, file:TArchivedFile, folder:TArchivedFolder
+
+folder = New TArchivedFolder.Create("media")
+archive.GetEntries().AddEntry(folder)
+
+stream = ReadStream("media/text.txt")
+If stream <> Null
+	file = New TArchivedFile.Create("text.txt", Null)
+	file.SetDataFromStream(stream)
+	folder.AddEntry(file)
+	stream.Close()
+End If
+
+stream = WriteStream("media/archive1.arc")
+archive.Serialize(stream)
+stream.Close()
+archive = Null
+
+stream = ReadStream("media/archive1.arc")
+archive = New TArchive.Deserialize(stream)
+stream.Close()
+
+folder = archive.GetEntries().GetFolderWithName("media")
+file = folder.GetFileWithName("text.txt")
+file.GetData().Save("media/text2.txt")

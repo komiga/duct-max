@@ -37,25 +37,22 @@ Function WriteFileExplicitly:TStream(url:String)
 	If FileType(dir) = FILETYPE_NONE
 		CreateDir(dir, True)
 	End If
-	
 	stream = WriteFile(url)
-	
 	Return stream
 End Function
 
 Rem
 	bbdoc: Create the file at the given path.
-	returns: Nothing.
+	returns: True if the file was written, or False if it was not.
 End Rem
-Function CreateFileExplicitly(url:String)
+Function CreateFileExplicitly:Int(url:String)
 	Local dir:String
 	
 	dir = ExtractDir(url)
 	If FileType(dir) = FILETYPE_NONE
 		CreateDir(dir, True)
 	End If
-	
-	CreateFile(url)
+	Return CreateFile(url)
 End Function
 
 Rem
@@ -73,13 +70,10 @@ Function CopyFileExplicitly:Int(from:String, _to:String)
 	If FileType(dir) = FILETYPE_NONE
 		CreateDir(dir, True)
 	End If
-	
 	CopyFile(from, _to)
-	
 	If FileType(_to) = FILETYPE_FILE
 		Return True
 	End If
-	
 	Return False
 End Function
 
@@ -92,7 +86,6 @@ Function TimeInFormat:String(format:String)
 	
 	time_(time)
 	strftime_(buff, 256, format, localtime_(time))
-	
 	Return String.FromCString(buff)
 End Function
 
@@ -107,7 +100,6 @@ Function FileTimeWithFormat:String(path:String, format:String)
 		ftime = FileTime(path)
 		time = Varptr(ftime)
 		strftime_(buff, 256, format, localtime_(time))
-		
 		Return String.FromCString(buff)
 	End If
 	Return Null
@@ -139,7 +131,6 @@ Function FixPathEnding:String(path:String, remove_slash:Int = False)
 			Return path + "/"
 		End If
 	End If
-	
 	Return path
 End Function
 
@@ -153,18 +144,3 @@ Function IsDivisible:Int(number:Int, divisor:Int)
 	End If
 	Return False
 End Function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

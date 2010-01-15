@@ -98,11 +98,3 @@ Include "inc/types/primitives.bmx"
 Include "inc/types/drawstate.bmx"
 
 Include "inc/types/app.bmx"
-
-
-
-
-
-
-
-

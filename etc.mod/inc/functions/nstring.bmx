@@ -31,9 +31,7 @@ End Rem
 Type TNStringReadException
 	
 	Method ToString:String()
-		
 		Return "Failed to read the newline terminated string"
-		
 	End Method
 	
 End Type
@@ -44,34 +42,23 @@ Rem
 	about: This function may throw a TNStringReadException (search went past the max buffer), or it may throw a TStreamReadException (no more data to be read).
 End Rem
 Function ReadNString:String(stream:TStream, maxbuffer:Int = 256)
-	
-  Local str:String, Buf:Byte[1024], p:Int, count:Int
+	Local str:String, Buf:Byte[1024], p:Int, count:Int
 	
 	Repeat
-	  Local n:Byte
-	  
+		Local n:Byte
 		n = stream.ReadByte() 'Read(VarPtr n, 1) <> 1 Exit
-		
 		'Reached the newline character?
 		If n = 10 Then Exit
-		
 		'Beyond the search amount?
 		If p > maxbuffer Then Throw New TNStringReadException
 		If stream.Eof() = True Then Throw New TStreamReadException
-		
 		Buf[p] = n; p:+1
-		
 		If p <> Buf.Length Then Continue
 		str:+String.FromBytes(Buf, p)
-		
 		p = 0
-		
 	Forever
-	
 	If p Then str:+String.FromBytes(Buf, p)
-	
-   Return str
-   
+	Return str
 End Function
 
 Rem
@@ -79,9 +66,7 @@ Rem
 	returns: Nothing.
 End Rem
 Function WriteNString(stream:TStream, value:String)
-	
 	stream.WriteString(value + "~n")
-	
 End Function
 
 Rem
@@ -89,9 +74,7 @@ Rem
 	returns: A String read from the given Stream.
 End Rem
 Function ReadLString:String(stream:TStream)
-	
-	stream.ReadString(stream.ReadInt())
-	
+	Return stream.ReadString(stream.ReadInt())
 End Function
 
 Rem
@@ -99,29 +82,6 @@ Rem
 	returns: Nothing.
 End Rem
 Function WriteLString(stream:TStream, value:String)
-	
 	stream.WriteInt(value.Length)
 	stream.WriteString(value)
-	
 End Function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
