@@ -29,7 +29,7 @@ Rem
 	bbdoc: Clamp an integer to a minimum value.
 	returns: If @value is less than @_min then @_min is returned, otherwise @value is returned.
 End Rem
-Function IntMin:Int(_value:Int, _min:Int)
+Function IntMin:Int(value:Int, _min:Int)
 	If value < _min Then Return _min
 	Return value
 End Function

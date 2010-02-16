@@ -40,7 +40,7 @@ Type TServer
 		m_clients = New TListEx
 	End Method
 	
-	Method _init(_msgmap:TNetMessageMap, socket:TSocket, port:Int, accept_timeout:Int)
+	Method _init(msgmap:TNetMessageMap, socket:TSocket, port:Int, accept_timeout:Int)
 		SeTNetMessageMap(msgmap)
 		SetSocket(socket)
 		SetPort(port)
@@ -163,7 +163,7 @@ Type TServer
 	Method AddClient:Int(client:TClient)
 		If client <> Null
 			If client.Connected() = True
-				client.m_link = clients.AddLast(client)
+				client.m_link = m_clients.AddLast(client)
 				OnClientAdd(client)
 				Return True
 			End If

@@ -128,7 +128,7 @@ Type TClient Extends TStream
 		returns: The IP address of this Client.
 	End Rem
 	Method GetIPAddressAsInt:Int()
-		Return sip
+		Return m_sip
 	End Method
 	
 	Rem
@@ -144,7 +144,7 @@ Type TClient Extends TStream
 		returns: Nothing.
 		about: Implement this method in an extending type.
 	End Rem
-	Method HandleMessage(msg_id:Int, message:TMessage) Abstract
+	Method HandleMessage(msg_id:Int, message:TNetMessage) Abstract
 	
 End Type
 

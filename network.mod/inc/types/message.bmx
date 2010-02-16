@@ -91,8 +91,8 @@ Type TNetMessage
 		returns: Nothing.
 		about: This method should be implemented in extending types.
 	End Rem
-	Method DeSerialize(stream:TStream, readid:Int = True)
-		If readid = True
+	Method DeSerialize(stream:TStream, _readid:Int = True)
+		If _readid = True
 			m_id = ReadID(stream)
 		End If
 	End Method
@@ -119,7 +119,7 @@ Type TNetMessageMap Extends TObjectMap
 		returns: True if the Message was inserted, or False if it was unable to be inserted.
 	End Rem
 	Method InsertMessage(msg:TNetMessage)
-		_Insert(String(msg.id), msg)
+		_Insert(String(msg.m_id), msg)
 	End Method
 	
 	Rem
