@@ -91,7 +91,6 @@ Type TLocalizationCategory Extends TObjectMap
 		If ltext <> Null
 			Return ltext.GetValue()
 		End If
-		
 		Return Null
 	End Method
 	
@@ -116,7 +115,6 @@ Type TLocalizationCategory Extends TObjectMap
 				End If
 			End If
 		End If
-		
 		Return Null
 	End Method
 	
@@ -127,7 +125,6 @@ Type TLocalizationCategory Extends TObjectMap
 		See #TextFromStructureAsString if you just want to get the value of the #TLocalizedText.
 	End Rem
 	Method TextFromStructureL:TLocalizedText(structure:String, separator:String = ".")
-		Local cat:TLocalizationCategory
 		Local sloc:Int
 		
 		If separator <> Null
@@ -144,7 +141,6 @@ Type TLocalizationCategory Extends TObjectMap
 				
 			End If
 		End If
-		
 		Return Null
 	End Method
 	
@@ -160,7 +156,6 @@ Type TLocalizationCategory Extends TObjectMap
 		If ltext <> Null
 			Return ltext.GetValue()
 		End If
-		
 		Return Null
 	End Method
 	
@@ -249,7 +244,6 @@ Type TLocalizationCategory Extends TObjectMap
 				End If
 			End If
 		Next
-		
 		Return True
 	End Method
 	
@@ -272,7 +266,6 @@ Type TLocalizationCategory Extends TObjectMap
 		Local child:Object, iden:TIdentifier, cnode:TSNode
 		
 		SetName(node.GetName())
-		
 		For child = EachIn node.GetChildren()
 			iden = TIdentifier(child)
 			If iden <> Null
@@ -282,7 +275,6 @@ Type TLocalizationCategory Extends TObjectMap
 				AddCategory(New TLocalizationCategory.FromNode(cnode))
 			End If
 		Next
-		
 		Return Self
 	End Method
 	
@@ -314,7 +306,7 @@ Type TLocalizedText
 		Return Self
 	End Method
 	
-	'#region Field accessors
+'#region Field accessors
 	
 	Rem
 		bbdoc: Set the name for the localized text.
@@ -378,63 +370,4 @@ Type TLocalizedText
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

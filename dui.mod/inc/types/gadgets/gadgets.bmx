@@ -27,22 +27,3 @@ Include "datepanel.bmx"
 Include "searchbox.bmx"
 Include "searchpanel.bmx"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

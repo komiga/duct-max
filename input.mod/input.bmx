@@ -28,10 +28,12 @@ bbdoc: Input handling module
 End Rem
 Module duct.Input
 
-ModuleInfo "Version: 0.39"
+ModuleInfo "Version: 0.40"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.40"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.39"
 ModuleInfo "History: Another cleanup; fixed documentation, added some standard methods"
 ModuleInfo "History: Version 0.38"
@@ -46,42 +48,13 @@ ModuleInfo "History: Added: TInputIdentifier Bind and UnBind methods."
 ModuleInfo "History: Version 0.35"
 ModuleInfo "History: Initial release."
 
-
-' Used modules
 Import brl.polledinput
 Import brl.keycodes
 
 Import duct.etc
 Import duct.scriptparser
 
-
-' Included code
 Include "inc/types/inputconv.bmx"
 Include "inc/types/keyhandler.bmx"
 Include "inc/types/bindmap.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

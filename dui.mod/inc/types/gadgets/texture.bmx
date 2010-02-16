@@ -107,28 +107,3 @@ Type dui_Texture Extends dui_Gadget
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -28,7 +28,6 @@ Rem
 	
 End Rem
 
-
 Rem
 	bbdoc: Protog2D drawstate.
 End Rem
@@ -330,16 +329,4 @@ Type TProtogDrawState
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
 

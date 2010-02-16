@@ -64,7 +64,6 @@ Type TTextReplacer
 				changed = True
 			End If
 		Next
-		
 		Return changed
 	End Method
 	
@@ -84,7 +83,6 @@ Type TTextReplacer
 				Return replacement
 			End If
 		Next
-		
 		Return Null
 	End Method
 	
@@ -104,7 +102,6 @@ Type TTextReplacer
 			Next
 			Return "".Join(strings)
 		End If
-		
 		Return Null
 	End Method
 	
@@ -124,7 +121,6 @@ Type TTextReplacer
 		
 		If m_list.Count() > 0
 			tmplist = New TListEx
-			
 			For str = EachIn m_list
 				bi = 0
 				ei = 0
@@ -157,12 +153,9 @@ Type TTextReplacer
 				Else If ei < str.Length
 					tmplist.AddLast(str[ei + endiden.Length..])
 				End If
-				
 			Next
-			
 			m_list = tmplist
 		End If
-		
 	End Method
 	
 	Rem
@@ -338,12 +331,4 @@ Type TTextReplacement
 '#end region (Data handlers)
 	
 End Type
-
-
-
-
-
-
-
-
 

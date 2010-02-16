@@ -140,7 +140,7 @@ Type dui_Gadget
 	Method Refresh()
 	End Method
 	
-'#end region Render & update methods
+'#end region (Render & update methods)
 	
 '#region Field accessors
 	
@@ -573,13 +573,4 @@ Type dui_Gadget
 '#end region (Collections)
 	
 End Type
-
-
-
-
-
-
-
-
-
 

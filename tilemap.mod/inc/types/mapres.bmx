@@ -115,7 +115,7 @@ Type TMapResource
 		Return m_flags
 	End Method
 	
-'#end region
+'#end region (Field accessors)
 	
 '#region Flags
 	
@@ -152,7 +152,7 @@ Type TMapResource
 	
 '#end region (Flags)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize the resource from a stream.
@@ -186,7 +186,7 @@ Type TMapResource
 		Return New TMapResource.DeSerialize(stream)
 	End Function
 	
-'#end region
+'#end region (Data handling)
 	
 	Method Compare:Int(withObject:Object)
 		Local best:Int = 0, wobj:TMapResource
@@ -255,7 +255,7 @@ Type TMapResourceSet Extends TObjectMap
 		Return _Remove(String(id))
 	End Method
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize the MapResourceSet from a stream.
@@ -321,7 +321,7 @@ Type TMapResourceSet Extends TObjectMap
 		Return resourceset
 	End Function
 	
-'#end region
+'#end region (Data handling)
 		
 End Type
 
@@ -393,9 +393,9 @@ Type TMapStaticResource Extends TMapResource
 		Return m_height
 	End Method
 	
-'#end region
+'#end region (Field accessors)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize the MapStaticResource from a stream.
@@ -425,198 +425,7 @@ Type TMapStaticResource Extends TMapResource
 		Return New TMapStaticResource.DeSerialize(stream)
 	End Function
 	
-'#end region
+'#end region (Data handling)
 	
 End Type
-
-'Rem
-'	bbdoc: TileMap tiles and statics texture.
-'End Rem
-'Type TTileTexture
-'	
-'	Field m_texture:TProtogTexture
-'	
-'	Rem
-'		bbdoc: Create a new TileTexture.
-'		returns: The new texture (itself), may throw an exception (as a string) if it fails to load the Image.
-'		about: @url can be either a string, a pixmap, or a texture (loading is automatic).
-'	End Rem
-'	Method Create:TTileTexture(url:Object, flags:Int = -1)
-'		Local image:TImage
-'		
-'		image = TImage(url)
-'		If image = Null Then image = LoadImage(url, flags)
-'		SetImage(image)
-'		Return Self
-'	End Method
-'	
-''#region Field accessors
-'	
-'	Rem
-'		bbdoc: Get the texture's width.
-'		returns: The width of the texture.
-'	End Rem
-'	Method GetWidth:Int()
-'		Return m_texture.m_width
-'	End Method
-'	Rem
-'		bbdoc: Get the texture's height.
-'		returns: The height of the texture.
-'	End Rem
-'	Method GetHeight:Int()
-'		Return m_texture.m_height
-'	End Method
-'	
-'	Rem
-'		bbdoc: Set the texture.
-'		returns: Nothing.
-'	End Rem
-'	Method SetTexture(texture:TProtogTexture)
-'		m_texture = texture
-'	End Method
-'	Rem
-'		bbdoc: Get the texture.
-'		returns: The texture.
-'	End Rem
-'	Method GetImage:TProtogTexture()
-'		Return m_texture
-'	End Method
-'	
-''#end region (Field accessors)
-'	
-'	Rem
-'		bbdoc: Bind the texture.
-'		returns: Nothing.
-'	End Rem
-'	Method Bind()
-'		TProtog2DDriver.BindTexture(m_texture, True)
-'	End Method
-'	
-'	Rem
-'		bbdoc: Draw the texture at the given vector.
-'		returns: Nothing.
-'	End Rem
-'	Method Draw(vec:TVec2, flipped:Int = False)
-'		m_texture.RenderToPos(vec, flipped)
-'	End Method
-'	
-'	Rem
-'		bbdoc: Draw the texture at the given vector.
-'		returns: Nothing.
-'	End Rem
-'	Method DrawParams(x:Float, y:Float, flipped:Int = False)
-'		m_texture.RenderToPos(New TVec2.Create(x, y), flipped)
-'	End Method
-'	
-'	Rem
-'	Method DrawToTileMatrix(quad:TTileQuad)
-'		Local iframe:TImageFrame, glframe:TGLImageFrame
-'		
-'		iframe = m_image.Frame(0)
-'		
-'		Rem ' Old D3D7 code
-'		?win32
-'		Local dxframe:TD3D7ImageFrame, gpx:TD3D7Max2DDriver
-'		
-'		dxframe = TD3D7ImageFrame(iframe)
-'		If dxframe <> Null' And gpx <> Null
-'			
-'			gpx = TD3D7Max2DDriver(TMax2DGraphics.Current()._driver)
-'			Local uv:Float Ptr, c:Int Ptr
-'			uv = dxframe.xyzuv
-'			c = Int Ptr(uv)
-'			
-'			uv[0] = quad.m_topleft.m_x
-'			uv[1] = quad.m_topleft.m_y + quad.m_topleft.m_z
-'			c[3] = gpx.drawcolor
-'			
-'			uv[6] = quad.m_topright.m_x
-'			uv[7] = quad.m_topright.m_y + quad.m_topright.m_z
-'			c[9] = gpx.drawcolor
-'			
-'			uv[12] = quad.m_bottomleft.m_x
-'			uv[13] = quad.m_bottomleft.m_y + quad.m_bottomleft.m_z
-'			c[15] = gpx.drawcolor
-'			
-'			uv[18] = quad.m_bottomright.m_x
-'			uv[19] = quad.m_bottomright.m_y + quad.m_bottomright.m_z
-'			c[21] = gpx.drawcolor
-'			
-'			gpx.SetActiveFrame(dxframe)
-'			gpx.device.DrawPrimitive(D3DPT_TRIANGLEFAN, D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1, uv, 4, 0)
-'		?
-'		Endz Rem
-'		
-'		glframe = TGLImageFrame(iframe)
-'		
-'		'If glframe <> Null
-'			
-'			_TGLMax2DAssistant.EnableTex(glframe.name)
-'			
-'			glBegin(GL_QUADS)
-'				glTexCoord2f(0.0, 0.0)
-'				glVertex2f(quad.m_topleft.m_x, quad.m_topleft.m_y + quad.m_topleft.m_z)
-'				
-'				glTexCoord2f(1.0, 0.0)
-'				glVertex2f(quad.m_topright.m_x, quad.m_topright.m_y + quad.m_topright.m_z)
-'				
-'				glTexCoord2f(1.0, 1.0)
-'				glVertex2f(quad.m_bottomleft.m_x, quad.m_bottomleft.m_y + quad.m_bottomleft.m_z)
-'				
-'				glTexCoord2f(0.0, 1.0)
-'				glVertex2f(quad.m_bottomright.m_x, quad.m_bottomright.m_y + quad.m_bottomright.m_z)
-'			glEnd()
-'			
-'		'End If
-'		
-'	End Method
-'	End Rem
-'	
-''#region Data handlers
-'	
-'	Rem
-'		bbdoc: Deserialize a TileTexture from a stream.
-'		returns: The deserialized texture (itself).
-'	End Rem
-'	Method DeSerialize:TTileTexture(stream:TStream)
-'		SetImage(TImageIO.Read(stream))
-'		m_texture.DeSerialize()
-'		Return Self
-'	End Method
-'	
-'	Rem
-'		bbdoc: Serialize the TileTexture into a stream.
-'		returns: Nothing.
-'	End Rem
-'	Method Serialize(stream:TStream)
-'		TImageIO.Write(m_image, stream)
-'	End Method
-'	
-'	Rem
-'		bbdoc: Load a TileTexture.
-'		returns: The loaded (deserialized) texture.
-'		about: Creates a new texture and deserializes it from the stream.
-'	End Rem
-'	Function Load:TTileTexture(stream:TStream)
-'		Return New TTileTexture.DeSerialize(stream)
-'	End Function
-'	
-''#end region
-'	
-'End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

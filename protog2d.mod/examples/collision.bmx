@@ -70,11 +70,10 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	Method InitEntities()
 		m_infotext = New TProtogTextEntity.Create("fps: {fps} - vsync: {vsync}~n" + ..
 			"~tControls: F1 - vsync on/off",  ..
-		, New TVec2.Create(2.0, 2.0), m_color_grey)
+			, New TVec2.Create(2.0, 2.0), m_color_grey)
 		
 		m_infotext.SetupReplacer()
 		m_infotext.SetReplacementByName("vsync", m_graphics.GetVSyncState())
-		
 		m_bmaxsprite = New TProtogSpriteEntity.Create(m_bmaxlogo, New TVec2.Create(44.0, 44.0))
 	End Method
 	
@@ -83,14 +82,11 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 		While KeyDown(KEY_ESCAPE) = False And AppTerminate() = False
 			m_graphics.Cls()
 			TProtog2DCollision.ResetCollisions(ECollisionLayers.LAYER_1)
-			
 			Update()
 			Render()
-			
 			m_graphics.Flip()
 			Delay(2)
 		Wend
-		
 		Shutdown()
 	End Method
 	
@@ -100,7 +96,6 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method Update()
-		
 		' Entities
 		'm_bmaxsprite.SetPositionParams(MouseX() - (m_bmaxlogo.GetWidth() / 2), MouseY () - (m_bmaxlogo.GetHeight() / 2))
 		If KeyHit(KEY_F2) = True
@@ -137,21 +132,4 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

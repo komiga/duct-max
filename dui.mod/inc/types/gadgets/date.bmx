@@ -156,17 +156,3 @@ Type dui_Date Extends dui_Gadget
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-

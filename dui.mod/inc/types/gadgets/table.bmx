@@ -49,7 +49,6 @@ Type dui_Table Extends dui_Gadget
 		
 		AddColumn(heading, headingcolwidth, False)
 		Refresh()
-		
 		Return Self
 	End Method
 	
@@ -159,7 +158,6 @@ Type dui_Table Extends dui_Gadget
 		
 		' If inside the highlight area
 		If dui_MouseIn(relx, iY - m_oldy, m_width, m_height - ((m_itemheight + 2) * m_header))
-			
 			' Calculate the highlighted item from the MouseY position
 			m_hirow = (MouseY()  - iY) / (m_itemheight + 2)
 			' Calculate the column from the MouseX position
@@ -207,9 +205,7 @@ Type dui_Table Extends dui_Gadget
 		
 		relx = m_x + x
 		iY = m_y + y + m_itemheight + 2
-		
 		If m_header = False Then iY = iY - (m_itemheight + 2)
-		
 		Super.UpdateMouseRelease(x, y)
 		
 		' If inside the highlight area, select an item
@@ -818,32 +814,4 @@ Type dui_TableItem
 '#end region (Collections)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

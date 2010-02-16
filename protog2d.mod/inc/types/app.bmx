@@ -25,7 +25,6 @@ Rem
 	
 	TODO:
 		
-	
 End Rem
 
 Rem
@@ -47,20 +46,14 @@ Type TDProtogGraphics
 		returns: The new TDProtogGraphics (itself).
 	End Rem
 	Method Create:TDProtogGraphics(width:Int, height:Int, depth:Int = 0, hertz:Int = 60, flags:Int = GRAPHICS_BACKBUFFER | GRAPHICS_DEPTHBUFFER, vsync:Int = -1, create_window:Int = True)
-		
 		SetWidth(width, False)
 		SetHeight(height, False)
-		
 		SetDepth(depth, False)
 		SetHertz(hertz, False)
 		SetFlags(flags, False)
-		
 		SetVSyncState(vsync)
-		
 		SetDriver(create_window)
-		
 		Return Self
-		
 	End Method
 	
 	Rem
@@ -68,16 +61,13 @@ Type TDProtogGraphics
 		returns: Nothing.
 	End Rem
 	Method SetDriver(remake_gwindow:Int = True)
-		
 		m_driver_context = TProtog2DDriver.GetInstance()
 		brl.Graphics.SetGraphicsDriver(m_driver_context)
-		
 		If remake_gwindow = True
 			Local started:Int
 			started = StartGraphics()
 			Assert started, "Failed to create graphics mode to " + m_width + "x" + m_height + ", " + m_depth + " @" + m_hertz + "hz"
 		End If
-		
 	End Method
 	
 	Rem
@@ -85,13 +75,11 @@ Type TDProtogGraphics
 		returns: True if the graphics window was created, or False if it was not (invalid GraphicsMode).
 	End Rem
 	Method StartGraphics:Int()
-		
 		If brl.Graphics.GraphicsModeExists(m_width, m_height, m_depth, m_hertz) = True
 			m_gcontext = TProtog2DGraphics(brl.Graphics.Graphics(m_width, m_height, m_depth, m_hertz, m_flags))
 			Return True
 		End If
-		
-		'Return False
+		Return False
 	End Method
 	
 '#region Field accessors
@@ -131,7 +119,6 @@ Type TDProtogGraphics
 	Method SetDimensions(width:Int, height:Int, remake_gwindow:Int = True)
 		SetWidth(width)
 		SetHeight(height)
-		
 		If remake_gwindow = True
 			Local started:Int
 			started = StartGraphics()
@@ -190,7 +177,6 @@ Type TDProtogGraphics
 	End Rem
 	Method SetDepth(depth:Int, remake_gwindow:Int = True)
 		m_depth = depth
-		
 		If remake_gwindow = True
 			Local started:Int
 			started = StartGraphics()
@@ -213,7 +199,6 @@ Type TDProtogGraphics
 	End Rem
 	Method SetHertz(hertz:Int, remake_gwindow:Int = True)
 		m_hertz = hertz
-		
 		If remake_gwindow = True
 			Local started:Int
 			started = StartGraphics()
@@ -236,7 +221,6 @@ Type TDProtogGraphics
 	End Rem
 	Method SetFlags(flags:Int, remake_gwindow:Int = True)
 		m_flags = flags
-		
 		If remake_gwindow = True
 			Local started:Int
 			started = StartGraphics()
@@ -273,7 +257,6 @@ Type TDProtogGraphics
 		'If m_gcontext <> Null
 		'	m_gcontext.Close()
 		'End If
-		
 		brl.Graphics.EndGraphics()
 	End Method
 	
@@ -360,45 +343,4 @@ Type TDProtogGraphicsApp Extends TDGraphicsApp
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -50,7 +50,6 @@ Type dui_ThemeManager
 			theme = AddThemeFromStream(stream, loadtexture, binary, encoding)
 			stream.Close()
 		End If
-		
 		Return theme
 	End Function
 	
@@ -81,7 +80,6 @@ Type dui_ThemeManager
 				End If
 			End If
 		End If
-		
 		Return theme
 	End Function
 	
@@ -1106,17 +1104,4 @@ Type dui_ThemeSection Extends dui_ThemeStub
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
 

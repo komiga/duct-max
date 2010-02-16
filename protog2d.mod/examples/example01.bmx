@@ -65,7 +65,7 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 			"~tSpace - mouse visibility~n" + ..
 			"~tRight click - vertical centering~n" + ..
 			"~tLeft click - horizontal centering",  ..
-		m_font, New TVec2.Create(2.0, 2.0), m_color_grey)
+			m_font, New TVec2.Create(2.0, 2.0), m_color_grey)
 		
 		m_infotext.SetupReplacer()
 		m_infotext.SetReplacementByName("vsync", m_graphics.GetVSyncState())
@@ -76,14 +76,11 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 		m_gdriver.SetBlend(BLEND_ALPHA)
 		While KeyDown(KEY_ESCAPE) = False And AppTerminate() = False
 			m_graphics.Cls()
-			
 			Update()
 			Render()
-			
 			m_graphics.Flip()
 			Delay(2)
 		Wend
-		
 		Shutdown()
 	End Method
 	
@@ -134,3 +131,4 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 End Type
+

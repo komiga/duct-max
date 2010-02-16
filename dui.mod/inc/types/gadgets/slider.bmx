@@ -74,7 +74,6 @@ Type dui_Slider Extends dui_Gadget
 			
 			BindDrawingState()
 			m_renderer.RenderFull(x, y, Self)
-			
 			Super.Render(x, y)
 		End If
 	End Method
@@ -99,7 +98,6 @@ Type dui_Slider Extends dui_Gadget
 		
 		TDUIMain.SetCursor(dui_CURSOR_MOUSEOVER)
 		Super.UpdateMouseOver(x, y)
-		
 		mz = MouseZ()
 		If mz <> m_oz
 			If mz > m_oz
@@ -166,7 +164,6 @@ Type dui_Slider Extends dui_Gadget
 					SetValueByPos(MouseX() - (x + m_sliderx), True)
 				End If
 		End Select
-		
 	End Method
 	
 	Rem
@@ -340,27 +337,4 @@ Type dui_Slider Extends dui_Gadget
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

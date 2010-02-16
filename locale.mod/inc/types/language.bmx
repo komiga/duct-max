@@ -114,9 +114,7 @@ Type TLocale Extends TObjectMap
 		If ltext <> Null
 			Return ltext.GetValue()
 		End If
-		
 		Return Null
-		
 	End Method
 	
 	Rem
@@ -140,7 +138,6 @@ Type TLocale Extends TObjectMap
 				End If
 			End If
 		End If
-		
 		Return Null
 	End Method
 	
@@ -166,7 +163,6 @@ Type TLocale Extends TObjectMap
 				End If
 			End If
 		End If
-		
 		Return Null
 	End Method
 	
@@ -182,7 +178,6 @@ Type TLocale Extends TObjectMap
 		If ltext <> Null
 			Return ltext.GetValue()
 		End If
-		
 		Return Null
 	End Method
 	
@@ -267,7 +262,6 @@ Type TLocale Extends TObjectMap
 				End If
 			End If
 		Next
-		
 		Return True
 	End Method
 	
@@ -295,7 +289,6 @@ Type TLocale Extends TObjectMap
 			node = TSNode.LoadScriptFromObject(file)
 			Return FromNode(node)
 		End If
-		
 		Return Null
 	End Method
 	
@@ -329,7 +322,6 @@ Type TLocale Extends TObjectMap
 		If m_name = Null
 			Return Null
 		End If
-		
 		Return Self
 	End Method
 	
@@ -368,7 +360,6 @@ Type TLocaleManager
 		If locale = Null
 			Return False
 		End If
-		
 		m_currentlocale = locale
 		Return True
 	End Function
@@ -536,7 +527,6 @@ Type TLocaleManager
 		dir = ReadDir(path)
 		Repeat
 			file = NextFile(dir)
-			
 			If file = "" Then Exit
 			If file <> "." And file <> ".."
 				Select FileType(path + file)
@@ -557,63 +547,4 @@ Type TLocaleManager
 '#end region (Parsing)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

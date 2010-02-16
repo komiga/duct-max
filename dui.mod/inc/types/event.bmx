@@ -51,7 +51,6 @@ Type dui_Event
 		m_y = y
 		m_extra = extra
 		Post()
-		
 		Return Self
 	End Method
 	
@@ -87,7 +86,6 @@ Type dui_Event
 		Else
 			srcstr = "External Source"
 		End If
-		
 		Return "Event: " + evstr + " Data: " + m_data + " X: " + m_x + " Y: " + m_y + " Source: " + srcstr
 	End Method
 	
@@ -121,15 +119,4 @@ Type dui_Event
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
 

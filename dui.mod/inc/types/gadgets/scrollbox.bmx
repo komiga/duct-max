@@ -123,19 +123,3 @@ Type dui_ScrollBox Extends dui_Gadget
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

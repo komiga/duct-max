@@ -213,27 +213,3 @@ Type dui_CheckBox Extends dui_Gadget
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

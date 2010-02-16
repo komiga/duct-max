@@ -221,7 +221,6 @@ Type TGLTexture
 		' Upload the pixmap to the new handle
 		UploadTex(texture_pixmap, m_target, m_format, flags)
 		TProtog2DDriver.UnbindTextureTarget(m_target)
-		
 		Return Self
 	End Method
 	
@@ -421,7 +420,6 @@ Type TGLTexture
 			Case FORMAT_DEPTH
 				Return GL_DEPTH_COMPONENT
 		End Select
-		
 		Return 0
 	End Function
 	
@@ -450,7 +448,6 @@ Type TGLTexture
 			Case FORMAT_DEPTH
 				Return GL_DEPTH_COMPONENT
 		End Select
-		
 		Return 0
 	End Function
 	
@@ -479,7 +476,6 @@ Type TGLTexture
 			Case FORMAT_DEPTH
 				Return 0
 		End Select
-		
 		Return 0
 	End Function
 	
@@ -709,15 +705,11 @@ Type TProtogAnimTexture
 	End Rem
 	Method Create:TProtogAnimTexture(pixmap:TPixmap, startframe:Int, framecount:Int, frame_width:Float, frame_height:Float, flags:Int, upload:Int = True)
 		m_flags = flags
-		
 		SetStartFrame(startframe)
 		SetFrameCount(framecount)
 		SetFrameSize(frame_width, frame_height)
-		
 		SetPixmap(pixmap, upload)
-		
 		RecalculateFrames()
-		
 		Return Self
 	End Method
 	
@@ -1024,20 +1016,4 @@ Type TProtogAnimTexture
 '#end region
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

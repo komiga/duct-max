@@ -26,71 +26,38 @@ Rem
 End Rem
 
 Rem
-	bbdoc: Round an integer (up) to @_min.
-	returns: If @_value is less than @_min, @_min is returned, otherwise @_value is returned.
+	bbdoc: Clamp an integer to a minimum value.
+	returns: If @value is less than @_min then @_min is returned, otherwise @value is returned.
 End Rem
 Function IntMin:Int(_value:Int, _min:Int)
-	
-	If _value < _min Then Return _min
-	
-	Return _value
-	
+	If value < _min Then Return _min
+	Return value
 End Function
 
 Rem
-	bbdoc: Round an integer (down) to @_max.
-	returns: If @_value is greater than @_max, @_max is returned, otherwise @_value is returned.
+	bbdoc: Clamp an integer to a maximum value.
+	returns: If @value is greater than @_max then @_max is returned, otherwise @value is returned.
 End Rem
-Function IntMax:Int(_value:Int, _max:Int)
-	
-	If _value > _max Then Return _max
-	
-	Return _value
-	
-End Function
-
-
-Rem
-	bbdoc: Round a float (up) to @_min.
-	returns: If @_value is less than @_min, @_min is returned, otherwise @_value is returned.
-End Rem
-Function FloatMin:Float(_value:Float, _min:Float)
-	
-	If _value < _min Then Return _min
-	
-	Return _value
-	
+Function IntMax:Int(value:Int, _max:Int)
+	If value > _max Then Return _max
+	Return value
 End Function
 
 Rem
-	bbdoc: Round an float (down) to @_max.
-	returns: If @_value is greater than @_max, @_max is returned, otherwise @_value is returned.
+	bbdoc: Clamp a float to a minimum value.
+	returns: If @value is less than @_min then @_min is returned, otherwise @value is returned.
 End Rem
-Function FloatMax:Int(_value:Int, _max:Int)
-	
-	If _value > _max Then Return _max
-	
-	Return _value
-	
+Function FloatMin:Float(value:Float, _min:Float)
+	If value < _min Then Return _min
+	Return value
 End Function
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Rem
+	bbdoc: Clamp a float to a maximum value.
+	returns: If @value is greater than @_max then @_max is returned, otherwise @value is returned.
+End Rem
+Function FloatMax:Int(value:Float, _max:Float)
+	If value > _max Then Return _max
+	Return value
+End Function
 

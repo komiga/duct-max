@@ -25,7 +25,6 @@ Rem
 	
 	TODO:
 		
-	
 End Rem
 
 Rem
@@ -77,10 +76,8 @@ Type TProtogFrameBuffer
 		returns: The new TProtogFrameBuffer (itself).
 	End Rem
 	Method Create:TProtogFrameBuffer(colorbuffers:TProtogTexture[])
-		
 		glGenFramebuffersEXT(1, Varptr(m_handle))
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_handle)
-		
 		SetColorBuffers(colorbuffers)
 		
 		'If depthbuffer <> Null
@@ -92,9 +89,7 @@ Type TProtogFrameBuffer
 		'	Throw("(TProtogFrameBuffer.Create) glCheckFramebufferStatusEXT <> GL_FRAMEBUFFER_COMPLETE_EXT")
 		'End If
 		Unbind()
-		
 		TProtog2DDriver.CheckForErrors("TProtogFrameBuffer.Create::end")
-		
 		Return Self
 	End Method
 	
@@ -284,61 +279,4 @@ Type TProtogFrameBuffer
 '#end region (Color buffer)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

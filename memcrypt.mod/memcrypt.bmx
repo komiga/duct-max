@@ -32,10 +32,12 @@ bbdoc: In-memory encryption module
 End Rem
 Module duct.memcrypt
 
-ModuleInfo "Version: 0.03"
+ModuleInfo "Version: 0.1"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.1"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.03"
 ModuleInfo "History: Moved all code to the main source"
 ModuleInfo "History: General code cleanup"
@@ -44,12 +46,9 @@ ModuleInfo "History: Corrected usage of syntax (in Returns, Cases, News and Sele
 ModuleInfo "History: Version 0.01"
 ModuleInfo "History: Initial release"
 
-
-' Used modules
 Import brl.stream
 Import brl.bank
 Import brl.bankstream
-
 Import duct.RC4
 
 Rem
@@ -68,35 +67,6 @@ Function CryptStream:TBankStream(url:Object, key:String)
 	If bstream <> Null
 		RC4_Bytes(bstream._bank.Lock(), bstream._bank.Capacity(), key)
 	End If
-	
 	Return bstream
-	
 End Function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -15,6 +15,3 @@ Message = RC4(Message, Key)
 Print("Encrypted: ~q" + Message + "~q")
 Print("Decrypted: ~q" + RC4(Message, Key) + "~q")
 
-End
-
-

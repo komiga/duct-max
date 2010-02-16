@@ -131,7 +131,6 @@ Type TSNodeToken
 			MemFree(m_buffer)
 			m_buffer = temp
 		End If
-		
 		m_buffer[m_bufLen] = char
 		m_bufLen:+1
 	End Method
@@ -257,14 +256,11 @@ Type TSNodeParser
 			ustream = ReadStream(url)
 		End If
 		Assert ustream, "(duct.scriptparser.TSNodeParser) Failed to open stream"
-		
 		m_stream = TTextStream.Create(ustream, encoding)
-		
 		m_line = 1
 		m_col = 0
 		m_curchar = CHAR_EOF
 		m_token = Null
-		
 		NextChar() ' Get the first character in the script
 	End Method
 	
@@ -276,15 +272,12 @@ Type TSNodeParser
 		Local ramstream:TRamStream
 		
 		Assert data, "(duct.scriptparser.TSNodeParser) @data is Null!"
-		
 		ramstream = TRamStream.Create(data, data.Length, True, False)
 		m_stream = TTextStream.Create(ramstream, encoding)
-		
 		m_line = 1
 		m_col = 0
 		m_curchar = CHAR_EOF
 		m_token = Null
-		
 		NextChar() ' Get the first character in the script
 	End Method
 	
@@ -587,12 +580,10 @@ Type TSNodeParserHandler Abstract
 	Method Process()
 		m_rootnode = New TSNode.Create(Null, Null)
 		m_currentnode = m_rootnode
-		
 		While m_parser.Parse() = True
 			'DebugLog("(TSNodeParserHandler.Process())")
 			'HandleToken(m_parser.m_token)
 		Wend
-		
 		If m_currentnode <> m_rootnode
 			Throw(New TSNodeException.Create(TSNodeException.HierarchyError, "TSNodeParserHandler.Process()", "The current node does not match the root node (current=~q" + m_currentnode.GetName() + "~q)"))
 		End If
@@ -776,56 +767,4 @@ Type TSNodeException
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

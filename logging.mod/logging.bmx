@@ -32,20 +32,20 @@ bbdoc: Logging module
 End Rem
 Module duct.logging
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
-' Used modules
 Import brl.standardio
 Import brl.stream
 
 Import duct.appendstream
 Import duct.etc
-
 
 Rem
 	bbdoc: Stream/Debug/StandardIO based logger.
@@ -75,7 +75,6 @@ Type TLogger
 		UseStream(_usestream)
 		UsePrint(_useprint)
 		UseDebugLog(_usedebuglog)
-		
 		Return Self
 	End Method
 	
@@ -303,14 +302,4 @@ Type TLogger
 '#end region (Logging)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
 

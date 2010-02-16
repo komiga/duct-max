@@ -28,17 +28,18 @@ bbdoc: dui drawing routines module
 End Rem
 Module duct.duidraw
 
-ModuleInfo "Version: 1.01"
+ModuleInfo "Version: 1.1"
 ModuleInfo "Copyright: Liam McGuigan (FryGUI creator)"
 ModuleInfo "Copyright: Tim Howard (dui is a heavily modified FryGUI)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 1.1"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 1.01"
 ModuleInfo "History: Cleanup"
 ModuleInfo "History: Version 1.0"
 ModuleInfo "History: Initial release"
 
-' Used modules
 Import duct.protog2d
 
 Rem
@@ -400,22 +401,4 @@ End Function
 '	End Function
 '	
 'End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

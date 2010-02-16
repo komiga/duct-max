@@ -28,10 +28,12 @@ bbdoc: Scriptparser module
 End Rem
 Module duct.scriptparser
 
-ModuleInfo "Version: 0.50"
+ModuleInfo "Version: 0.6"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.6"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.50"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Fixed encoding references in TSNode.LoadScriptFromObject() and TSNode.LoadScriptFromString()"
@@ -65,40 +67,14 @@ ModuleInfo "History: Added Eval variable parsing"
 ModuleInfo "History: Version 0.12"
 ModuleInfo "History: Initial release"
 
-
-' Used modules
 Import brl.ramstream
 Import brl.textstream
 Import brl.linkedlist
 Import brl.filesystem
-
 Import duct.variables
-
 Import cower.charset
 
-' Included source code
 Include "inc/types/snode.bmx"
 Include "inc/types/parser.bmx"
 Include "inc/types/template.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

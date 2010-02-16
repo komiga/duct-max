@@ -133,32 +133,3 @@ Type dui_Label Extends dui_Gadget
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

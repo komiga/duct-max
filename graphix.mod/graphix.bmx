@@ -28,10 +28,12 @@ bbdoc: Extended graphics module
 End Rem
 Module duct.graphix
 
-ModuleInfo "Version: 0.15"
+ModuleInfo "Version: 0.16"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.16"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.15"
 ModuleInfo "History: Changed TDGraphicsApp to be extension-safe, removed dependency on Protog2D (TDProtogGraphicsApp is in Protog2D now)"
 ModuleInfo "History: Changed some more formatting"
@@ -50,24 +52,7 @@ ModuleInfo "History: General code cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial version"
 
-' Used modules
 Import duct.app
 
-
-' Included code
 Include "inc/types/gapp.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

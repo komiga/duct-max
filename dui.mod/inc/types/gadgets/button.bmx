@@ -3,7 +3,6 @@ Rem
 	button.bmx (Contains: dui_Button, )
 End Rem
 
-
 Rem
 	bbdoc: The dui button gadget type.
 End Rem
@@ -29,7 +28,6 @@ Type dui_Button Extends dui_Gadget
 		SetBackground(background)
 		LoadTexture(texture, False)
 		Refresh()
-		
 		Return Self
 	End Method
 	
@@ -199,19 +197,4 @@ Type dui_Button Extends dui_Gadget
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -9,16 +9,9 @@ Rem
 	returns: The next power of two to the given value.
 End Rem
 Function Pow2Size:Float(n:Int)
-	Local t:Int
-	
-	t = 1
-	
+	local t:Int = 1
 	While t < n
-		
 		t:*2
-		
 	Wend
-	
 	Return Float(t)
-	
 End Function

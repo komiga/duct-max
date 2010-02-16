@@ -299,16 +299,8 @@ Type TSNode
 					Return False
 			End Select
 		End If
-		Return - 1
+		Return -1
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
 

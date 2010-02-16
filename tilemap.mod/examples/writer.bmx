@@ -99,29 +99,3 @@ Function HeightMapToTileMap:TTileMap(hmap:TPixmap)
 	Return map
 End Function
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

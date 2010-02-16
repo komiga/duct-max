@@ -29,14 +29,15 @@ bbdoc: Max2D TImage writer/reader module.
 End Rem
 Module duct.imageio
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
-'Used modules
 Import brl.stream
 Import brl.max2d
 
@@ -77,7 +78,6 @@ Type TImageIO
 		
 		image.frames = New TImageFrame[count]
 		image.seqs = New Int[count]
-		
 		Return image
 	End Function
 	
@@ -108,3 +108,4 @@ Type TImageIO
 	End Function
 	
 End Type
+

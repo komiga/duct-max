@@ -212,27 +212,3 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

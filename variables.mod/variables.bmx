@@ -34,10 +34,12 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.16"
+ModuleInfo "Version: 0.17"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.17"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.16"
 ModuleInfo "History: Added SetAmbiguous to all TVariable types"
 ModuleInfo "History: Added option to always use quoting with TStringVariables (on by default)"
@@ -70,13 +72,11 @@ ModuleInfo "History: Version 0.08"
 ModuleInfo "History: Added the TEvalVariable type"
 ModuleInfo "History: Initial release"
 
-' Used modules
 Import brl.stream
 Import brl.linkedlist
 
 Import duct.etc
 Import duct.objectmap
-
 
 Rem
 	bbdoc: Template variable type for the TIntVariable type.
@@ -140,9 +140,9 @@ Type TVariable Abstract
 	End Rem
 	Method ValueAsString:String() Abstract
 	
-'#end region
+'#end region (Field accessors)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Create a copy of the variable.
@@ -164,7 +164,7 @@ Type TVariable Abstract
 	End Rem
 	Method DeSerialize:TVariable(stream:TStream, tv:Int = True, name:Int = False) Abstract
 	
-'#end region
+'#end region (Data handling)
 	
 	Rem
 		bbdoc: Base method: Get the type of this variable.
@@ -202,7 +202,6 @@ Type TVariable Abstract
 				Local c:Int
 				
 				c = vraw[i]
-				
 				If c >= 48 And c <= 57 Or c = 43 Or c = 45
 					If etype = 0 ' Leave float and string alone
 						etype = 2 ' Integer so far..
@@ -215,7 +214,6 @@ Type TVariable Abstract
 					etype = 4
 					Exit
 				End If
-				
 			Next
 			
 			Select etype
@@ -223,7 +221,6 @@ Type TVariable Abstract
 					variable = TVariable(New TIntVariable.Create(varname, Int(vraw)))
 				Case 3 ' Double/Float
 					variable = TVariable(New TFloatVariable.Create(varname, Float(vraw)))
-					
 				'Case 4 ' String - non-explicit
 				'  Local evaltest:Int = vraw.ToLower().Find("/eval::")
 				'	
@@ -232,7 +229,6 @@ Type TVariable Abstract
 				'	Else
 				'		variable = TVariable(New TStringVariable.Create(varname, vraw))
 				'	End If
-					
 			End Select
 			
 		End If
@@ -245,15 +241,11 @@ Type TVariable Abstract
 				variable = TVariable(New TStringVariable.Create(varname, vraw))
 			End If
 		End If
-		
 		' DebugLog("TSNode.LoadScriptFromStream().RawToVariable(); vraw = ~q" + vraw + "~q \" + etype)
-		
 		?Debug
 		If variable = Null Then DebugLog("( TVariable.RawToVariable() ) Unknown error, 'variable' is Null.")
 		?
-		
 		Return variable
-		
 	End Function
 	
 	Rem
@@ -284,9 +276,7 @@ Type TVariable Abstract
 				DebugLog("(TVariable.DeSerializeUniversal) Failed to recognize the TV in the stream: " + tv)
 				
 		End Select
-		
 		Return Null
-		
 	End Function
 	
 End Type
@@ -359,9 +349,9 @@ Type TStringVariable Extends TVariable
 		Return m_value
 	End Method
 	
-'#end region
+'#end region (Field accessors)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Create a copy of the variable
@@ -385,7 +375,6 @@ Type TStringVariable Extends TVariable
 		End If
 		
 		WriteLString(stream, m_value)
-		
 	End Method
 	
 	Rem
@@ -403,10 +392,9 @@ Type TStringVariable Extends TVariable
 		
 		m_value = ReadLString(stream)
 		Return Self
-		
 	End Method
 	
-'#end region
+'#end region (Data handling)
 	
 	Rem
 		bbdoc: Get the type of this variable.
@@ -489,7 +477,6 @@ Type TFloatVariable Extends TVariable
 		Next
 		
 		Return conv
-		
 	End Method
 	
 	Rem
@@ -500,9 +487,9 @@ Type TFloatVariable Extends TVariable
 		Return String(m_value)
 	End Method
 	
-'#end region
+'#end region (Field accessors)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Create a copy of the variable
@@ -524,9 +511,7 @@ Type TFloatVariable Extends TVariable
 		If name = True
 			WriteLString(stream, m_name)
 		End If
-		
 		stream.WriteFloat(m_value)
-		
 	End Method
 	
 	Rem
@@ -541,13 +526,11 @@ Type TFloatVariable Extends TVariable
 		If name = True
 			m_name = ReadLString(stream)
 		End If
-		
 		m_value = stream.ReadFloat()
 		Return Self
-		
 	End Method
 	
-'#end region
+'#end region (Data handling)
 	
 	Rem
 		bbdoc: Get the type of this variable.
@@ -627,9 +610,9 @@ Type TIntVariable Extends TVariable
 		Return String(m_value)
 	End Method
 	
-'#end region
+'#end region (Field accessors)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Create a copy of the variable
@@ -653,7 +636,6 @@ Type TIntVariable Extends TVariable
 		End If
 		
 		stream.WriteInt(m_value)
-		
 	End Method
 	
 	Rem
@@ -671,10 +653,9 @@ Type TIntVariable Extends TVariable
 		
 		m_value = stream.ReadInt()
 		Return Self
-		
 	End Method
 	
-'#end region
+'#end region (Data handling)
 	
 	Rem
 		bbdoc: Get the type of this variable.
@@ -756,9 +737,9 @@ Type TEvalVariable Extends TVariable
 		Return m_value
 	End Method
 	
-'#end region
+'#end region (Field accessors)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Create a copy of the variable
@@ -782,7 +763,6 @@ Type TEvalVariable Extends TVariable
 		End If
 		
 		WriteLString(stream, m_value)
-		
 	End Method
 	
 	Rem
@@ -800,10 +780,9 @@ Type TEvalVariable Extends TVariable
 		
 		m_value = ReadLString(stream)
 		Return Self
-		
 	End Method
 	
-'#end region
+'#end region (Data handling)
 	
 	Rem
 		bbdoc: Get the type of this variable.
@@ -899,7 +878,6 @@ Type TIdentifier Extends TVariable
 		For variable = EachIn m_values
 			op:+variable.ConvToString() + " "
 		Next
-		
 		op = op[..op.Length - 1]
 		Return op
 	End Method
@@ -913,9 +891,9 @@ Type TIdentifier Extends TVariable
 		Return ConvToString()
 	End Method
 	
-'#end region
+'#end region (Field accessors)
 	
-'#region Value handlers
+'#region Value handling
 	
 	Rem
 		bbdoc: Get a value at an index.
@@ -952,9 +930,9 @@ Type TIdentifier Extends TVariable
 		Return False
 	End Method
 	
-'#end region
+'#end region (Value handling)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Create a copy of the variable
@@ -991,7 +969,6 @@ Type TIdentifier Extends TVariable
 				variable.Serialize(stream, True, name)
 			Next
 		End If
-		
 	End Method
 	
 	Rem
@@ -1016,10 +993,9 @@ Type TIdentifier Extends TVariable
 		End If
 		
 		Return Self
-		
 	End Method
 	
-	'#end region
+'#end region (Data handling)
 	
 	Rem
 		bbdoc: Get the type of this variable.
@@ -1052,7 +1028,7 @@ Type TVariableMap Extends TObjectMap
 		Return Self
 	End Method
 	
-	'#region Collectional methods
+'#region Collections
 	
 	Rem
 		bbdoc: Insert a variable into the map.
@@ -1084,45 +1060,7 @@ Type TVariableMap Extends TObjectMap
 		Return TVariable(_ValueByKey(name))
 	End Method
 	
-	'#end region
+'#end region (Collections)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -30,58 +30,30 @@ Rem
 	about: Abstract base for wxMax-style Application framework.
 End Rem
 Type TDApp Abstract
-		
-		Method New()
-		End Method
-		
-		Rem
-			bbdoc: Create a new DApp.
-			returns: The new DApp (itself).
-		End Rem
-		Method Create:TDApp()
-			
-			OnInit()
-			
-			Return Self
-			
-		End Method
-		
-		Rem
-			bbdoc: This method is called when the DApp is initialized.
-			returns: Nothing.
-		End Rem
-		Method OnInit() Abstract
-		
-		Rem
-			bbdoc: Run the DApp.
-			returns: Nothing.
-		End Rem
-		Method Run() Abstract
-		
+	
+	Method New()
+	End Method
+	
+	Rem
+		bbdoc: Create a new DApp.
+		returns: The new DApp (itself).
+	End Rem
+	Method Create:TDApp()
+		OnInit()
+		Return Self
+	End Method
+	
+	Rem
+		bbdoc: This method is called when the DApp is initialized.
+		returns: Nothing.
+	End Rem
+	Method OnInit() Abstract
+	
+	Rem
+		bbdoc: Run the DApp.
+		returns: Nothing.
+	End Rem
+	Method Run() Abstract
+	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

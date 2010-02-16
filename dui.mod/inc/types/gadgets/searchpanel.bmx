@@ -37,7 +37,6 @@ Type dui_SearchPanel Extends dui_Gadget
 		
 		m_searchbox = search
 		Hide()
-		
 		Return Self
 	End Method
 	
@@ -56,7 +55,6 @@ Type dui_SearchPanel Extends dui_Gadget
 			
 			BindDrawingState()
 			m_renderer.RenderCells(relx, rely, Self)
-			
 			Super.Render(x, y)
 		End If
 	End Method
@@ -67,7 +65,6 @@ Type dui_SearchPanel Extends dui_Gadget
 	End Rem
 	Method Update(x:Int, y:Int)
 		Super.Update(x, y)
-		
 		If TDUIMain.IsGadgetActive(Self) = True And MouseDown(1) = True And IsVisible() = True
 			UpdateMouseDown(x, y)
 		End If
@@ -79,7 +76,6 @@ Type dui_SearchPanel Extends dui_Gadget
 	End Rem
 	Method UpdateMouseDown(x:Int, y:Int)
 		Super.UpdateMouseDown(x, y)
-		
 		If IsVisible() = True
 			New dui_Event.Create(dui_EVENT_GADGETCLOSE, Self, 0, 0, 0, Self)
 			Hide()
@@ -130,12 +126,4 @@ Type dui_SearchPanel Extends dui_Gadget
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
 

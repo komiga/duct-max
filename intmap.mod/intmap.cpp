@@ -101,20 +101,3 @@ void bmx_intmap_iter_delete(intmap::iterator * iter) {
 	delete iter;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

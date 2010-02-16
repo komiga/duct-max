@@ -28,10 +28,12 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.18"
+ModuleInfo "Version: 0.19"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.19"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.18"
 ModuleInfo "History: More formatting.."
 ModuleInfo "History: CreateFileExplicitly now returns True/False on success/failure"
@@ -66,14 +68,11 @@ ModuleInfo "History: Added newline-terminated string reading and writing functio
 ModuleInfo "History: Version 0.08"
 ModuleInfo "History: Initial release"
 
-
-'Used modules
 Import brl.math
 Import brl.stream
 Import brl.linkedlist
 Import brl.filesystem
 
-'Included code
 Include "inc/functions/pow2size.bmx"
 Include "inc/functions/nstring.bmx"
 Include "inc/functions/minmax.bmx"

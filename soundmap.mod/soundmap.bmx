@@ -32,10 +32,12 @@ bbdoc: Soundmap module
 End Rem
 Module duct.soundmap
 
-ModuleInfo "Version: 0.05"
+ModuleInfo "Version: 0.06"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.06"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.05"
 ModuleInfo "History: Changed formatting"
 ModuleInfo "History: Version 0.04"
@@ -45,9 +47,7 @@ ModuleInfo "History: Modified: TTemplate now supports multiple identifier names"
 ModuleInfo "History: Version 0.02"
 ModuleInfo "History: Initial release"
 
-' Used modules
 Import brl.audio
-
 Import duct.objectmap
 
 Rem
@@ -148,10 +148,4 @@ Function _fixpath:String(path:String)
 		Return path
 	End If
 End Function
-
-
-
-
-
-
 

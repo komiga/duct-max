@@ -170,9 +170,7 @@ Type TProtog2DCollision
 				End If
 			End If
 		End If
-		
 		q.SetCoords(tx0, ty0, tx1, ty1, tx2, ty2, tx3, ty3)
-		
 		Return CollideQuad(q, collidemask, writemask)
 	End Function
 	
@@ -593,9 +591,5 @@ Function CollideQuad:Object[] (pquad:TQuad, collidemask:Int, writemask:Int)
 	End If
 End Function
 
-
 Public
-
-
-
 

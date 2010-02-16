@@ -25,7 +25,6 @@ Rem
 	
 	TODO:
 		
-	
 End Rem
 
 Rem
@@ -156,7 +155,7 @@ Type TProtogFont
 	
 '#end region (Drawing)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize a font from the given stream.
@@ -172,21 +171,16 @@ Type TProtogFont
 		m_name = ReadLString(stream)
 		m_height = stream.ReadFloat()
 		count = stream.ReadInt()
-		
 		If readtexture = True
 			m_texture = New TProtogTexture.DeSerialize(stream, upload)
 		End If
-		
 		For index = 1 To count
 			char = New TProtogFontChar.DeSerialize(stream)
 			m_chars.Insert(char.m_char, char)
 		Next
-		
 		m_emptychar = GetChar(- 1)
 		InsertSelf()
-		
 		Return Self
-		
 	End Method
 	
 	Rem
@@ -200,15 +194,12 @@ Type TProtogFont
 		WriteLString(stream, m_name)
 		stream.WriteFloat(m_height)
 		stream.WriteInt(m_chars.Count())
-		
 		If writetexture = True
 			m_texture.Serialize(stream)
 		End If
-		
 		For char = EachIn m_chars
 			char.Serialize(stream)
 		Next
-		
 	End Method
 	
 	Rem
@@ -253,12 +244,9 @@ Type TProtogFont
 				End If
 			'End If
 		Next
-		
 		m_emptychar = GetChar(- 1)
 		InsertSelf()
-		
 		Return Self
-		
 	End Method
 	
 	Rem
@@ -285,7 +273,7 @@ Type TProtogFont
 	End Method
 	End Rem
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 '#region Field accessors
 	
@@ -425,7 +413,7 @@ Type TProtogFontChar
 		glEnd()
 	End Method
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize a char from the given stream.
@@ -436,14 +424,11 @@ Type TProtogFontChar
 		m_width = stream.ReadFloat()
 		m_height = stream.ReadFloat()
 		m_offsety = stream.ReadFloat()
-		
 		m_uv[0] = stream.ReadFloat()
 		m_uv[1] = stream.ReadFloat()
 		m_uv[2] = stream.ReadFloat()
 		m_uv[3] = stream.ReadFloat()
-		
 		Return Self
-		
 	End Method
 	
 	Rem
@@ -455,7 +440,6 @@ Type TProtogFontChar
 		stream.WriteFloat(m_width)
 		stream.WriteFloat(m_height)
 		stream.WriteFloat(m_offsety)
-		
 		stream.WriteFloat(m_uv[0])
 		stream.WriteFloat(m_uv[1])
 		stream.WriteFloat(m_uv[2])
@@ -471,14 +455,10 @@ Type TProtogFontChar
 		m_char = TIntVariable(iden.GetValueAtIndex(0)).Get()
 		m_width = TFloatVariable(iden.GetValueAtIndex(1)).Get()
 		m_height = TFloatVariable(iden.GetValueAtIndex(2)).Get()
-		
 		posx = TFloatVariable(iden.GetValueAtIndex(3)).Get()
 		posy = TFloatVariable(iden.GetValueAtIndex(4)).Get()
-		
 		m_offsety = TFloatVariable(iden.GetValueAtIndex(5)).Get()
-		
 		Return Self
-		
 	End Method
 	
 	Rem
@@ -496,7 +476,6 @@ Type TProtogFontChar
 		iden.AddValue(New TFloatVariable.Create(Null, posy))
 		iden.AddValue(New TFloatVariable.Create(Null, m_offsety))
 		Return iden
-		
 	End Method
 	
 	Rem
@@ -507,7 +486,7 @@ Type TProtogFontChar
 		Return m_template.ValidateIdentifier(iden)
 	End Function
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 	Rem
 		bbdoc: Set the UV array by the given parameters.
@@ -521,14 +500,4 @@ Type TProtogFontChar
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
 

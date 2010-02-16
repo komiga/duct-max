@@ -28,41 +28,22 @@ bbdoc: Localization
 End Rem
 Module duct.locale
 
-ModuleInfo "Version: 0.2"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.3"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.2"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
-
-' Used modules
 Import duct.etc
 Import duct.objectmap
 Import duct.scriptparser
 Import duct.variables
 
-' Included source code
 Include "inc/types/language.bmx"
 Include "inc/types/localization.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

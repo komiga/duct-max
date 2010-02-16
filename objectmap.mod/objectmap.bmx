@@ -32,10 +32,12 @@ bbdoc: Objectmap module
 End Rem
 Module duct.objectmap
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Fixed Type formatting"
 ModuleInfo "History: Version 0.07"
@@ -49,8 +51,6 @@ ModuleInfo "History: Corrected usage of syntax (in Returns, Cases, News and Sele
 ModuleInfo "History: Version 0.04"
 ModuleInfo "History: Initial release"
 
-
-' Used modules
 Import brl.map
 
 Rem
@@ -86,7 +86,6 @@ Type TObjectMap
 			m_count:-1
 			Return True
 		End If
-		
 		Return False
 	End Method
 	
@@ -145,31 +144,4 @@ Type TObjectMap
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -116,19 +116,3 @@ Type dui_ProgressBar Extends dui_Gadget
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

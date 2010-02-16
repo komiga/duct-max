@@ -303,12 +303,3 @@ Type TMyMapHandler Extends TTileMapHandler
 	
 End Type
 
-
-
-
-
-
-
-
-
-

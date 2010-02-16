@@ -6,28 +6,21 @@ SuperStrict
 
 Framework brl.blitz
 Import brl.standardio
-
 Import duct.scriptparser
 
 Try
 	Local root:TSNode
-	
 	root = TSNode.LoadScriptFromObject("test.script")
-	
 	If root <> Null
 		Local output:String, outstream:TStream
-		
 		output = NodeTypeOutput(root)
 		Print(output)
-		
 		outstream = WriteStream("compare.script")
 			root.WriteToStream(outstream)
 		outstream.Close()
-		
 	Else
 		Print("Root node is Null")
 	End If
-	
 Catch e:TSNodeException
 	Print("Caught exception: " + e.ToString())
 End Try
@@ -50,7 +43,6 @@ Function NodeTypeOutput:String(node:TSNode, prepend:String = "")
 			bld:+prepend + iden.ReportType() + " "
 			
 			For variable = EachIn iden.GetValues()
-				
 				' Use magic.
 				bld:+variable.ReportType() + " "
 				
@@ -62,30 +54,10 @@ Function NodeTypeOutput:String(node:TSNode, prepend:String = "")
 				'Else If TFloatVariable(variable)
 				'	bld:+"float "
 				'End If
-				
 			Next
-			
 			bld:+"~n"
-			
 		End If
-		
 	Next
-	
 	Return bld
-	
 End Function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

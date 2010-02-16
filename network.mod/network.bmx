@@ -23,7 +23,6 @@ Rem
 	TODO:
 		Cleanup the type structure.
 		
-	
 End Rem
 
 SuperStrict
@@ -33,50 +32,25 @@ bbdoc: Networking module
 End Rem
 Module duct.network
 
-ModuleInfo "Version: 0.2"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.3"
+ModuleInfo "History: Corrected field names"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.2"
 ModuleInfo "History: Changed license headers"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
-
-' Used modules
 Import brl.linkedlist
 Import brl.socket
 
 Import duct.etc
 Import duct.objectmap
 
-
-' Included code
 Include "inc/types/client.bmx"
 Include "inc/types/server.bmx"
 Include "inc/types/message.bmx"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

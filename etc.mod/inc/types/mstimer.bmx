@@ -26,8 +26,7 @@ Rem
 End Rem
 
 Rem
-	bbdoc: The MSTimer type.
-	about: Millisecond timer.
+	bbdoc: Simple millisecond timer.
 End Rem
 Type TMSTimer
 	
@@ -37,127 +36,78 @@ Type TMSTimer
 	' Time in milliseconds, 1000ms = 1 second, 500ms = 0.5 seconds etc..
 	Field m_length:Int
 	
-		Rem
-			bbdoc: Create a new MSTimer.
-			returns: The new MSTimer (itself).
-		End Rem
-		Method Create:TMSTimer(length:Int)
-			
+	Rem
+		bbdoc: Create a new MSTimer.
+		returns: The new MSTimer (itself).
+	End Rem
+	Method Create:TMSTimer(length:Int)
+		Reset()
+		SetLength(length)
+		Return Self
+	End Method
+	
+	Rem
+		bbdoc: Update the MSTimer.
+		returns: True if the MSTimer ticked, or False if it did not.
+		about: This will call Reset if the MSTimer ticked.
+	End Rem
+	Method Update:Int()
+		If MilliSecs() > m_ms
 			Reset()
-			
-			m_length = length
-			
-			Return Self
-			
-		End Method
-		
-		Rem
-			bbdoc: Update the MSTimer.
-			returns: True if the MSTimer ticked, or False if it did not.
-			about: This will call Reset if the MSTimer ticked.
-		End Rem
-		Method Update:Int()
-			
-			If MilliSecs() > m_ms
-				
-				Reset()
-				Return True
-				
-			End If
-			
-			Return False
-			
-		End Method
-		
-		Rem
-			bbdoc: Reset the MSTimer.
-			returns: Nothing.
-			about: @addms will be added to the new point in time.
-		End Rem
-		Method Reset(msadd:Int = 0)
-			
-			m_ms = MilliSecs() + m_length
-			m_ms:+msadd
-			
-		End Method
-		
-		Rem
-			bbdoc: Set the length of the MSTimer.
-			returns: Nothing.
-		End Rem
-		Method SetLength(length:Int)
-			
-			m_length = length
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the length of the MSTimer.
-			returns: The length of the MSTimer.
-		End Rem
-		Method GetLength:Int()
-			
-			Return m_length
-			
-		End Method
-		
-		Rem
-			bbdoc: Set the current time (milliseconds) of the MSTimer.
-			returns: Nothing.
-		End Rem
-		Method SetMS(ms:Int)
-			
-			m_ms = ms
-			
-		End Method
-		
-		Rem
-			bbdoc: Add milliseconds to the counter.
-			returns: Nothing.
-		End Rem
-		Method AddMS(msadd:Int)
-			
-			m_ms:+msadd
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the current time (milliseconds) of the MSTimer.
-			returns: The current time (milliseconds) of the MSTimer.
-		End Rem
-		Method GetMS:Int()
-			
-			Return m_ms
-			
-		End Method
-		
+			Return True
+		End If
+		Return False
+	End Method
+	
+	Rem
+		bbdoc: Reset the MSTimer.
+		returns: Nothing.
+		about: @addms will be added to the new point in time.
+	End Rem
+	Method Reset(msadd:Int = 0)
+		m_ms = MilliSecs() + m_length
+		m_ms:+msadd
+	End Method
+	
+	Rem
+		bbdoc: Set the length of the MSTimer.
+		returns: Nothing.
+	End Rem
+	Method SetLength(length:Int)
+		m_length = length
+	End Method
+	
+	Rem
+		bbdoc: Get the length of the MSTimer.
+		returns: The length of the MSTimer.
+	End Rem
+	Method GetLength:Int()
+		Return m_length
+	End Method
+	
+	Rem
+		bbdoc: Set the current time (milliseconds) of the MSTimer.
+		returns: Nothing.
+	End Rem
+	Method SetMS(ms:Int)
+		m_ms = ms
+	End Method
+	
+	Rem
+		bbdoc: Add milliseconds to the counter.
+		returns: Nothing.
+	End Rem
+	Method AddMS(msadd:Int)
+		m_ms:+msadd
+	End Method
+	
+	Rem
+		bbdoc: Get the current time (milliseconds) of the MSTimer.
+		returns: The current time (milliseconds) of the MSTimer.
+	End Rem
+	Method GetMS:Int()
+		Return m_ms
+	End Method
+	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

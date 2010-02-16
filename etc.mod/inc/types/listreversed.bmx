@@ -28,20 +28,15 @@ End Rem
 Type TListReversedEnum Extends TListEnum
 	
 	Method HasNext:Int()
-		
 		Return _link._value <> _link
-		
 	End Method
 	
 	Method NextObject:Object()
 		Local value:Object = _link._value
 		
 		Assert value <> _link
-		
 		_link = _link._pred
-		
 		Return value
-		
 	End Method
 	
 End Type
@@ -54,42 +49,29 @@ Rem
 End Rem
 Type TListReversed Extends TList
 	
-	Field _orighead:TLink
+	Field m_orighead:TLink
 	
-		Method Delete()
-			
-			_head = _orighead
-			
-		End Method
+	Method Delete()
+		_head = m_orighead
+	End Method
+	
+	Rem
+		bbdoc: Create a new ListReversed..
+		returns: The new ListReversed (itself).
+		about: NOTE: This creates a wrapper around the given list - it does <b>not</b> create a copy of it.
+	End Rem
+	Method Create:TListReversed(list:TList)
+		m_orighead = _head
+		_head = list._head._pred
+		Return Self
+	End Method
+	
+	Method ObjectEnumerator:TListEnum()
+		Local enum:TListReversedEnum = New TListReversedEnum
 		
-		Rem
-			bbdoc: Create a new ListReversed..
-			returns: The new ListReversed (itself).
-			about: NOTE: This creates a wrapper around the given list - it does <b>not</b> create a copy of it.
-		End Rem
-		Method Create:TListReversed(list:TList)
-			
-			_orighead = _head
-			_head = list._head._pred
-			
-			Return Self
-			
-		End Method
-		
-		Method ObjectEnumerator:TListEnum()
-			Local enum:TListReversedEnum = New TListReversedEnum
-			
-			enum._link = _head
-			
-			Return enum
-			
-		End Method
-		
+		enum._link = _head
+		Return enum
+	End Method
+	
 End Type
-
-
-
-
-
-
 

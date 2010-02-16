@@ -32,10 +32,12 @@ bbdoc: Object writer/reader module
 End Rem
 Module duct.objectio
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: Cleanup"
 ModuleInfo "History: Version 0.2"
@@ -44,10 +46,8 @@ ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Added TPixmapWriter and TImageWriter"
 ModuleInfo "History: Initial release"
 
-' Used modules
 Import brl.stream
 Import brl.pixmap
-
 
 Rem
 	bbdoc: The pixmap reader/writer type.
@@ -103,13 +103,4 @@ Type TPixmapIO
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
 

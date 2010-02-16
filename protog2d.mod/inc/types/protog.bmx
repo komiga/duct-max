@@ -834,20 +834,3 @@ End Function
 TProtog2DDriver.InitGlobal()
 SetGraphicsDriver(TProtog2DDriver.GetInstance())
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

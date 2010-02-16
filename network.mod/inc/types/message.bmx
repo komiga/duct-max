@@ -21,170 +21,114 @@ Rem
 	THE SOFTWARE.
 	-----------------------------------------------------------------------------
 	
-	message.bmx (Contains: TMessage, TMessageMap, )
+	message.bmx (Contains: TNetMessage, TNetMessageMap, )
 	
 End Rem
 
 Rem
-	bbdoc: The Message type.
+	bbdoc: The NetMessage type.
 End Rem
-Type TMessage
+Type TNetMessage
 	
 	Const MSGID_BASE:Byte = 1
 	'Const MSGID_FREESTART:Byte = 10
 	
-	Field id:Byte
+	Field m_id:Int
 	
-		Method _init(_id:Byte)
-			
-			SetID(_id)
-			
-		End Method
-		
-		Rem
-			bbdoc: Set the id for the Message.
-			returns: Nothing.
-		End Rem
-		Method SetID(_id:Byte)
-			
-			id = _id
-			
-		End Method
-		
-		Rem
-			bbdoc: Get the message id for the Message.
-			returns: The message id for this Message.
-		End Rem
-		Method GetID:Byte()
-			
-			Return id
-			
-		End Method
-		
-		Rem
-			bbdoc: Write the id for the Message to a Stream.
-			returns: Nothing.
-		End Rem
-		Method WriteID(stream:TStream)
-			
-			stream.WriteByte(id)
-			
-		End Method
-		
-		Rem
-			bbdoc: Read the id for the Message from a Stream.
-			returns: Expected to be the id for this Message (as long as the data is intact and everything is ordered the same).
-		End Rem
-		Method ReadID:Byte(stream:TStream)
-			
-			Return stream.ReadByte()
-			
-		End Method
-		
-		Rem
-			bbdoc: Serialize the Message to a Stream.
-			returns: Nothing.
-			about: This method should be implemented in extending types.
-		End Rem
-		Method Serialize(stream:TStream)
-			
-			WriteID(stream)
-			
-		End Method
-		
-		Rem
-			bbdoc: Deserialize the Message from a Stream.
-			returns: Nothing.
-			about: This method should be implemented in extending types.
-		End Rem
-		Method DeSerialize(stream:TStream, _readid:Int = True)
-			
-			If _readid = True
-				
-				ReadID(stream)
-				
-			End If
-			
-		End Method
-		
+	Method _init(id:Int)
+		SetID(id)
+	End Method
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Set the id for the Message.
+		returns: Nothing.
+	End Rem
+	Method SetID(id:Int)
+		m_id = id
+	End Method
+	
+	Rem
+		bbdoc: Get the message id for the Message.
+		returns: The message id for this Message.
+	End Rem
+	Method GetID:Int()
+		Return m_id
+	End Method
+	
+'#end region (Field accessors)
+	
+'#region Data handling
+	
+	Rem
+		bbdoc: Write the id for the Message to a Stream.
+		returns: Nothing.
+	End Rem
+	Method WriteID(stream:TStream)
+		stream.WriteByte(Byte(m_id))
+	End Method
+	
+	Rem
+		bbdoc: Read the id for the Message from a Stream.
+		returns: Expected to be the id for this Message (as long as the data is intact and everything is ordered the same).
+	End Rem
+	Method ReadID:Int(stream:TStream)
+		Return Int(stream.ReadByte())
+	End Method
+	
+	Rem
+		bbdoc: Serialize the Message to a Stream.
+		returns: Nothing.
+		about: This method should be implemented in extending types.
+	End Rem
+	Method Serialize(stream:TStream)
+		WriteID(stream)
+	End Method
+	
+	Rem
+		bbdoc: Deserialize the Message from a Stream.
+		returns: Nothing.
+		about: This method should be implemented in extending types.
+	End Rem
+	Method DeSerialize(stream:TStream, readid:Int = True)
+		If readid = True
+			m_id = ReadID(stream)
+		End If
+	End Method
+	
+'#end region (Data handling)
+	
 End Type
-
 
 Rem
-	bbdoc: The MessageMap type.
+	bbdoc: The NetMessageMap type.
 End Rem
-Type TMessageMap Extends TObjectMap
-		
-		Rem
-			bbdoc: Create a new MessageMap.
-			returns: The new MessageMap (itself).
-		End Rem
-		Method Create:TMessageMap()
-			
-			Return Self
-			
-		End Method
-		
-		Rem
-			bbdoc: Insert a Message into the map.
-			returns: True if the Message was inserted, or False if it was unable to be inserted.
-		End Rem
-		Method InsertMessage(_msg:TMessage)
-			
-			_Insert(String(_msg.id), _msg)
-			
-		End Method
-		
-		Rem
-			bbdoc: Get a Message from the map by the ID given.
-			returns: The Message with the ID given, or Null if the map does not contain a Message for the given ID.
-		End Rem
-		Method GetMessageByID:TMessage(_msg_id:Byte)
-			
-			Return TMessage(_ValueByKey(String(_msg_id)))
-			
-		End Method
-		
+Type TNetMessageMap Extends TObjectMap
+	
+	Rem
+		bbdoc: Create a new NetMessageMap.
+		returns: The new NetMessageMap (itself).
+	End Rem
+	Method Create:TNetMessageMap()
+		Return Self
+	End Method
+	
+	Rem
+		bbdoc: Insert a Message into the map.
+		returns: True if the Message was inserted, or False if it was unable to be inserted.
+	End Rem
+	Method InsertMessage(msg:TNetMessage)
+		_Insert(String(msg.id), msg)
+	End Method
+	
+	Rem
+		bbdoc: Get a Message from the map by the ID given.
+		returns: The Message with the ID given, or Null if the map does not contain a Message for the given ID.
+	End Rem
+	Method GetMessageByID:TNetMessage(msgid:Int)
+		Return TNetMessage(_ValueByKey(String(msgid)))
+	End Method
+	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

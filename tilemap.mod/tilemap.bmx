@@ -28,10 +28,12 @@ bbdoc: Tile map module
 End Rem
 Module duct.tilemap
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: Ported to Protog2D"
 ModuleInfo "History: Removed references to TTileMapCache (for now)"
@@ -66,29 +68,17 @@ ModuleInfo "History: Version 0.061"
 ModuleInfo "History: Cleaned up documentation and code"
 ModuleInfo "History: Fixed tile rendering flaw"
 
-' Used modules
 Import duct.objectmap
 Import duct.vector
 Import duct.etc
 Import duct.protog2d
-
 Import brl.pixmap
 Import brl.stream
 Import brl.filesystem
 
-
-' Included code
 Include "inc/types/drawnobject.bmx"
 Include "inc/types/map.bmx"
 Include "inc/types/mapres.bmx"
 Include "inc/types/mapenv.bmx"
 Include "inc/types/mappos.bmx"
-
-
-
-
-
-
-
-
 

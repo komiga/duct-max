@@ -147,17 +147,3 @@ Type dui_Canvas Extends dui_Gadget
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-

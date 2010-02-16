@@ -53,13 +53,10 @@ Type dui_SearchBox Extends dui_Gadget
 			
 			BindDrawingState()
 			m_renderer.RenderCells(relx, rely, Self)
-			
 			BindTextDrawingState()
 			dui_FontManager.RenderString(m_text, m_font, relx + 5, rely + 3)
-			
 			BindDrawingState()
 			m_renderer.RenderSectionToSectionSize("glass", relx + m_width - 16, rely + ((m_height - 2) / 2) - 4)
-			
 			Super.Render(x, y)
 		End If
 	End Method
@@ -241,18 +238,4 @@ Type dui_SearchBox Extends dui_Gadget
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

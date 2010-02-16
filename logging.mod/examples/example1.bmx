@@ -6,7 +6,6 @@ Import brl.standardio
 
 Import duct.logging
 
-
 Local logger:TLogger = New TLogger.Create("%I:%M:%S%p",, "log.txt", True, True, False)
 
 Print("Log opened: " + logger.OpenLogStream(True))

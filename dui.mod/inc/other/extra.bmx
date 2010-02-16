@@ -58,20 +58,6 @@ Function dui_IsInViewport:Int(x:Int, y:Int, w:Int, h:Int)
 	If (y >= pos.m_y) And (y <= (pos.m_y + size.m_y))
 		yc = True
 	End If
-	
 	Return (yc And xc)
 End Function
-
-
-
-
-
-
-
-
-
-
-
-
-
 

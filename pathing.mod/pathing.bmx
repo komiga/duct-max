@@ -32,10 +32,12 @@ bbdoc: Abstract path keeping/provider module
 End Rem
 Module duct.pathing
 
-ModuleInfo "Version: 0.13"
+ModuleInfo "Version: 0.14"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.14"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.13"
 ModuleInfo "History: Added note about the new paths via nodes option in TPathProvider.Create"
 ModuleInfo "History: Changed: TPathProvider.LoadFromNode returns itself"
@@ -46,12 +48,9 @@ ModuleInfo "History: Moved all code to the main source"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
-' Used modules
 Import brl.stream
 Import brl.filesystem
-
 Import duct.scriptparser
-
 
 Rem
 	bbdoc: The PathProvider type.
@@ -157,9 +156,8 @@ Type TPathProvider Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method CreatePaths()
-		Local path:TPath, location:String
-		
-		For path = EachIn ValueEnumerator()
+		Local location:String
+		For Local path:TPath = EachIn ValueEnumerator()
 			location = ExtractDir(path.GetLocation())
 			If FileType(location) = FILETYPE_NONE
 				CreateDir(location)
@@ -167,7 +165,7 @@ Type TPathProvider Extends TObjectMap
 		Next
 	End Method
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Serialize the PathProvider to a stream.
@@ -242,7 +240,7 @@ Type TPathProvider Extends TObjectMap
 		Return node
 	End Method
 	
-'#end region
+'#end region (Data handling)
 	
 End Type
 
@@ -306,9 +304,9 @@ Type TPath
 		Return m_location
 	End Method
 	
-'#end region
+'#end region (Field accessors)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Serialize the Path to a stream.
@@ -351,7 +349,7 @@ Type TPath
 		Return Self
 	End Method
 	
-'#end region
+'#end region (Data handling)
 	
 	Rem
 		bbdoc: Validate an identifier against the template for the Path.
@@ -362,48 +360,4 @@ Type TPath
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -28,12 +28,13 @@ bbdoc: The duct GUI module
 End Rem
 Module duct.dui
 
-ModuleInfo "Version: 0.45"
+ModuleInfo "Version: 0.46"
 ModuleInfo "Copyright: Liam McGuigan (FryGUI creator)"
 ModuleInfo "Copyright: Tim Howard (dui is a heavily modified FryGUI)"
 ModuleInfo "License: MIT"
 
-ModuleInfo "History: Version 0.45"
+ModuleInfo "History: Version 0.46"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Renamed all 'dui_T*' types to 'dui_*'"
 ModuleInfo "History: Added single-surface themes and theme rendering interface"
 ModuleInfo "History: Ported to use Protog2D"
@@ -624,23 +625,7 @@ Type TDUIMain
 		Return data
 	End Function
 	
-'#end region (Key hook & miscellaneous)
+'#end region (Key hook)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

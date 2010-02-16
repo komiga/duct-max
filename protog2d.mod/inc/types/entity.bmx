@@ -139,7 +139,7 @@ Type TProtogEntity Abstract
 	
 '#end region (Entity function)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Serialize the entity to the given stream.
@@ -159,7 +159,7 @@ Type TProtogEntity Abstract
 	End Rem
 	Method Copy:TProtogEntity() Abstract
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 End Type
 
@@ -183,12 +183,10 @@ Type TProtogTextEntity Extends TProtogEntity
 		about: The default value for @font, @pos and @color will be used if one is Null.
 	End Rem
 	Method Create:TProtogTextEntity(text:String, font:TProtogFont = Null, pos:TVec2 = Null, color:TProtogColor = Null)
-		m_text = text
-		
-		If font = Null Then m_font = GetDefaultFont() Else m_font = font
-		If pos = Null Then m_pos = GetDefaultPos().Copy() Else m_pos = pos
-		If color = Null Then m_color = GetDefaultColor().Copy() Else m_color = color
-		
+		SetText(text)
+		If font = Null Then m_font = GetDefaultFont() Else SetFont(font)
+		If pos = Null Then m_pos = GetDefaultPos().Copy() Else SetPosition(pos)
+		If color = Null Then m_color = GetDefaultColor().Copy() Else SetColor(color)
 		Return Self
 	End Method
 	
@@ -350,7 +348,7 @@ Type TProtogTextEntity Extends TProtogEntity
 	
 '#end region (Entity function)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Serialize the entity to the given stream.
@@ -391,7 +389,7 @@ Type TProtogTextEntity Extends TProtogEntity
 		Return clone
 	End Method
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 End Type
 
@@ -416,9 +414,8 @@ Type TProtogSpriteEntity Extends TProtogEntity
 	End Rem
 	Method Create:TProtogSpriteEntity(texture:TProtogTexture, pos:TVec2 = Null, color:TProtogColor = Null)
 		SetTexture(texture, True)
-		If pos = Null Then m_pos = GetDefaultPos().Copy() Else m_pos = pos
-		If color = Null Then m_color = GetDefaultColor().Copy() Else m_color = color
-		
+		If pos = Null Then m_pos = GetDefaultPos().Copy() Else SetPosition(pos)
+		If color = Null Then m_color = GetDefaultColor().Copy() Else SetColor(color)
 		Return Self
 	End Method
 	
@@ -507,7 +504,7 @@ Type TProtogSpriteEntity Extends TProtogEntity
 	
 '#end region (Entity function)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Serialize the entity to the given stream.
@@ -535,23 +532,7 @@ Type TProtogSpriteEntity Extends TProtogEntity
 		Return clone
 	End Method
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

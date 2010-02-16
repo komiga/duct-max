@@ -349,7 +349,7 @@ Type TVec2
 	
 '#end region (Mathemagics)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Get a copy of this vector.
@@ -378,19 +378,7 @@ Type TVec2
 		Return Self
 	End Method
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
 

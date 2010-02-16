@@ -29,17 +29,17 @@ about: This module uses the Modified Julian Date (MJD) format.
 End Rem
 Module duct.duidate
 
-ModuleInfo "Version: 1.01"
+ModuleInfo "Version: 1.1"
 ModuleInfo "Copyright: Liam McGuigan (FryGUI creator)"
 ModuleInfo "Copyright: Tim Howard (dui is a heavily modified FryGUI)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 1.1"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 1.01"
 ModuleInfo "History: Cleanup"
 ModuleInfo "History: Version 1.0"
-ModuleInfo "History: "
 
-' Used modules
 Import duct.duimisc
 
 Private
@@ -58,10 +58,10 @@ Rem
 End Rem
 Function dui_WeekdayAsString:String(day:Int, _month:Int, year:Int, size:Int = 0)
 	Local str:String = __weekdays[dui_WeekdayAsInt(day, _month, year)]
+	
 	If size = 0
 		size = str.Length
 	End If
-	
 	Return str[..size]
 End Function
 
@@ -85,9 +85,7 @@ Function dui_WeekdayAsInt:Int(day:Int, _month:Int, year:Int)
 	
 	' Calculate the day of the week
 	h = (day + (((_month + 1) * 26) / 10) + k + (k / 4) + (j / 4) + (5 * j) + 6) Mod 7
-	
 	Return h
-	
 End Function
 
 Rem
@@ -114,7 +112,6 @@ Function dui_JulianWeekdayAsString:String(julian:Int, size:Int = 0)
 	If size = 0
 		size = str.length
 	End If
-	
 	Return str[..size]
 End Function
 
@@ -139,7 +136,6 @@ Function dui_JulianDayAsInt:Int(day:Int, _month:Int, year:Int)
 	m = (_month + (12 * a)) - 3
 	
 	j = day + (((153 * m) + 2) / 5) + (365 * y) + (y / 4) - (y / 100) + (y / 400) - 2447066
-	
 	Return j
 End Function
 
@@ -155,7 +151,6 @@ Function dui_JulianDayFromString:Int(date:String)
 	d = Int(dmy[0])
 	m = Int(dmy[1])
 	y = Int(dmy[2])
-	
 	Return(dui_JulianDayAsInt(d, m, y))
 End Function
 
@@ -219,7 +214,6 @@ Function dui_MonthDays:Int(_month:Int, year:Int)
 	
 	' Get new day from julian date
 	dui_JulianDate(date, day, _month, year)
-	
 	Return day
 End Function
 
@@ -246,10 +240,8 @@ Function dui_Calendar:Int[][] (_month:Int, year:Int, extend:Int = False)
 	For index = 0 To days - 1
 		wkday = (_weekday + index) Mod 7
 		week = (_weekday + index) / 7
-		
 		cal[wkday][week] = index + 1
 	Next
-	
 	Return cal
 End Function
 
@@ -286,7 +278,6 @@ Function dui_WeekdayOccurences:Int[] (start:Int, days:Int, _weekday:Int)
 			results[index] = start + _first + (index * 7)
 		Next
 	End If
-	
 	Return results
 End Function
 
@@ -330,7 +321,6 @@ Function dui_FormatDate:String(day:Int, _month:Int, year:Int, format:Int = dui_S
 		Default
 			result = Null
 	End Select
-	
 	Return result
 End Function
 
@@ -377,7 +367,6 @@ Function dui_ClockTimeAsString:String(mins:Int, lead:Int = False, daily:Int = Tr
 	If hours < 10 And lead = True
 		h = "0" + h
 	End If
-	
 	Return h + ":" + m
 End Function
 
@@ -404,7 +393,6 @@ Function dui_ClockTimeMinutesFromString:Int(clock:String)
 	
 	hours = Int(clock[..colon])
 	minutes = Int(clock[colon + 1..])
-	
 	Return dui_ClockTimeMinutes(hours, minutes)
 End Function
 
@@ -484,7 +472,6 @@ Function dui_IncMonthYear(_month:Int Var, year:Int Var, inc:Int = 1)
 	If _month + (inc Mod 12) > 12
 		year:+1
 	End If
-	
 	_month = dui_IncMonths(_month, inc)
 End Function
 
@@ -522,19 +509,6 @@ Function dui_JulianAge:Int(date:Int, dob:Int)
 	' Not yet reached a whole year
 	If bm > dm Then age:-1
 	If bm = dm And bd > dd Then age:-1
-	
 	Return age
 End Function
 
-
-
-
-
-
-
-
-
-
-
-	
-	

@@ -28,11 +28,13 @@ bbdoc: RC4 encryption module
 End Rem
 Module duct.rc4
 
-ModuleInfo "Version: 1.02"
+ModuleInfo "Version: 1.1"
 ModuleInfo "Credit: Noel Cower/RepeatUntil on the forums, see: http://www.blitzbasic.com/codearcs/codearcs.php?code=1711"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 1.1"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 1.02"
 ModuleInfo "History: General code cleanup"
 ModuleInfo "History: Version 1.01"
@@ -41,9 +43,7 @@ ModuleInfo "History: Cleaned functions"
 ModuleInfo "History: Version 1.00"
 ModuleInfo "History: Initial release"
 
-' Used modules
-Import BRL.Math
-
+Import brl.math
 
 Rem
 	bbdoc: Encrypt/decrypt a string.
@@ -59,31 +59,24 @@ Function RC4:String(inp:String, key:String)
 	j = 0
 	For i = 0 To 255
 		s[i] = i
-		
 		If j > (key.Length - 1)
 			j = 0
 		End If
-		
 		s[256 + i] = key[j] & $ff
 		j:+1
-		
 	Next
     
     j = 0
     For i = 0 To 255
-		
         j = (j + s[i] + s[256 + i]) & $ff
         t = s[i]
-		
         s[i] = s[j]
         s[j] = t
-		
     Next
     
     i = 0
     j = 0
     For x = 0 To inp.Length - 1
-		
         i = (i + 1) & $ff
         j = (j + s[i]) & $ff
         t = s[i]
@@ -91,11 +84,8 @@ Function RC4:String(inp:String, key:String)
         s[j] = t
         t = (s[i] + s[j]) & $ff
         outbuf[x] = (inp[x] ~ S[t])
-		
     Next
-    
     Return String.FromShorts(outbuf, inp.Length)
-	
 End Function
 
 Rem
@@ -110,31 +100,24 @@ Function RC4_Bytes(inp:Byte Ptr, count:Int, key:String)
 	j = 0
 	For i = 0 To 255
 		s[i] = i
-		
 		If j > (key.Length - 1)
 			j = 0
 		End If
-		
 		s[256 + i] = key[j] & $ff
 		j:+1
-		
 	Next
 	
 	j = 0
 	For i = 0 To 255
-		
 		j = (j + s[i] + s[256 + i]) & $ff
 		t = s[i]
-		
 		s[i] = s[j]
 		s[j] = t
-		
 	Next
 	
 	i = 0
 	j = 0
 	For x = 0 To count - 1
-		
 		i = (i + 1) & $ff
 		j = (j + S[i]) & $ff
 		t = s[i]
@@ -142,18 +125,6 @@ Function RC4_Bytes(inp:Byte Ptr, count:Int, key:String)
 		s[j] = t
 		t = (s[i] + s[j]) & $ff
 		inp[x] = (inp[x] ~ s[t])
-		
 	Next
- 
 End Function
-
-
-
-
-
-
-
-
-
-
 

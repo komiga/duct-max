@@ -25,7 +25,6 @@ Rem
 	
 	TODO:
 		
-	
 End Rem
 
 Rem
@@ -127,7 +126,7 @@ Type TProtogColor
 	
 '#end region (OpenGL)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize a color from the given stream.
@@ -197,20 +196,7 @@ Type TProtogColor
 		Return clone
 	End Method
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
 

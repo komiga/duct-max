@@ -130,20 +130,3 @@ Type dui_Screen
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

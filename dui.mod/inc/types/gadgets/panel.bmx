@@ -25,7 +25,6 @@ Type dui_Panel Extends dui_Gadget
 		If dui_Screen(parent)
 			dui_Screen(parent).AddGadget(Self)
 		End If
-		
 		_Init(name, x, y, w, h, dui_Gadget(parent), False)
 		SetMovable(movable)
 		Return Self
@@ -184,19 +183,4 @@ Type dui_Panel Extends dui_Gadget
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

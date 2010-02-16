@@ -33,66 +33,27 @@ Type TFPSCounter
 	
 	Global g_fps:Int, g_counter:Int
 	Global g_timer:TMSTimer = New TMSTimer.Create(1000)
-		
-		Rem
-			bbdoc: Update the FPS counter.
-			returns: Nothing.
-			about: This should be called right after you flip the backbuffer (brl.max2d.Flip).
-		End Rem
-		Function Update()
-			
-			g_counter:+1
-			
-			If g_timer.Update() = True
-			
-				g_fps = g_counter
-				g_counter = 0
-				
-			End If
-			
-		End Function
-		
-		Rem
-			bbdoc: Get the current FPS.
-			returns: The current FPS (frames per second).
-		End Rem
-		Function GetFPS:Int()
-			
-			Return g_fps
-			
-		End Function
-		
+	
+	Rem
+		bbdoc: Update the FPS counter.
+		returns: Nothing.
+		about: This should be called right after you flip the backbuffer (brl.max2d.Flip).
+	End Rem
+	Function Update()
+		g_counter:+1
+		If g_timer.Update() = True
+			g_fps = g_counter
+			g_counter = 0
+		End If
+	End Function
+	
+	Rem
+		bbdoc: Get the current FPS.
+		returns: The current FPS (frames per second).
+	End Rem
+	Function GetFPS:Int()
+		Return g_fps
+	End Function
+	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

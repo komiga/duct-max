@@ -535,7 +535,6 @@ Type TArchive
 			For Local i:Int = 0 To m_filecount - 1
 				AddFile(New TArchivedFile.DeserializeInfo(stream))
 			Next
-			
 			Return Self
 		Else
 			Throw("(TArchive.Deserialize) Bad arch_header signature!")

@@ -91,7 +91,7 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 			"~tControls: F1 - vsync on/off~n" + ..
 			"~tSpace - Shaders on/off~n" + ..
 			"~tF2-F3 - Toggle individual shaders",  ..
-		, New TVec2.Create(2.0, 2.0), m_color_grey)
+			, New TVec2.Create(2.0, 2.0), m_color_grey)
 		
 		m_infotext.SetupReplacer()
 		m_infotext.SetReplacementByName("vsync", m_graphics.GetVSyncState())
@@ -200,21 +200,4 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

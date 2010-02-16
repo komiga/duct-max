@@ -25,7 +25,6 @@ Rem
 	
 End Rem
 
-
 Rem
 	bbdoc: #TIdentifier template (provides a sort of validation for different formats).
 End Rem
@@ -314,61 +313,61 @@ Type TTemplate
 		Else
 			DebugLog("TTemplate.ValidateIdentifier(); Identifier is Null")
 		End If
-		
 		Return False
 		
 		'Sub-functions
-			Function CheckVariable:Int(tvarray:Int[], variable:TVariable)
-				If variable <> Null
-					Local i:Int
-					
-					For i = 0 To tvarray.Length - 1
-						Select tvarray[i]
-							Case TV_INTEGER
-								If TIntVariable(variable)
-									Return True
-								End If
-							Case TV_STRING
-								If TStringVariable(variable)
-									Return True
-								End If
-							Case TV_FLOAT
-								If TFloatVariable(variable)
-									Return True
-								End If
-							Case TV_EVAL
-								If TEvalVariable(variable)
-									Return True
-								End If
-							Default
-								' Error, return negative index (for determining that there was an error and where it occured)
-								Return - (i + 1)
-						End Select
-					Next
-				End If
-				Return False
-			End Function
-			
-			Function CheckNames:Int(names:String[], tocheck:String, casesens:Int)
-				Local cv1:String, i:Int
+		Function CheckVariable:Int(tvarray:Int[], variable:TVariable)
+			If variable <> Null
+				Local i:Int
 				
-				If names <> Null
-					If casesens = False Then tocheck = tocheck.ToLower()
-					For i = 0 To names.Length - 1
-						cv1 = names[i]
-						If casesens = False Then cv1 = cv1.ToLower()
-						'DebugLog("ValidateIdentifier.CheckNames(): ~q" + cv1 + "~q ~q" + tocheck + "~q")
-						If cv1 = tocheck Then Return True
-					Next
-					Return False
-				Else
-					' Null iden name = will pass for any name
-					Return True
-				End If
-			End Function
+				For i = 0 To tvarray.Length - 1
+					Select tvarray[i]
+						Case TV_INTEGER
+							If TIntVariable(variable)
+								Return True
+							End If
+						Case TV_STRING
+							If TStringVariable(variable)
+								Return True
+							End If
+						Case TV_FLOAT
+							If TFloatVariable(variable)
+								Return True
+							End If
+						Case TV_EVAL
+							If TEvalVariable(variable)
+								Return True
+							End If
+						Default
+							' Error, return negative index (for determining that there was an error and where it occured)
+							Return - (i + 1)
+					End Select
+				Next
+			End If
+			Return False
+		End Function
+		
+		Function CheckNames:Int(names:String[], tocheck:String, casesens:Int)
+			Local cv1:String, i:Int
 			
+			If names <> Null
+				If casesens = False Then tocheck = tocheck.ToLower()
+				For i = 0 To names.Length - 1
+					cv1 = names[i]
+					If casesens = False Then cv1 = cv1.ToLower()
+					'DebugLog("ValidateIdentifier.CheckNames(): ~q" + cv1 + "~q ~q" + tocheck + "~q")
+					If cv1 = tocheck Then Return True
+				Next
+				Return False
+			Else
+				' Null iden name = will pass for any name
+				Return True
+			End If
+		End Function
+		
 	End Method
 	
 '#end region (Data handling)
 	
 End Type
+

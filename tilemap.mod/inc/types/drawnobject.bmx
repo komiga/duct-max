@@ -99,7 +99,7 @@ Type TDrawnObject Abstract
 	
 '#end region (Field accessors)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize the DrawnObject from a stream.
@@ -124,7 +124,7 @@ Type TDrawnObject Abstract
 		'stream.WriteBytes(Self, SizeOf(Self))
 	End Method
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 End Type
 
@@ -339,7 +339,7 @@ Type TDrawnTile Extends TDrawnObject
 	
 '#end region (Drawing and updating)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize the DrawnTile from a stream.
@@ -433,7 +433,7 @@ Type TDrawnStatic Extends TDrawnObject
 	
 '#end region (Drawing and updating)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize the TDrawnStatic from a stream.
@@ -453,7 +453,7 @@ Type TDrawnStatic Extends TDrawnObject
 		Return New TDrawnStatic.DeSerialize(stream)
 	End Function
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 	Method Compare:Int(withObject:Object)
 		Local best:Int = 0, wobj:TDrawnStatic
@@ -580,7 +580,7 @@ Type TDrawnTileChunk
 	
 '#end region (Collections handling)
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
 		bbdoc: Deserialize the DrawnTileChunk from a stream.
@@ -625,7 +625,7 @@ Type TDrawnTileChunk
 		Next
 	End Method
 	
-'#end region (Data handlers)
+'#end region (Data handling)
 	
 '#region Position conversion/checking functions
 	
@@ -680,50 +680,4 @@ Type TDrawnTileChunk
 '#end region (Position conversion/checking functions)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

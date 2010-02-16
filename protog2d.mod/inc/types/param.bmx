@@ -25,7 +25,6 @@ Rem
 	
 	TODO:
 		
-	
 End Rem
 
 Rem
@@ -925,58 +924,4 @@ Type TProtogShaderParamMap Extends TObjectMap
 '#end region (Collections)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

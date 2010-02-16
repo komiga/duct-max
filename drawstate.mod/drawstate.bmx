@@ -32,10 +32,12 @@ bbdoc: Drawstate (Push, Pop stack) module.
 End Rem
 Module duct.drawstate
 
-ModuleInfo "Version: 0.39"
+ModuleInfo "Version: 0.40"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.40"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.39"
 ModuleInfo "History: Another cleanup"
 ModuleInfo "History: Version 0.38"
@@ -48,9 +50,7 @@ ModuleInfo "History: Corrected usage of syntax (in Returns, Cases, News and Sele
 ModuleInfo "History: Version 0.36"
 ModuleInfo "History: Initial release."
 
-' Used modules
 Import brl.max2d
-
 
 Rem
 	bbdoc: Drawstate holder.
@@ -486,11 +486,4 @@ Type TDrawState
 	End Function
 	
 End Type
-
-
-
-
-
-
-
 

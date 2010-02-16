@@ -62,7 +62,6 @@ Type TTileMapDrawCache
 		Local tile:TDrawnTile
 		
 		chunk = GetObjectWithoutLoad(index)
-		
 		If chunk <> Null
 			For tile = EachIn chunk.m_objects
 				UObject = TUObject(list.Items[I])
@@ -72,15 +71,7 @@ Type TTileMapDrawCache
 			Next
 			list.Free()
 		End If
-		
 	End Method
 	
 End Type
-
-
-
-
-
-
-
 

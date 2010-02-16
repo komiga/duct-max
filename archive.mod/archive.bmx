@@ -27,10 +27,12 @@ bbdoc: Archive module
 End Rem
 Module duct.archive
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial version"
 
@@ -42,5 +44,4 @@ Import duct.etc
 Import duct.objectmap
 Import duct.RC4
 
-' Included code
 Include "inc/types/archive.bmx"

@@ -28,11 +28,13 @@ bbdoc: Vector module
 End Rem
 Module duct.vector
 
-ModuleInfo "Version: 0.25"
+ModuleInfo "Version: 0.26"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "Author: Yahfree (most of TVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.26"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.25"
 ModuleInfo "History: Added the CreateFromVec2 method to TVec4"
 ModuleInfo "History: Added DeSerialize and Serialize methods to all vector types"
@@ -67,18 +69,7 @@ End Function
 
 Public
 
-' Included code
 Include "inc/types/vec2.bmx"
 Include "inc/types/vec3.bmx"
 Include "inc/types/vec4.bmx"
-
-
-
-
-
-
-
-
-
-
 

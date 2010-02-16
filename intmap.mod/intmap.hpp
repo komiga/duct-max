@@ -50,12 +50,3 @@ extern "C" {
 
 #endif // _intmap_HPP_
 
-
-
-
-
-
-
-
-
-

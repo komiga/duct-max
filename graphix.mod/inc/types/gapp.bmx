@@ -83,23 +83,3 @@ Type TDGraphicsApp Extends TDApp
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -25,9 +25,7 @@ Rem
 	
 	TODO:
 		
-	
 End Rem
-
 
 Rem
 	bbdoc: Protog2D primitive rendering functions.
@@ -122,13 +120,4 @@ Type TProtogPrimitives
 	End Function
 	
 End Type
-
-
-
-
-
-
-
-
-
 

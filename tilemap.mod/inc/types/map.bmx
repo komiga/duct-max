@@ -1316,18 +1316,3 @@ Type TTileMapHandler Abstract
 	
 End Type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

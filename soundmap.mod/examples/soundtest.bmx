@@ -23,29 +23,21 @@ Local sound_path:String = "int01.ogg", sound:TSound
 Global map_sounds:TSoundMap = New TSoundMap.Create("sound/")
 
 If map_sounds.LoadAndInsertSound(sound_path) = Null ' Null=Failure
-	
 	Print("Failed to load sound (" + map_sounds.GetRootPath() + sound_path + ")")
 	End
-	
 End If
 
 ' This is the path AFTER the root path (which is 'sound/')
 sound = map_sounds.GetSoundByPath(sound_path)
 If sound = Null
-	
 	Print("Failed to grab sound")
 	End
-	
 End If
 
 Local chn_Sound:TChannel = CueSound(sound)
 ResumeChannel(chn_Sound)
-
 Repeat
-	
 	PollSystem()
 	Delay(30)
-	
 Until chn_Sound.Playing() = False
 
-End

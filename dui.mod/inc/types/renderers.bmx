@@ -382,7 +382,6 @@ Type dui_GenericRenderer Extends dui_BaseThemeRenderer
 			x2 = x + width
 			y2 = y + height
 		End If
-		
 		Return section
 	End Method
 	
@@ -999,14 +998,4 @@ Type dui_SliderRenderer Extends dui_BaseThemeRenderer
 '#end region (Collections)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
 

@@ -25,7 +25,6 @@ Rem
 	
 	TODO:
 		
-	
 End Rem
 
 Rem
@@ -63,17 +62,13 @@ Type TProtogMaterial Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method SetInt(name:String, value:Int)
-		Local param:TProtogIntParam
-		
-		param = GetIntParam(name)
-		
+		Local param:TProtogIntParam = GetIntParam(name)
 		If param = Null
 			param = New TProtogIntParam.Create(name, value)
 			_InsertParam(param)
 		Else
 			param.Set(value)
 		End If
-		
 	End Method
 	
 	Rem
@@ -86,14 +81,11 @@ Type TProtogMaterial Extends TObjectMap
 		
 		param = TProtogParam(_ValueByKey(name))
 		iparam = TProtogIntParam(param)
-		
 		If iparam = Null And param <> Null
 			Throw("(duct.protog2d.TProtogMaterial.GetIntParam) Parameter of name '" + name + "' is not a TProtogIntParam!~n" + ..
 				"~t[param.ParamType() = " + param.ParamType() + "]")
 		End If
-		
 		Return iparam
-		
 	End Method
 	
 	Rem
@@ -101,17 +93,13 @@ Type TProtogMaterial Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method SetFloat(name:String, value:Float)
-		Local param:TProtogFloatParam
-		
-		param = GetFloatParam(name)
-		
+		Local param:TProtogFloatParam = GetFloatParam(name)
 		If param = Null
 			param = New TProtogFloatParam.Create(name, value)
 			_InsertParam(param)
 		Else
 			param.Set(value)
 		End If
-		
 	End Method
 	
 	Rem
@@ -120,18 +108,13 @@ Type TProtogMaterial Extends TObjectMap
 		about: NOTE: This will throw an exception if it finds a parameter with the name given that is @not a TProtogFloatParam.
 	End Rem
 	Method GetFloatParam:TProtogFloatParam(name:String)
-		Local param:TProtogParam, fparam:TProtogFloatParam
-		
-		param = TProtogParam(_ValueByKey(name))
-		fparam = TProtogFloatParam(param)
-		
+		Local param:TProtogParam = TProtogParam(_ValueByKey(name))
+		Local fparam:TProtogFloatParam = TProtogFloatParam(param)
 		If fparam = Null And param <> Null
 			Throw("(duct.protog2d.TProtogMaterial.GetFloatParam) Parameter of name '" + name + "' is not a TProtogFloatParam!~n" + ..
 				"~t[param.ParamType() = " + param.ParamType() + "]")
 		End If
-		
 		Return fparam
-		
 	End Method
 	
 	Rem
@@ -139,9 +122,7 @@ Type TProtogMaterial Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method SetColor(name:String, color:TProtogColor)
-		Local param:TProtogColorParam
-		
-		param = GetColorParam(name)
+		Local param:TProtogColorParam = GetColorParam(name)
 		If param = Null
 			param = New TProtogColorParam.Create(name, color)
 			_InsertParam(param)
@@ -156,18 +137,14 @@ Type TProtogMaterial Extends TObjectMap
 		about: NOTE: This will throw an exception if it finds a parameter with the name given that is @not a TProtogColorParam.
 	End Rem
 	Method GetColorParam:TProtogColorParam(name:String)
-		Local param:TProtogParam, vparam:TProtogColorParam
-		
-		param = TProtogParam(_ValueByKey(name))
-		vparam = TProtogColorParam(param)
+		Local param:TProtogParam = TProtogParam(_ValueByKey(name))
+		Local vparam:TProtogColorParam = TProtogColorParam(param)
 		
 		If vparam = Null And param <> Null
 			Throw("(duct.protog2d.TProtogMaterial.GetColorParam) Parameter of name '" + name + "' is not a TProtogColorParam!~n" + ..
 				"~t[param.ParamType() = " + param.ParamType() + "]")
 		End If
-		
 		Return vparam
-		
 	End Method
 	
 	Rem
@@ -175,17 +152,13 @@ Type TProtogMaterial Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method SetVec2(name:String, vector:TVec2)
-		Local param:TProtogVec2Param
-		
-		param = GetVec2Param(name)
-		
+		Local param:TProtogVec2Param = GetVec2Param(name)
 		If param = Null
 			param = New TProtogVec2Param.Create(name, vector)
 			_InsertParam(param)
 		Else
 			param.Set(vector)
 		End If
-		
 	End Method
 	
 	Rem
@@ -194,18 +167,13 @@ Type TProtogMaterial Extends TObjectMap
 		about: NOTE: This will throw an exception if it finds a parameter with the name given that is @not a TProtogVec2Param.
 	End Rem
 	Method GetVec2Param:TProtogVec2Param(name:String)
-		Local param:TProtogParam, vparam:TProtogVec2Param
-		
-		param = TProtogParam(_ValueByKey(name))
-		vparam = TProtogVec2Param(param)
-		
+		Local param:TProtogParam = TProtogParam(_ValueByKey(name))
+		Local vparam:TProtogVec2Param = TProtogVec2Param(param)
 		If vparam = Null And param <> Null
 			Throw("(duct.protog2d.TProtogMaterial.GetVec2Param) Parameter of name '" + name + "' is not a TProtogVec2Param!~n" + ..
 				"~t[param.ParamType() = " + param.ParamType() + "]")
 		End If
-		
 		Return vparam
-		
 	End Method
 	
 	Rem
@@ -213,17 +181,13 @@ Type TProtogMaterial Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method SetVec3(name:String, vector:TVec3)
-		Local param:TProtogVec3Param
-		
-		param = GetVec3Param(name)
-		
+		Local param:TProtogVec3Param = GetVec3Param(name)
 		If param = Null
 			param = New TProtogVec3Param.Create(name, vector)
 			_InsertParam(param)
 		Else
 			param.Set(vector)
 		End If
-		
 	End Method
 	
 	Rem
@@ -232,18 +196,13 @@ Type TProtogMaterial Extends TObjectMap
 		about: NOTE: This will throw an exception if it finds a parameter with the name given that is @not a TProtogVec3Param.
 	End Rem
 	Method GetVec3Param:TProtogVec3Param(name:String)
-		Local param:TProtogParam, vparam:TProtogVec3Param
-		
-		param = TProtogParam(_ValueByKey(name))
-		vparam = TProtogVec3Param(param)
-		
+		Local param:TProtogParam = TProtogParam(_ValueByKey(name))
+		Local vparam:TProtogVec3Param = TProtogVec3Param(param)
 		If vparam = Null And param <> Null
 			Throw("(duct.protog2d.TProtogMaterial.GetVec3Param) Parameter of name '" + name + "' is not a TProtogVec3Param!~n" + ..
 				"~t[param.ParamType() = " + param.ParamType() + "]")
 		End If
-		
 		Return vparam
-		
 	End Method
 	
 	Rem
@@ -251,17 +210,13 @@ Type TProtogMaterial Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method SetVec4(name:String, vector:TVec4)
-		Local param:TProtogVec4Param
-		
-		param = GetVec4Param(name)
-		
+		Local param:TProtogVec4Param = GetVec4Param(name)
 		If param = Null
 			param = New TProtogVec4Param.Create(name, vector)
 			_InsertParam(param)
 		Else
 			param.Set(vector)
 		End If
-		
 	End Method
 	
 	Rem
@@ -270,18 +225,13 @@ Type TProtogMaterial Extends TObjectMap
 		about: NOTE: This will throw an exception if it finds a parameter with the name given that is @not a TProtogVec4Param.
 	End Rem
 	Method GetVec4Param:TProtogVec4Param(name:String)
-		Local param:TProtogParam, vparam:TProtogVec4Param
-		
-		param = TProtogParam(_ValueByKey(name))
-		vparam = TProtogVec4Param(param)
-		
+		Local param:TProtogParam = TProtogParam(_ValueByKey(name))
+		Local vparam:TProtogVec4Param = TProtogVec4Param(param)
 		If vparam = Null And param <> Null
 			Throw("(duct.protog2d.TProtogMaterial.GetVec4Param) Parameter of name '" + name + "' is not a TProtogVec4Param!~n" + ..
 				"~t[param.ParamType() = " + param.ParamType() + "]")
 		End If
-		
 		Return vparam
-		
 	End Method
 	
 	Rem
@@ -289,9 +239,7 @@ Type TProtogMaterial Extends TObjectMap
 		returns: Nothing.
 	End Rem
 	Method SetTexture(name:String, texture:TProtogTexture)
-		Local param:TProtogTextureParam
-		
-		param = GetTextureParam(name)
+		Local param:TProtogTextureParam = GetTextureParam(name)
 		If param = Null
 			param = New TProtogTextureParam.Create(name, texture)
 			_InsertParam(param)
@@ -306,17 +254,13 @@ Type TProtogMaterial Extends TObjectMap
 		about: NOTE: This will throw an exception if it finds a parameter with the name given that is @not a TProtogTextureParam.
 	End Rem
 	Method GetTextureParam:TProtogTextureParam(name:String)
-		Local param:TProtogParam, vparam:TProtogTextureParam
-		
-		param = TProtogParam(_ValueByKey(name))
-		vparam = TProtogTextureParam(param)
-		
+		Local param:TProtogParam = TProtogParam(_ValueByKey(name))
+		Local vparam:TProtogTextureParam = TProtogTextureParam(param)
 		If vparam = Null And param <> Null
 			Throw("(duct.protog2d.TProtogMaterial.GetTextureParam) Parameter of name '" + name + ..
 				"' is not a TProtogTextureParam!~n" + ..
 				"~t[param.ParamType() = " + param.ParamType() + "]")
 		End If
-		
 		Return vparam
 	End Method
 	
@@ -348,60 +292,4 @@ Type TProtogMaterial Extends TObjectMap
 '#end region (Field accessors)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -28,10 +28,12 @@ bbdoc: Protog OpenGL 2D graphics engine
 End Rem
 Module duct.protog2d
 
-ModuleInfo "Version: 0.6"
+ModuleInfo "Version: 0.7"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.7"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.6"
 ModuleInfo "History: Added TProtogTexture.RenderToPosParams"
 ModuleInfo "History: Fixed font string width calculation (was returning 0.0 for strings that did /not/ contain a newline character)"
@@ -83,7 +85,6 @@ Import duct.vector
 Import duct.graphix
 Import duct.scriptparser
 
-' Included code
 Include "inc/types/protog.bmx"
 Include "inc/types/program.bmx"
 Include "inc/types/param.bmx"

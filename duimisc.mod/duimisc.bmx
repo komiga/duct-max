@@ -38,9 +38,7 @@ ModuleInfo "History: Cleanup"
 ModuleInfo "History: Version 1.0"
 ModuleInfo "History: Initial release"
 
-' Used modules
 Import brl.retro
-
 
 Rem
 	bbdoc: Remove an element from an array of integers.
@@ -85,7 +83,6 @@ Function dui_SplitString:String[] (str:String, separator:String)
 		index:+1
 		textarray = textarray[..index + 1]
 	Forever
-	
 	Return textarray
 End Function
 
@@ -136,7 +133,6 @@ Function dui_LineIntersection:Int(xi:Float Var, yi:Float Var, x1:Float, y1:Float
 			Return True
 		End If
 	End If
-	
 	Return False
 End Function
 
@@ -154,23 +150,6 @@ Function dui_SelectString:Int(array:String[], str:String)
 			item = count
 		End If
 	Next
-	
 	Return item
 End Function
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

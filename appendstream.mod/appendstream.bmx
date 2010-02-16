@@ -1,8 +1,6 @@
 
 Rem
-	
 	appendstream.bmx (Contains: TAppendableCStream, TAppendableCStreamFactory, )
-	
 End Rem
 
 SuperStrict
@@ -12,15 +10,16 @@ bbdoc: Appendable streams
 End Rem
 Module duct.appendstream
 
-ModuleInfo "Version: 1.00"
+ModuleInfo "Version: 1.1"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: Public Domain"
 ModuleInfo "Copyright: Bruce A Henderson"
 
-ModuleInfo "History: 1.00"
+ModuleInfo "History: 1.1"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: 1.0"
 ModuleInfo "History: Copied from http://www.blitzbasic.com/Community/posts.php?topic=83691#944177"
 
-' Used Modules
 Import brl.stream
 
 Type TAppendableCStream Extends TCStream
@@ -49,7 +48,6 @@ Type TAppendableCStream Extends TCStream
 		If cstream <> Null
 			Return CreateWithCStream(cstream, _mode)
 		End If
-		
 	End Function
 	
 End Type
@@ -65,9 +63,4 @@ Type TAppendableCStreamFactory Extends TStreamFactory
 End Type
 
 New TAppendableCStreamFactory
-
-
-
-
-
 

@@ -55,7 +55,6 @@ Type TProtogShader
 		Warning: An exception will be thrown if any of the parameters are Null.
 	End Rem
 	Method CreateFromSources:TProtogShader(vert_source:String, frag_source:String, material:TProtogMaterial)
-		
 		If (vert_source <> Null Or frag_source <> Null) = True And material <> Null
 			Local vert_shader:Int, frag_shader:Int
 			
@@ -127,11 +126,9 @@ Type TProtogShader
 					'	...
 					Case GL_SAMPLER_2D, GL_SAMPLER_2D_RECT_ARB
 						Local texparam:TProtogTextureParam
-						
 						texparam = m_material.GetTextureParam(pname)
 						If texparam <> Null
 							Local texture:TGLTexture
-							
 							If texparam.m_texture <> Null
 								texture = texparam.m_texture.m_gltexture
 							End If
@@ -154,10 +151,8 @@ Type TProtogShader
 						Else
 							DebugLog("(TProtogShader.CreateFromSources) Could not get parameter as texture parameter (" + String(sname) + ")")
 						End If
-						
 					Default
 						DebugLog("(TProtogShader.CreateFromSources) Failed to recognize uniform type " + String(utype) + " (not supported)")
-						
 				End Select
 				
 				If param = Null
@@ -167,9 +162,7 @@ Type TProtogShader
 				sparam = New TProtogShaderParam.Create(sname, param, location, utype, size, unit)
 				m_params.Insert(sparam)
 				DebugLog(sparam.ToString())
-				
 			Next
-			
 		Else
 			Throw("(TProtogShader.CreateFromSources) Failed to create shader, either one of the shader sources or the material is Null~n" + ..
 				"~t['@vert_source=Null'~t= " + String(vert_source = Null) + "~n" + ..
@@ -251,7 +244,6 @@ Type TProtogShader
 	End Rem
 	Method Activate()
 		Local sparam:TProtogShaderParam
-		
 		glUseProgram(m_handle)
 		For sparam = EachIn m_params.ValueEnumerator()
 			sparam.Bind()
@@ -338,7 +330,6 @@ End Rem
 Type TShaderAssist
 	
 	Const m_le:String = "~n"
-	
 	Const shader_header:String = "// Shader header" + m_le + ..
 		"//@common" + m_le + ..
 		"#version 120" + m_le + ..
@@ -358,7 +349,6 @@ Type TShaderAssist
 		Local program:Int, status:Int
 		
 		program = glCreateProgram()
-		
 		If vert_shader <> 0
 			glAttachShader(program, vert_shader)
 		End If
@@ -383,15 +373,12 @@ Type TShaderAssist
 		'glBindAttribLocation(program, 6, "p2d_Bones")
 		
 		glLinkProgram(program)
-		
 		glGetProgramiv(program, GL_LINK_STATUS, Varptr(status))
 		If status = False
 			Throw("(TShaderAssist.LinkProgram) Failed to link program~n" + ..
 					"Infolog:~n" + ProgramInfoLog(program))
 		End If
-		
 		Return program
-		
 	End Function
 	
 	Rem
@@ -430,7 +417,6 @@ Type TShaderAssist
 			Throw("(TShaderAssist.CompileShader) Failed to compile shader~n" + ..
 					"Infolog:~n" + ShaderInfoLog(shader))
 		End If
-		
 		Return shader
 	End Function
 	
@@ -464,7 +450,6 @@ Type TShaderAssist
 		Else
 			Throw("(TShaderAssist.SourceFromFile) Failed to open source file: " + url.ToString())
 		End If
-		
 	End Function
 	
 	Rem
@@ -507,7 +492,6 @@ Type TShaderAssist
 		Else
 			Throw("(TShaderAssist.SplitDualShaderSource) Failed to split shader source, @source = Null")
 		End If
-		
 	End Function
 	
 	Rem
@@ -542,12 +526,4 @@ Type _TShaderSource
 	Field m_vert:String
 	Field m_frag:String
 End Type
-
-
-
-
-
-
-
-
 

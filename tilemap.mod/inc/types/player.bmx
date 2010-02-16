@@ -83,46 +83,7 @@ Type TTileMapPlayer Abstract
 		m_pos.SetZ(z)
 	End Method
 	
-'#end region
+'#end region (Field accessors)
 	
 End Type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
