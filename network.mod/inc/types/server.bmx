@@ -41,7 +41,7 @@ Type TServer
 	End Method
 	
 	Method _init(msgmap:TNetMessageMap, socket:TSocket, port:Int, accept_timeout:Int)
-		SeTNetMessageMap(msgmap)
+		SetMessageMap(msgmap)
 		SetSocket(socket)
 		SetPort(port)
 		SetAcceptTimeout(accept_timeout)
@@ -103,7 +103,7 @@ Type TServer
 		bbdoc: Set the MessageMap for the Server.
 		returns: Nothing.
 	End Rem
-	Method SeTNetMessageMap(msgmap:TNetMessageMap)
+	Method SetMessageMap(msgmap:TNetMessageMap)
 		m_msgmap = msgmap
 	End Method
 	
@@ -111,7 +111,7 @@ Type TServer
 		bbdoc: Get the MessageMap for the Server.
 		returns: The MessageMap for this server.
 	End Rem
-	Method GeTNetMessageMap:TNetMessageMap()
+	Method GetMessageMap:TNetMessageMap()
 		Return m_msgmap
 	End Method
 	

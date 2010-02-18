@@ -32,10 +32,12 @@ bbdoc: Networking module
 End Rem
 Module duct.network
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: Corrected a few method names, made TNetMessage abstract"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: Corrected field names"
 ModuleInfo "History: General cleanup"

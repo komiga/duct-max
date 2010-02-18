@@ -13,16 +13,16 @@ Import duct.network
 Include "inc/types/base.bmx"
 Include "inc/types/masterserver.bmx"
 
-AppTitle = "server"
+AppTitle = "Server"
 
 Local server:TMasterServer = New TMasterServer.Create(TSocket.CreateTCP(), 30249, 1)
 server.Start()
 If server.Connected() = False
-	Print("server on port " + server.GetPort() + " could not be created")
+	Print("Server on port " + server.GetPort() + " could not be created")
 	End
 End If
 
-Print("server created on port 30249")
+Print("Server created on port 30249")
 
 SetGraphicsDriver(GLMax2DDriver())
 Graphics(320, 240, 0)
@@ -36,4 +36,3 @@ While KeyHit(KEY_ESCAPE) = False And AppTerminate() = False
 	Flip()
 Wend
 server.Close()
-

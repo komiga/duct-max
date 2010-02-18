@@ -27,8 +27,9 @@ End Rem
 
 Rem
 	bbdoc: The NetMessage type.
+	about: This is a generic type, you must extend it.
 End Rem
-Type TNetMessage
+Type TNetMessage Abstract
 	
 	Const MSGID_BASE:Byte = 1
 	'Const MSGID_FREESTART:Byte = 10
