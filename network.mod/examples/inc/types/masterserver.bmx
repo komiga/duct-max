@@ -20,7 +20,7 @@ Type TMasterServer Extends TServer
 		returns: The new MasterServer (itself).
 	End Rem
 	Method Create:TMasterServer(socket:TSocket, port:Int, accept_timeout:Int)
-		_init(New TMessageMap.Create(), socket, port, accept_timeout)
+		_init(New TNetMessageMap.Create(), socket, port, accept_timeout)
 		m_msgmap.InsertMessage(New TPositionMessage.Create(0.0, 0.0))
 		m_opmessage = New TPlayerOperationMessage.Create(0, 0)
 		m_msgmap.InsertMessage(m_opmessage)
@@ -59,12 +59,12 @@ Type TMasterServer Extends TServer
 	Method OnSocketAccept:TClient(socket:TSocket)
 		Local player:TServerPlayer = New TServerPlayer.Create(socket)
 		local pid:Int = m_slotmap.GetFreeSlot()
-		If m_pid = 0
+		If pid = 0
 			Print("Client Refused (no empty slots); ip: " + player.GetIPAddressAsString())
 			socket.Close()
-		Else
 			player = Null
-			AssignID(player, m_pid)
+		Else
+			AssignID(player, pid)
 			SendPlayerList(player)
 		End If
 		Return player
@@ -75,8 +75,8 @@ Type TMasterServer Extends TServer
 		returns: Nothing.
 	End Rem
 	Method UpdatePlayers()
-		For Local player:TServerPlayer = EachIn m_slotmap._map.Values()
-			If player.lastpos.x <> player.m_pos.m_x Or player.lastpos.y <> player.m_pos.m_y
+		For Local player:TServerPlayer = EachIn m_slotmap.ValueEnumerator()
+			If player.m_lastpos.m_x <> player.m_pos.m_x Or player.m_lastpos.m_y <> player.m_pos.m_y
 				player.SetLastPosition(player.m_pos.m_x, player.m_pos.m_y)
 				m_movemessage.Set(player.m_pid, player.m_pos.m_x, player.m_pos.m_y)
 				BroadcastMessage(m_movemessage, player)
@@ -89,8 +89,7 @@ Type TMasterServer Extends TServer
 		returns: Nothing.
 	End Rem
 	Method DrawPlayers()
-		Local player:TServerPlayer
-		For player = EachIn m_clients
+		For Local player:TServerPlayer = EachIn m_clients
 			player.Draw()
 		Next
 	End Method
@@ -101,7 +100,7 @@ Type TMasterServer Extends TServer
 	End Rem
 	Method SendPlayerList(player:TServerPlayer)
 		m_opmessage.Set(0, OPACTION_ADDPLAYER)
-		For Local iplayer:TServerPlayer = EachIn m_slotmap._map.Values()
+		For Local iplayer:TServerPlayer = EachIn m_slotmap.ValueEnumerator()
 			If iplayer <> player
 				m_opmessage.m_pid = iplayer.m_pid
 				m_opmessage.Serialize(player)
@@ -115,7 +114,7 @@ Type TMasterServer Extends TServer
 		bbdoc: Assign an id to a ServerPlayer.
 		returns: Nothing.
 	End Rem
-	Method AssignID(player:TServerPlayer, pid:Byte)
+	Method AssignID(player:TServerPlayer, pid:Int)
 		player.m_pid = pid
 		m_slotmap.InsertPlayer(player)
 		m_opmessage.Set(pid, OPACTION_ASSIGNID)
@@ -130,8 +129,7 @@ Type TMasterServer Extends TServer
 		about: If exception is found in the client list, the message will not be sent to that client.
 	End Rem
 	Method BroadcastMessage(message:TNetMessage, exception:TServerPlayer = Null)
-		Local player:TServerPlayer
-		For player = EachIn m_clients
+		For Local player:TServerPlayer = EachIn m_clients
 			If player <> exception
 				If player.Eof() = False
 					message.Serialize(player)

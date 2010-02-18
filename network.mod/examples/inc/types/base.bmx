@@ -12,7 +12,7 @@ Type TPlayer Extends TClient
 	Field m_pid:Int, m_pos:TVec2
 	
 	Method New()
-		pos = New TVec2.Create(0.0, 0.0)
+		m_pos = New TVec2.Create(0.0, 0.0)
 	End Method
 	
 	Rem
@@ -30,7 +30,7 @@ Type TPlayer Extends TClient
 		returns: Nothing.
 	End Rem
 	Method SetPosition(x:Float, y:Float)
-		m_pos.SetParams(x, y)
+		m_pos.Set(x, y)
 	End Method
 	
 	Rem
@@ -82,7 +82,7 @@ Type TSlotMap Extends TObjectMap
 		returns: A Player by the id given, or Null if this SlotMap does not contain a Player by the id given.
 	End Rem
 	Method GetPlayerByID:TPlayer(pid:Int)
-		Return TPlayer(_ValueByKey(String(id)))
+		Return TPlayer(_ValueByKey(String(pid)))
 	End Method
 	
 	Rem

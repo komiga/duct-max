@@ -8,7 +8,7 @@ Rem
 End Rem
 Type TMasterClient Extends TPlayer
 	
-	Field m_msgmap:TMessageMap
+	Field m_msgmap:TNetMessageMap
 	Field m_slotmap:TSlotMap
 	Field m_lastpos:TVec2
 	
@@ -16,7 +16,7 @@ Type TMasterClient Extends TPlayer
 	
 	Method New()
 		m_slotmap = New TSlotMap.Create(2)
-		m_msgmap = New TMessageMap.Create()
+		m_msgmap = New TNetMessageMap.Create()
 		m_lastpos = New TVec2.Create(0.0, 0.0)
 	End Method
 	
@@ -24,7 +24,7 @@ Type TMasterClient Extends TPlayer
 		bbdoc: Create a new MasterClient.
 		returns: The created MasterClient.
 	End Rem
-	Method Create:TMasterClient(socket:TSocket, pid:Byte = 0)
+	Method Create:TMasterClient(socket:TSocket, pid:Int = 0)
 		Super.Create(socket, pid)
 		m_msgmap.InsertMessage(New TPlayerOperationMessage.Create(0, 0))
 		m_msgmap.InsertMessage(New TPlayerMoveMessage.Create(0, 0.0, 0.0))
@@ -37,7 +37,7 @@ Type TMasterClient Extends TPlayer
 		returns: Nothing.
 	End Rem
 	Method DrawPlayers()
-		For Local player:TPlayer = EachIn slotmap.m_map.Values()
+		For Local player:TPlayer = EachIn m_slotmap.ValueEnumerator()
 			player.Draw()
 		Next
 	End Method
@@ -46,10 +46,10 @@ Type TMasterClient Extends TPlayer
 		bbdoc: Set the position of the MasterClient.
 		returns Nothing.
 	End Rem
-	Method SetPosition(_x:Float, y:Float)
+	Method SetPosition(x:Float, y:Float)
 		Super.SetPosition(x, y)
-		If pos.m_x <> lastpos.m_x Or pos.m_y <> lastpos.m_y
-			lastpos.SetVec(pos)
+		If m_pos.m_x <> m_lastpos.m_x Or m_pos.m_y <> m_lastpos.m_y
+			m_lastpos.SetVec(m_pos)
 			SendPosition()
 		End If
 	End Method
@@ -59,15 +59,15 @@ Type TMasterClient Extends TPlayer
 		returns: Nothing.
 	End Rem
 	Method SendPosition()
-		posmessage.Set(pos.m_x, pos.m_y)
-		posmessage.Serialize(Self)
+		m_posmessage.Set(m_pos.m_x, m_pos.m_y)
+		m_posmessage.Serialize(Self)
 	End Method
 	
 	Rem
 		bbdoc: Handle a Message sent from the Server.
 		returns: Nothing.
 	End Rem
-	Method HandleMessage(msgid:Int, message:TMessage)
+	Method HandleMessage(msgid:Int, message:TNetMessage)
 		If message = Null
 			Print("(TMasterClient.HandleMessage) Unknown message id: " + msgid)
 		Else
@@ -75,30 +75,30 @@ Type TMasterClient Extends TPlayer
 			Select msgid
 				Case MSGID_PLAYEROPERATION
 					Local opmsg:TPlayerOperationMessage, player:TPlayer
-				
+					
 					opmsg = TPlayerOperationMessage(message)
-					Select opmsg.action
+					Select opmsg.m_action
 						Case OPACTION_ASSIGNID
 							Print("Assigned ID: " + opmsg.m_pid)
-							pid = opmsg.m_pid
-							slotmap.InsertPlayer(Self)
+							m_pid = opmsg.m_pid
+							m_slotmap.InsertPlayer(Self)
 						Case OPACTION_ADDPLAYER
 							Print("Added player (id: " + opmsg.m_pid + ")")
 							player = New TPlayer.Create(Null, opmsg.m_pid)
-							slotmap.InsertPlayer(player)
+							m_slotmap.InsertPlayer(player)
 						Case OPACTION_REMOVEPLAYER
 							Print("Removed player (id: " + opmsg.m_pid + ")")
-							slotmap.InsertPlayerByID(opmsg.m_pid, Null)
+							m_slotmap.InsertPlayerByID(opmsg.m_pid, Null)
 					End Select
 				Case MSGID_PLAYERMOVE
 					Local movemsg:TPlayerMoveMessage, player:TPlayer
-				
+					
 					movemsg = TPlayerMoveMessage(message)
-					player = slotmap.GetPlayerByID(movemsg.m_pid)
+					player = m_slotmap.GetPlayerByID(movemsg.m_pid)
 					If player = Null
-						Print("(TMasterClient.HandleMessage) MasterClient does not have a player by the sent id (" + movemsg.m_pid + ")")
+						Print("(TMasterClient.HandleMessage) MasterClient does not have a player with the recieved id (" + movemsg.m_pid + ")")
 					Else
-						player.SetPosition(movemsg.x, movemsg.y)
+						player.SetPosition(movemsg.m_x, movemsg.m_y)
 					End If
 			End Select
 		End If
@@ -109,13 +109,13 @@ Type TMasterClient Extends TPlayer
 		returns: Nothing.
 	End Rem
 	Method CheckTransmissions()
-		Local msgid:Byte, message:TMessage
+		Local msgid:Int, message:TNetMessage
 		
 		If Eof() = False
 			If ReadAvail() > 0
 				While ReadAvail() > 0
 					msgid = ReadByte()
-					message = msgmap.GetMessageByID(msgid)
+					message = m_msgmap.GetMessageByID(msgid)
 					HandleMessage(msgid, message)
 				Wend
 			End If
