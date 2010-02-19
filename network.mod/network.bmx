@@ -32,10 +32,13 @@ bbdoc: Networking module
 End Rem
 Module duct.network
 
-ModuleInfo "Version: 0.4"
+ModuleInfo "Version: 0.5"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.5"
+ModuleInfo "History: Added documentation for the ondisconnect parameter"
+ModuleInfo "History: Added ondisconnect to TServer.Close"
 ModuleInfo "History: Version 0.4"
 ModuleInfo "History: Corrected a few method names, made TNetMessage abstract"
 ModuleInfo "History: Version 0.3"

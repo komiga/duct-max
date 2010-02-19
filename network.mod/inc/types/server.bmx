@@ -136,13 +136,14 @@ Type TServer
 	Rem
 		bbdoc: Close the Server and clear the Client list.
 		returns: Nothing.
+		about: If @ondisconnect is True, OnClientDisconnect will be called for each client that is dropped.
 	End Rem
-	Method Close()
+	Method Close(ondisconnect:Int = True)
 		If m_socket <> Null
 			m_socket.Close()
 		End If
 		For Local client:TClient = EachIn m_clients
-			DisconnectClient(client)
+			DisconnectClient(client, ondisconnect)
 		Next
 	End Method
 	
@@ -174,12 +175,12 @@ Type TServer
 	Rem
 		bbdoc: Disconnect a Client from the Server.
 		returns: Nothing.
+		about: If @ondisconnect is True, OnClientDisconnect will be called for each client that is dropped.
 	End Rem
 	Method DisconnectClient(client:TClient, ondisconnect:Int = True)
 		If ondisconnect = True
 			OnClientDisconnect(client)
 		End If
-		
 		client.Disconnect()
 		client.m_link.Remove()
 	End Method
