@@ -54,7 +54,7 @@ Type TClient Extends TStream
 	End Method
 	
 	Rem
-		bbdoc: Get The number of bytes available in the buffer for the Client.
+		bbdoc: Get the number of bytes available in the buffer for the Client.
 		returns: The number of bytes still in the buffer for this Client.
 	End Rem
 	Method ReadAvail:Int()
@@ -64,7 +64,7 @@ Type TClient Extends TStream
 	Rem
 		bbdoc: Check if the Client has stopped communications.
 		returns: True if this Client is no longer connected, or False if it is still connected.
-		about: Almost the same as simply calling #Connected, but this will automatically close the m_socket if it is not connected.
+		about: Almost the same as simply calling #Connected, but this will automatically close the socket if it is not connected.
 	End Rem
 	Method Eof:Int()
 		If m_socket <> Null

@@ -82,7 +82,7 @@ Type TServer
 	End Method
 	
 	Rem
-		bbdoc: Set the m_socket for the Server.
+		bbdoc: Set the socket for the Server.
 		returns: Nothing.
 		about: This will close all existing client connections.
 	End Rem
@@ -92,8 +92,8 @@ Type TServer
 	End Method
 	
 	Rem
-		bbdoc: Get the Socker for the Server.
-		returns: The m_socket for this Server.
+		bbdoc: Get the Socket for the Server.
+		returns: The socket for this Server.
 	End Rem
 	Method GetSocket:TSocket()
 		Return m_socket
@@ -121,7 +121,7 @@ Type TServer
 	
 	Rem
 		bbdoc: Start the server connection.
-		returns: True if the m_socket was able to open on the Server's port, or False if it was unable.
+		returns: True if the socket was able to open on the Server's port, or False if it was unable.
 	End Rem
 	Method Start:Int()
 		If m_socket <> Null
@@ -243,8 +243,8 @@ Type TServer
 	Method OnClientDisconnect(client:TClient) Abstract
 	
 	Rem
-		bbdoc: Called when a m_socket is accepted to the Server (implement in extending types).
-		returns: A Client, or Null if the m_socket was further unaccepted.
+		bbdoc: Called when a socket is accepted to the Server (implement in extending types).
+		returns: A Client, or Null if the socket was further unaccepted.
 	End Rem
 	Method OnSocketAccept:TClient(m_socket:TSocket) Abstract
 	
