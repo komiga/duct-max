@@ -246,7 +246,7 @@ Type TServer
 		bbdoc: Called when a socket is accepted to the Server (implement in extending types).
 		returns: A Client, or Null if the socket was further unaccepted.
 	End Rem
-	Method OnSocketAccept:TClient(m_socket:TSocket) Abstract
+	Method OnSocketAccept:TClient(socket:TSocket) Abstract
 	
 End Type
 
