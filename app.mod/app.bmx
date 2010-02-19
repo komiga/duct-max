@@ -28,10 +28,12 @@ bbdoc: Application stub module
 End Rem
 Module duct.app
 
-ModuleInfo "Version: 0.2"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.3"
+ModuleInfo "History: Added OnExit method to TDApp"
 ModuleInfo "History: Version 0.2"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"

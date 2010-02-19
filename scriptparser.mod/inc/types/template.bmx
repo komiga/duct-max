@@ -50,11 +50,11 @@ Type TTemplate
 	Rem
 		bbdoc: Create a new TTemplate.
 		returns: The new TTemplate (itself).
-		about: @_iden: The name of the Identifier.<br />
-		@_vars: An array of arrays (see #{SetVars}).<br />
-		@_casesens: Check identifier name with case sensitivity?<br />
-		@_flexible: The flexibility of the Identifier (see #{SetFlexible}).<br />
-		@_infinitism: Use infinitism? (see #{SetInfinitism}).
+		about: @iden: The name of the Identifier.<br />
+		@vars: An array of arrays (see #{SetVars}).<br />
+		@casesens: Check identifier name with case sensitivity?<br />
+		@flexible: The flexibility of the Identifier (see #{SetFlexible}).<br />
+		@infinitism: Use infinitism? (see #{SetInfinitism}).
 	End Rem
 	Method Create:TTemplate(iden:String[], vars:Int[][], casesens:Int = False, flexible:Int = False, infinitism:Int[] = Null)
 		SetIden(iden)
