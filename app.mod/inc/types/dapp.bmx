@@ -50,6 +50,12 @@ Type TDApp Abstract
 	Method OnInit() Abstract
 	
 	Rem
+		bbdoc: This method is called when the DApp is shutdown.
+		returns: Nothing.
+	End Rem
+	Method OnExit() Abstract
+	
+	Rem
 		bbdoc: Run the DApp.
 		returns: Nothing.
 	End Rem
