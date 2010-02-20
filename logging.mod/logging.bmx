@@ -32,10 +32,12 @@ bbdoc: Logging module
 End Rem
 Module duct.logging
 
-ModuleInfo "Version: 0.2"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.3"
+ModuleInfo "History: Added CloseLogStream method to TLogger"
 ModuleInfo "History: Version 0.2"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
@@ -159,6 +161,18 @@ Type TLogger
 		m_logstream = WriteStream(file)
 		
 		Return m_logstream <> Null
+	End Method
+	
+	Rem
+		bbdoc: Close the log stream.
+		returns: True if the stream was closed, or False if it was not (stream has not been opened/set).
+	End Rem
+	Method CloseLogStream:Int()
+		If m_logstream <> Null
+			m_logstream.Close()
+			Return True
+		End If
+		Return False
 	End Method
 	
 	Rem
