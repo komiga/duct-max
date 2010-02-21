@@ -28,10 +28,12 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.19"
+ModuleInfo "Version: 0.20"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.20"
+ModuleInfo "History: Added OnTick to TMSTimer"
 ModuleInfo "History: Version 0.19"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.18"

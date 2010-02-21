@@ -49,10 +49,11 @@ Type TMSTimer
 	Rem
 		bbdoc: Update the MSTimer.
 		returns: True if the MSTimer ticked, or False if it did not.
-		about: This will call Reset if the MSTimer ticked.
+		about: This will call OnTick (which does nothing unless you override it) and Reset if the MSTimer ticked.
 	End Rem
 	Method Update:Int()
 		If MilliSecs() > m_ms
+			OnTick()
 			Reset()
 			Return True
 		End If
@@ -107,6 +108,14 @@ Type TMSTimer
 	End Rem
 	Method GetMS:Int()
 		Return m_ms
+	End Method
+	
+	Rem
+		bbdoc: Called when the timer ticks.
+		returns: Nothing.
+		about: This method does nothing unless you override it.
+	End Rem
+	Method OnTick()
 	End Method
 	
 End Type
