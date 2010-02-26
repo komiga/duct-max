@@ -21,8 +21,8 @@ Rem
 	THE SOFTWARE.
 	-----------------------------------------------------------------------------
 	
-	variables.bmx (Contains: TV_INTEGER, TV_STRING, TV_FLOAT, TV_EVAL,
-							TVariable, TStringVariable, TFloatVariable, TIntVariable, TEvalVariable, TIdentifier,
+	variables.bmx (Contains: TV_INTEGER, TV_STRING, TV_FLOAT, TV_EVAL, TV_BOOL,
+							TVariable, TStringVariable, TFloatVariable, TIntVariable, TEvalVariable, TBoolVariable, TIdentifier,
 							TVariableMap, )
 	
 End Rem
@@ -84,27 +84,27 @@ Import duct.etc
 Import duct.objectmap
 
 Rem
-	bbdoc: Template variable type for the TIntVariable type.
+	bbdoc: Template variable type for the #TIntVariable type.
 End Rem
 Const TV_INTEGER:Int = 1
 Rem
-	bbdoc: Template variable type for the TTStringVariable type.
+	bbdoc: Template variable type for the #TStringVariable type.
 End Rem
 Const TV_STRING:Int = 2
 Rem
-	bbdoc: Template variable type for the TFloatVariable type.
+	bbdoc: Template variable type for the #TFloatVariable type.
 End Rem
 Const TV_FLOAT:Int = 3
 Rem
-	bbdoc: Template variable type for the TEvalVariable type.
+	bbdoc: Template variable type for the #TEvalVariable type.
 End Rem
 Const TV_EVAL:Int = 4
 Rem
-	bbdoc: Template variable type for the TIdentifier type.
+	bbdoc: Template variable type for the #TIdentifier type.
 End Rem
 Const TV_IDEN:Int = 5
 Rem
-	bbdoc: Template variable type for the TIdentifier type.
+	bbdoc: Template variable type for the #TBoolVariable type.
 End Rem
 Const TV_BOOL:Int = 6
 
