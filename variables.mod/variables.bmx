@@ -34,10 +34,12 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.18"
+ModuleInfo "Version: 0.19"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.19"
+ModuleInfo "History: Added TBoolVariable; documentation correction"
 ModuleInfo "History: Version 0.18"
 ModuleInfo "History: TIdentifier.AddValue now sets the variable's parent to itself"
 ModuleInfo "History: Added SetParent and GetParent to TVaraible"
@@ -101,6 +103,10 @@ Rem
 	bbdoc: Template variable type for the TIdentifier type.
 End Rem
 Const TV_IDEN:Int = 5
+Rem
+	bbdoc: Template variable type for the TIdentifier type.
+End Rem
+Const TV_BOOL:Int = 6
 
 Rem
 	bbdoc: The Variable type.
@@ -574,7 +580,7 @@ Rem
 	bbdoc: The TIntVariable type.
 End Rem
 Type TIntVariable Extends TVariable
-		
+	
 	Field m_value:Int
 	
 	Rem
@@ -624,7 +630,7 @@ Type TIntVariable Extends TVariable
 	
 	Rem
 		bbdoc: Get the IntVariable as a String.
-		returns: The variable value converted to a String.
+		returns: The variable's value converted to a String.
 	End Rem
 	Method ValueAsString:String()
 		Return String(m_value)
@@ -695,7 +701,6 @@ Type TIntVariable Extends TVariable
 	
 End Type
 
-
 Rem
 	bbdoc: The TEvalVariable type.
 End Rem
@@ -751,7 +756,7 @@ Type TEvalVariable Extends TVariable
 	
 	Rem
 		bbdoc: Get the EvalVariable as a String.
-		returns: The variable value converted to a String.
+		returns: The variable's value converted to a String.
 	End Rem
 	Method ValueAsString:String()
 		Return m_value
@@ -818,6 +823,129 @@ Type TEvalVariable Extends TVariable
 	End Rem
 	Function GetTVType:Int()
 		Return TV_EVAL
+	End Function
+	
+End Type
+
+Rem
+	bbdoc: The TBoolVariable type.
+End Rem
+Type TBoolVariable Extends TVariable
+	
+	Field m_value:Int
+	
+	Rem
+		bbdoc: Create a new BoolVariable.
+		returns: The new BoolVariable (itself).
+	End Rem
+	Method Create:TBoolVariable(name:String = Null, value:Int)
+		SetName(name)
+		Set(value)
+		Return Self
+	End Method
+	
+'#region Field accessors
+	
+	Rem
+		bbdoc: Set the variable's value.
+		returns: Nothing.
+	End Rem
+	Method Set(value:Int)
+		m_value = value
+	End Method
+	
+	Rem
+		bbdoc: Get the variable's value.
+		returns: The value of the variable.
+	End Rem
+	Method Get:Int()
+		Return m_value
+	End Method
+	
+	Rem
+		bbdoc: Set the value of the variable to the given string (ambiguous).
+		returns: Nothing.
+	End Rem
+	Method SetAmbiguous(value:String)
+		m_value = Int(value)
+	End Method
+	
+	Rem
+		bbdoc: Convert the variable to a String.
+		returns: A string representation of the variable.
+		about: This function is for script output, for in-code use see #ValueAsString.
+	End Rem
+	Method ConvToString:String()
+		Return String(m_value)
+	End Method
+	
+	Rem
+		bbdoc: Get the TBoolVariable as a String.
+		returns: The variable's value converted to a String.
+	End Rem
+	Method ValueAsString:String()
+		Return String(m_value)
+	End Method
+	
+'#end region (Field accessors)
+	
+'#region Data handling
+	
+	Rem
+		bbdoc: Create a copy of the variable
+		returns: A clone of the variable.
+	End Rem
+	Method Copy:TBoolVariable()
+		Return New TBoolVariable.Create(m_name, m_value)
+	End Method
+	
+	Rem
+		bbdoc: Serialize the variable to a stream.
+		returns: Nothing.
+		about: @tv tells the method whether it should serialize the TV type for the variable, or to not.
+	End Rem
+	Method Serialize(stream:TStream, tv:Int = True, name:Int = False)
+		If tv = True
+			stream.WriteByte(TV_BOOL)
+		End If
+		If name = True
+			WriteLString(stream, m_name)
+		End If
+		stream.WriteByte(Byte(m_value))
+	End Method
+	
+	Rem
+		bbdoc: Deserialize the variable from a stream.
+		returns: The deserialized variable.
+		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
+	End Rem
+	Method DeSerialize:TBoolVariable(stream:TStream, tv:Int = True, name:Int = False)
+		If tv = True
+			stream.ReadByte()
+		End If
+		If name = True
+			m_name = ReadLString(stream)
+		End If
+		m_value = Int(stream.ReadByte())
+		Return Self
+	End Method
+	
+'#end region (Data handling)
+	
+	Rem
+		bbdoc: Get the type of this variable.
+		returns: The type of this variable ("bool").
+	End Rem
+	Function ReportType:String()
+		Return "bool"
+	End Function
+	
+	Rem
+		bbdoc: Get the TV type of this variable.
+		returns: The TV_* type of this variable (TV_BOOL).
+	End Rem
+	Function GetTVType:Int()
+		Return TV_BOOL
 	End Function
 	
 End Type
