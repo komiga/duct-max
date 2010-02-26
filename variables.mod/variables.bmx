@@ -34,10 +34,13 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.17"
+ModuleInfo "Version: 0.18"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.18"
+ModuleInfo "History: TIdentifier.AddValue now sets the variable's parent to itself"
+ModuleInfo "History: Added SetParent and GetParent to TVaraible"
 ModuleInfo "History: Version 0.17"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.16"
@@ -106,6 +109,7 @@ End Rem
 Type TVariable Abstract
 	
 	Field m_name:String
+	Field m_parent:TVariable
 	
 '#region Field accessors
 	
@@ -123,6 +127,22 @@ Type TVariable Abstract
 	End Rem
 	Method GetName:String()
 		Return m_name
+	End Method
+	
+	Rem
+		bbdoc: Set the variable's parent.
+		returns: Nothing.
+	End Rem
+	Method SetParent(parent:TVariable)
+		m_parent = parent
+	End Method
+	
+	Rem
+		bbdoc: Get the variable's parent.
+		returns: The variable's parent.
+	End Rem
+	Method GetParent:TVariable()
+		Return m_parent
 	End Method
 	
 	Rem
@@ -921,10 +941,12 @@ Type TIdentifier Extends TVariable
 	Rem
 		bbdoc: Add a value to the Identifier.
 		returns: True for success, or False for failure.
+		about: NOTE: This will set the given value's parent.
 	End Rem
 	Method AddValue:Int(value:TVariable)
 		If m_values <> Null And value <> Null
 			m_values.AddLast(value)
+			value.SetParent(Self)
 			Return True
 		End If
 		Return False
