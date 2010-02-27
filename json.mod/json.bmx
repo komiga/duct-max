@@ -28,10 +28,12 @@ bbdoc: JSON handler for cower.jonk
 End Rem
 Module duct.json
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: dJNullVariable.ValueAsString now returns Null (instead of ~qnull~q); documentation correction"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial version."
 
@@ -114,11 +116,11 @@ Type dJNullVariable Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Get the IntVariable as a String.
+		bbdoc: Get the variable as a String.
 		returns: The variable's value converted to a String.
 	End Rem
 	Method ValueAsString:String()
-		Return "null"
+		Return Null
 	End Method
 	
 '#end region (Field accessors)
