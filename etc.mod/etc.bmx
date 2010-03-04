@@ -1,24 +1,24 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 SuperStrict
@@ -28,10 +28,13 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.20"
+ModuleInfo "Version: 0.21"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.21"
+ModuleInfo "History: Added TStringBuilder"
+ModuleInfo "History: Corrected documentation"
 ModuleInfo "History: Version 0.20"
 ModuleInfo "History: Added OnTick to TMSTimer"
 ModuleInfo "History: Version 0.19"
@@ -75,13 +78,14 @@ Import brl.stream
 Import brl.linkedlist
 Import brl.filesystem
 
-Include "inc/functions/pow2size.bmx"
-Include "inc/functions/nstring.bmx"
-Include "inc/functions/minmax.bmx"
-Include "inc/functions/other.bmx"
+Include "inc/pow2size.bmx"
+Include "inc/nstring.bmx"
+Include "inc/minmax.bmx"
+Include "inc/other.bmx"
 
-Include "inc/types/listreversed.bmx"
-Include "inc/types/fpscounter.bmx"
-Include "inc/types/mstimer.bmx"
-Include "inc/types/replacer.bmx"
-Include "inc/types/listex.bmx"
+Include "inc/listreversed.bmx"
+Include "inc/fpscounter.bmx"
+Include "inc/mstimer.bmx"
+Include "inc/replacer.bmx"
+Include "inc/listex.bmx"
+Include "inc/stringbuilder.bmx"

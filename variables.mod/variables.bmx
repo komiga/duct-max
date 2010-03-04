@@ -1,30 +1,24 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-	-----------------------------------------------------------------------------
-	
-	variables.bmx (Contains: TV_INTEGER, TV_STRING, TV_FLOAT, TV_EVAL, TV_BOOL,
-							TVariable, TStringVariable, TFloatVariable, TIntVariable, TEvalVariable, TBoolVariable, TIdentifier,
-							TVariableMap, )
-	
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 SuperStrict
@@ -34,10 +28,15 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.19"
+ModuleInfo "Version: 0.20"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.20"
+ModuleInfo "History: Added TBoolVariable support in TVariable.DeserializeUniversal"
+ModuleInfo "History: Added TBoolVariable support in TVariable.RawToVariable"
+ModuleInfo "History: Fixed an issue with eval variables in TVariable.RawToVariable"
+ModuleInfo "History: Corrected some method names and some documentation."
 ModuleInfo "History: Version 0.19"
 ModuleInfo "History: Added TBoolVariable; documentation correction"
 ModuleInfo "History: Version 0.18"
@@ -59,8 +58,8 @@ ModuleInfo "History: Changed type tabbing"
 ModuleInfo "History: Fixed script output for TStringVariable (quotes are now only added if whitespace is present)"
 ModuleInfo "History: Fixed script output for TIdentifier (identifier names can now contain whitespace, in which case they must be quoted)"
 ModuleInfo "History: Version 0.13"
-ModuleInfo "History: Added the DeSerializeUniversal function to TVariable"
-ModuleInfo "History: Added Serialize and DeSerialize methods to all variable types"
+ModuleInfo "History: Added the DeserializeUniversal function to TVariable"
+ModuleInfo "History: Added Serialize and Deserialize methods to all variable types"
 ModuleInfo "History: Version 0.12"
 ModuleInfo "History: Changed module name from 'variablemap' to 'variables'"
 ModuleInfo "History: Moved all of duct.utilparser here"
@@ -78,7 +77,6 @@ ModuleInfo "History: Added the TEvalVariable type"
 ModuleInfo "History: Initial release"
 
 Import brl.stream
-Import brl.linkedlist
 
 Import duct.etc
 Import duct.objectmap
@@ -109,7 +107,7 @@ End Rem
 Const TV_BOOL:Int = 6
 
 Rem
-	bbdoc: The Variable type.
+	bbdoc: Generic variable type.
 	about: This is the base variable type, you should extend from this to use it.
 End Rem
 Type TVariable Abstract
@@ -188,7 +186,7 @@ Type TVariable Abstract
 		returns: The deserialized variable.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method DeSerialize:TVariable(stream:TStream, tv:Int = True, name:Int = False) Abstract
+	Method Deserialize:TVariable(stream:TStream, tv:Int = True, name:Int = False) Abstract
 	
 '#end region (Data handling)
 	
@@ -203,31 +201,21 @@ Type TVariable Abstract
 	Function GetTVType:Int() Abstract
 	
 	Rem
-		bbdoc: Convert raw data (raw data being things like: "/eval::(a+b/0.4181)*a-b" - an EvalVariable, "A String variable1!!", 3452134 - an IntVariable, 1204.00321 - a FloatVariable) into a Variable.
+		bbdoc: Convert raw data (raw data being things like: "/e:(a+b/0.4181)*a-b" - a TEvalVariable, "A String variable", 3452134 - a TIntVariable, 1204.00321 - a FloatVariable) into a Variable.
 		returns: A new Variable, or Null if something whacky occured.
-		about: @etype is optional, it is used to go automagically to one type of a Variable (1 & 4=String (will check for '/eval::' - EvalVariables), 2=Integer, 3=Float).<br />
+		about: @etype is optional, it is used to go automagically to one type of a Variable (1 & 4=String (will check for '/eval::' - EvalVariables), 2=Integer, 3=Float).<br/>
 		@varname is also an optional parameter. It will be used as the name of the variable.
 	End Rem
 	Function RawToVariable:TVariable(vraw:String, etype:Int = 0, varname:String = "")
 		Local variable:TVariable
-		
 		If vraw = Null
 			DebugLog("(TVariable.RawToVariable) @vraw = Null; returning StringVariable (with @varname and Null value)")
 			Return New TStringVariable.Create(varname, Null)
 		End If
-		
-		'If etype = 1 ' Explicitly a string
-		'	
-		'	variable = TVariable(New TStringVariable.Create("", vraw))
-		'	
 		If etype = 0 ' Determine the value's type (must be either integer, double, or a string with no spaces)
-			Local i:Int
-			
 			' ASCII '0' to '9' = 48-57; '-' = 45, '+' = 43; and '.' = 46
-			For i = 0 To vraw.Length - 1
-				Local c:Int
-				
-				c = vraw[i]
+			For Local i:Int = 0 To vraw.Length - 1
+				Local c:Int = vraw[i]
 				If c >= 48 And c <= 57 Or c = 43 Or c = 45
 					If etype = 0 ' Leave float and string alone
 						etype = 2 ' Integer so far..
@@ -247,22 +235,16 @@ Type TVariable Abstract
 					variable = TVariable(New TIntVariable.Create(varname, Int(vraw)))
 				Case 3 ' Double/Float
 					variable = TVariable(New TFloatVariable.Create(varname, Float(vraw)))
-				'Case 4 ' String - non-explicit
-				'  Local evaltest:Int = vraw.ToLower().Find("/eval::")
-				'	
-				'	If evaltest >= 0
-				'		variable = TVariable(New TEvalVariable.Create(varname, vraw[evaltest + 7..]))
-				'	Else
-				'		variable = TVariable(New TStringVariable.Create(varname, vraw))
-				'	End If
 			End Select
-			
 		End If
 		
 		If etype = 1 Or etype = 4
-			Local evaltest:Int = vraw.ToLower().Find("/e:")
+			Local vrawlower:String = vraw.ToLower()
+			Local evaltest:Int = vrawlower.StartsWith("/e:")
 			If evaltest >= 0
-				variable = TVariable(New TEvalVariable.Create(varname, vraw[evaltest + 7..]))
+				variable = TVariable(New TEvalVariable.Create(varname, vraw[evaltest + 3..]))
+			Else If vrawlower = "true" Or vrawlower = "false"
+				variable = New TBoolVariable.Create(varname, (vrawlower = "true") And True Or False)
 			Else
 				variable = TVariable(New TStringVariable.Create(varname, vraw))
 			End If
@@ -276,31 +258,28 @@ Type TVariable Abstract
 	
 	Rem
 		bbdoc: Universally deserialize a variable from the given stream.
-		returns: A DeSerialized variable.
-		about: This will deserialize any variable from the stream.<br />
-		This requires the variable to have been serialized with the template type (see #Serialize parameters).<br />
-		@name tells the further DeSerialize calls if the name should be DeSerialized or not.
+		returns: A Deserialized variable.
+		about: This will deserialize any variable from the stream.<br/>
+		This requires the variable to have been serialized with the template type (see #Serialize parameters).<br/>
+		@name tells the further Deserialize calls if the name should be Deserialized or not.
 	End Rem
-	Function DeSerializeUniversal:TVariable(stream:TStream, name:Int = False)
-		Local tv:Int
-		
-		tv = Int(stream.ReadByte())
-		
+	Function DeserializeUniversal:TVariable(stream:TStream, name:Int = False)
+		Local tv:Int = Int(stream.ReadByte())
 		Select tv
 			Case TV_INTEGER
-				Return New TIntVariable.DeSerialize(stream, True, name)
+				Return New TIntVariable.Deserialize(stream, True, name)
 			Case TV_STRING
-				Return New TStringVariable.DeSerialize(stream, True, name)
+				Return New TStringVariable.Deserialize(stream, True, name)
 			Case TV_FLOAT
-				Return New TFloatVariable.DeSerialize(stream, True, name)
+				Return New TFloatVariable.Deserialize(stream, True, name)
 			Case TV_EVAL
-				Return New TEvalVariable.DeSerialize(stream, True, name)
+				Return New TEvalVariable.Deserialize(stream, True, name)
 			Case TV_IDEN
-				Return New TIdentifier.DeSerialize(stream, True, name)
-				
+				Return New TIdentifier.Deserialize(stream, True, name)
+			Case TV_BOOL
+				Return New TBoolVariable.Deserialize(stream, True, name)
 			Default
-				DebugLog("(TVariable.DeSerializeUniversal) Failed to recognize the TV in the stream: " + tv)
-				
+				DebugLog("(TVariable.DeserializeUniversal) Failed to recognize the TV in the stream: " + tv)
 		End Select
 		Return Null
 	End Function
@@ -308,7 +287,7 @@ Type TVariable Abstract
 End Type
 
 Rem
-	bbdoc: The TStringVariable type.
+	bbdoc: String variable.
 End Rem
 Type TStringVariable Extends TVariable
 	
@@ -408,7 +387,7 @@ Type TStringVariable Extends TVariable
 		returns: The deserialized variable.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method DeSerialize:TStringVariable(stream:TStream, tv:Int = True, name:Int = False)
+	Method Deserialize:TStringVariable(stream:TStream, tv:Int = True, name:Int = False)
 		If tv = True
 			stream.ReadByte()
 		End If
@@ -441,7 +420,7 @@ Type TStringVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: The TFloatVariable type.
+	bbdoc: Float variable.
 End Rem
 Type TFloatVariable Extends TVariable
 	
@@ -545,7 +524,7 @@ Type TFloatVariable Extends TVariable
 		returns: The deserialized variable.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method DeSerialize:TFloatVariable(stream:TStream, tv:Int = True, name:Int = False)
+	Method Deserialize:TFloatVariable(stream:TStream, tv:Int = True, name:Int = False)
 		If tv = True
 			stream.ReadByte()
 		End If
@@ -577,7 +556,7 @@ Type TFloatVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: The TIntVariable type.
+	bbdoc: Integer variable.
 End Rem
 Type TIntVariable Extends TVariable
 	
@@ -669,7 +648,7 @@ Type TIntVariable Extends TVariable
 		returns: The deserialized variable.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method DeSerialize:TIntVariable(stream:TStream, tv:Int = True, name:Int = False)
+	Method Deserialize:TIntVariable(stream:TStream, tv:Int = True, name:Int = False)
 		If tv = True
 			stream.ReadByte()
 		End If
@@ -702,7 +681,7 @@ Type TIntVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: The TEvalVariable type.
+	bbdoc: Eval variable (for bah.muparser, and the likes).
 End Rem
 Type TEvalVariable Extends TVariable
 	
@@ -795,7 +774,7 @@ Type TEvalVariable Extends TVariable
 		returns: The deserialized variable.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method DeSerialize:TEvalVariable(stream:TStream, tv:Int = True, name:Int = False)
+	Method Deserialize:TEvalVariable(stream:TStream, tv:Int = True, name:Int = False)
 		If tv = True
 			stream.ReadByte()
 		End If
@@ -828,7 +807,7 @@ Type TEvalVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: The TBoolVariable type.
+	bbdoc: Boolean variable.
 End Rem
 Type TBoolVariable Extends TVariable
 	
@@ -919,7 +898,7 @@ Type TBoolVariable Extends TVariable
 		returns: The deserialized variable.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method DeSerialize:TBoolVariable(stream:TStream, tv:Int = True, name:Int = False)
+	Method Deserialize:TBoolVariable(stream:TStream, tv:Int = True, name:Int = False)
 		If tv = True
 			stream.ReadByte()
 		End If
@@ -951,7 +930,7 @@ Type TBoolVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: The Identifier type.
+	bbdoc: Identifier (used in parsers, mostly).
 End Rem
 Type TIdentifier Extends TVariable
 	
@@ -961,8 +940,8 @@ Type TIdentifier Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Create a new Identifier.
-		returns: The new Identfier (itself).
+		bbdoc: Create a new TIdentifier.
+		returns: Itself.
 	End Rem
 	Method Create:TIdentifier()
 		m_values = New TList
@@ -970,7 +949,7 @@ Type TIdentifier Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Create a new Identifier with the given data.
+		bbdoc: Create a new TIdentifier with the given data.
 		returns: The new Identfier (itself).
 		about: If the @values parameter is Null a new list will be created.
 	End Rem
@@ -987,7 +966,7 @@ Type TIdentifier Extends TVariable
 '#region Field accessors
 	
 	Rem
-		bbdoc: Set the Identifier's values.
+		bbdoc: Set the identifier's values.
 		returns: Nothing.
 	End Rem
 	Method SetValues(values:TList)
@@ -995,8 +974,8 @@ Type TIdentifier Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Get the Identifier's values.
-		returns: A list containing the values which the Identifier holds.
+		bbdoc: Get the identifier's values.
+		returns: A list containing the values which the identifier holds.
 	End Rem
 	Method GetValues:TList()
 		Return m_values
@@ -1015,15 +994,13 @@ Type TIdentifier Extends TVariable
 		returns: A string representation of the identifier.
 	End Rem
 	Method ConvToString:String()
-		Local op:String, variable:TVariable
-		
+		Local op:String
 		If m_name.Contains("~t") = True Or m_name.Contains(" ") = True
 			op = "~q" + m_name + "~q "
 		Else
 			op = m_name + " "
 		End If
-		
-		For variable = EachIn m_values
+		For Local variable:TVariable = EachIn m_values
 			op:+variable.ConvToString() + " "
 		Next
 		op = op[..op.Length - 1]
@@ -1031,8 +1008,8 @@ Type TIdentifier Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Get the Identifier as a string.
-		returns: The Identifier contents converted to a string.
+		bbdoc: Get the identifier as a string.
+		returns: The identifier contents converted to a string.
 		about: Here for complete-ness, simply calls #ConvToString.
 	End Rem
 	Method ValueAsString:String()
@@ -1057,7 +1034,7 @@ Type TIdentifier Extends TVariable
 	
 	Rem
 		bbdoc: Get the number of values.
-		returns: The number of values the Identifier contains.
+		returns: The number of values the identifier contains.
 	End Rem
 	Method GetValueCount:Int()
 		If m_values <> Null
@@ -1067,7 +1044,7 @@ Type TIdentifier Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Add a value to the Identifier.
+		bbdoc: Add a value to the identifier.
 		returns: True for success, or False for failure.
 		about: NOTE: This will set the given value's parent.
 	End Rem
@@ -1085,8 +1062,8 @@ Type TIdentifier Extends TVariable
 '#region Data handling
 	
 	Rem
-		bbdoc: Create a copy of the variable
-		returns: A clone of the variable.
+		bbdoc: Create a copy of the identifier
+		returns: A clone of the identifier.
 	End Rem
 	Method Copy:TIdentifier()
 		Local clone:TIdentifier
@@ -1100,17 +1077,15 @@ Type TIdentifier Extends TVariable
 	Rem
 		bbdoc: Serialize the variable to a stream.
 		returns: Nothing.
-		about: @tv tells the method whether it should serialize the TV type for the variable, or to not.<br />
-		In this case @name tells the method whether it should serialize the <i><b>values</b></i>' name (the Identifier's name is always read/written to the stream).
+		about: @tv tells the method whether it should serialize the TV type for the variable, or to not.<br/>
+		In this case @name tells the method whether it should serialize the <i><b>values</b></i>' name (the identifier's name is always read/written to the stream).
 	End Rem
 	Method Serialize(stream:TStream, tv:Int = True, name:Int = False)
 		Local variable:TVariable
-		
 		If tv = True
 			stream.WriteByte(TV_STRING)
 		End If
 		WriteLString(stream, m_name)
-		
 		If m_values = Null
 			stream.WriteInt(0)
 		Else
@@ -1124,24 +1099,21 @@ Type TIdentifier Extends TVariable
 	Rem
 		bbdoc: Deserialize the variable from a stream.
 		returns: The deserialized variable.
-		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.<br />
-		In this case @name tells the method whether it should deserialize the <i><b>values</b></i>' name (the Identifier's name is always read/written to the stream).
+		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.<br/>
+		In this case @name tells the method whether it should deserialize the <i><b>values</b></i>' name (the identifier's name is always read/written to the stream).
 	End Rem
-	Method DeSerialize:TIdentifier(stream:TStream, tv:Int = True, name:Int = False)
+	Method Deserialize:TIdentifier(stream:TStream, tv:Int = True, name:Int = False)
 		Local count:Int, n:Int
-		
 		If tv = True
 			stream.ReadByte()
 		End If
 		m_name = ReadLString(stream)
-		
 		count = stream.ReadInt()
 		If count > 0
 			For n = 0 To count - 1
-				DeSerializeUniversal(stream, name)
+				DeserializeUniversal(stream, name)
 			Next
 		End If
-		
 		Return Self
 	End Method
 	
@@ -1166,13 +1138,13 @@ Type TIdentifier Extends TVariable
 End Type
 
 Rem
-	bbdoc: The VariableMap type.
+	bbdoc: Variable map (stores any variable).
 EndRem
 Type TVariableMap Extends TObjectMap
 	
 	Rem
-		bbdoc: Create a new VariableMap.
-		returns: The new VariableMap (itself).
+		bbdoc: Create a new TVariableMap.
+		returns: Itself.
 	End Rem
 	Method Create:TVariableMap()
 		Return Self

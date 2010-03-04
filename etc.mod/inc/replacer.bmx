@@ -1,30 +1,24 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-	-----------------------------------------------------------------------------
-	
-	replacer.bmx (Contains: TTextReplacer, TTextReplacement, )
-	
-	TODO:
-		
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 Rem
@@ -40,7 +34,7 @@ Type TTextReplacer
 	
 	Rem
 		bbdoc: Create a TTextReplacer.
-		returns: The new TTextReplacer (itself).
+		returns: Itself.
 	End Rem
 	Method Create:TTextReplacer(str:String)
 		SetString(str)
@@ -52,13 +46,11 @@ Type TTextReplacer
 		returns: True if the TTextReplacement value was set, or False if it was not (could not find the given name).
 	End Rem
 	Method SetReplacementByName:Int(name:String, value:String, casesens:Int = False)
-		Local replacement:TTextReplacement
 		Local changed:Int = False
-		
 		If casesens = True
 			name = name.ToLower()
 		End If
-		For replacement = EachIn m_list
+		For Local replacement:TTextReplacement = EachIn m_list
 			If (casesens = True And replacement.m_name.ToLower() = name) Or replacement.m_name = name
 				replacement.SetReplacement(value)
 				changed = True
@@ -73,12 +65,10 @@ Type TTextReplacer
 		about: This will obviously only give you the first instance of @name, to set all replacements with the given name, use #SetReplacementByName.
 	End Rem
 	Method GetReplacementFromName:TTextReplacement(name:String, casesens:Int = False)
-		Local replacement:TTextReplacement
-		
 		If casesens = True
 			name = name.ToLower()
 		End If
-		For replacement = EachIn m_list
+		For Local replacement:TTextReplacement = EachIn m_list
 			If (casesens = True And replacement.m_name.ToLower() = name) Or replacement.m_name = name
 				Return replacement
 			End If
@@ -91,12 +81,10 @@ Type TTextReplacer
 		returns: The string containing all the replaced values.
 	End Rem
 	Method DoReplacements:String()
-		Local strings:String[]
-		Local i:Int, block:Object
-		
 		If m_list.Count() > 0
-			strings = New String[m_list.Count()]
-			For block = EachIn m_list
+			Local strings:String[] = New String[m_list.Count()]
+			Local i:Int
+			For Local block:Object = EachIn m_list
 				strings[i] = block.ToString()
 				i:+1
 			Next
@@ -194,12 +182,10 @@ Type TTextReplacer
 		about: @beginiden and @endiden will be placed at the beginning and end of each TTextReplacement name, respectively.
 	End Rem
 	Method GetOriginal:String(beginiden:String = "{", endiden:String = "}")
-		Local strings:String[]
-		Local i:Int, block:Object
-		
 		If m_list.Count() > 0
-			strings = New String[m_list.Count()]
-			For block = EachIn m_list
+			Local strings:String[] = New String[m_list.Count()]
+			Local i:Int
+			For Local block:Object = EachIn m_list
 				If String(block)
 					strings[i] = String(block)
 				Else
@@ -209,7 +195,6 @@ Type TTextReplacer
 			Next
 			Return "".Join(strings)
 		End If
-		
 		Return Null
 	End Method
 	
@@ -244,7 +229,7 @@ Type TTextReplacement
 	
 	Rem
 		bbdoc: Create a new TTextReplacement.
-		returns: The new TTextReplacement (itself).
+		returns: Itself.
 	End Rem
 	Method Create:TTextReplacement(name:String, replacement:String = Null)
 		SetName(name)
@@ -308,10 +293,10 @@ Type TTextReplacement
 	End Method
 	
 	Rem
-		bbdoc: Deserialize a TTextReplacement from the given stream.
+		bbdoc: Deserialize the TTextReplacement from the given stream.
 		returns: The deserialized TTextReplacement (itself).
 	End Rem
-	Method DeSerialize:TTextReplacement(stream:TStream)
+	Method Deserialize:TTextReplacement(stream:TStream)
 		m_name = ReadLString(stream)
 		m_replacement = ReadLString(stream)
 		Return Self

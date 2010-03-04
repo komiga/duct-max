@@ -1,8 +1,4 @@
 
-Rem
-	pow2size.bmx (Contains: Pow2Size(), )
-End Rem
-
 ' Nabbed from either BRL or klepto.
 Rem
 	bbdoc: Get the next power of two to the given value.
