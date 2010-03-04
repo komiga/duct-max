@@ -28,10 +28,12 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.20"
+ModuleInfo "Version: 0.21"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.21"
+ModuleInfo "History: Corrected TVariable.RawToVariable parsing for eval variables; added allowevalvars option"
 ModuleInfo "History: Version 0.20"
 ModuleInfo "History: Added TBoolVariable support in TVariable.DeserializeUniversal"
 ModuleInfo "History: Added TBoolVariable support in TVariable.RawToVariable"
@@ -203,10 +205,11 @@ Type TVariable Abstract
 	Rem
 		bbdoc: Convert raw data (raw data being things like: "/e:(a+b/0.4181)*a-b" - a TEvalVariable, "A String variable", 3452134 - a TIntVariable, 1204.00321 - a FloatVariable) into a Variable.
 		returns: A new Variable, or Null if something whacky occured.
-		about: @etype is optional, it is used to go automagically to one type of a Variable (1 & 4=String (will check for '/eval::' - EvalVariables), 2=Integer, 3=Float).<br/>
-		@varname is also an optional parameter. It will be used as the name of the variable.
+		about: @etype is optional, it is used to go automagically to one type of a Variable (1 & 4=String (will check for '/e:' - TEvalVariables and TBoolVariables ['true' or 'false']), 2=Integer, 3=Float).<br/>
+		@varname is also an optional parameter. It will be used as the name of the variable.<br/>
+		If @allowevalvars (defaults to False) is True, eval variables will be checked for.
 	End Rem
-	Function RawToVariable:TVariable(vraw:String, etype:Int = 0, varname:String = "")
+	Function RawToVariable:TVariable(vraw:String, etype:Int = 0, varname:String = "", allowevalvars:Int = False)
 		Local variable:TVariable
 		If vraw = Null
 			DebugLog("(TVariable.RawToVariable) @vraw = Null; returning StringVariable (with @varname and Null value)")
@@ -240,9 +243,8 @@ Type TVariable Abstract
 		
 		If etype = 1 Or etype = 4
 			Local vrawlower:String = vraw.ToLower()
-			Local evaltest:Int = vrawlower.StartsWith("/e:")
-			If evaltest >= 0
-				variable = TVariable(New TEvalVariable.Create(varname, vraw[evaltest + 3..]))
+			If vrawlower.StartsWith("/e:") = True and allowevalvars = True
+				variable = TVariable(New TEvalVariable.Create(varname, vraw[2..]))
 			Else If vrawlower = "true" Or vrawlower = "false"
 				variable = New TBoolVariable.Create(varname, (vrawlower = "true") And True Or False)
 			Else
