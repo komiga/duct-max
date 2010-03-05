@@ -63,7 +63,7 @@ Type MyGraphicsApp Extends dProtogGraphicsApp
 		dProtogEntity.SetDefaultColor(m_color_white)
 		m_color_grey = New dProtogColor.Create(0.6, 0.6, 0.6)
 		
-		m_font = New dProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
+		m_font = New dProtogFont.FromNode(New dSNode.LoadScriptFromObject("fonts/arial.font"), True)
 		dProtogTextEntity.SetDefaultFont(m_font)
 		
 		m_bmaxlogo = New dProtogTexture.Create(LoadPixmap("textures/max.png"), TEXTURE_RECTANGULAR, True)

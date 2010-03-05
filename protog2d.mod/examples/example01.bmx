@@ -54,7 +54,7 @@ Type MyGraphicsApp Extends dProtogGraphicsApp
 	Method InitResources()
 		m_color_white = New dProtogColor.Create()
 		m_color_grey = New dProtogColor.Create(0.6, 0.6, 0.6)
-		m_font = New dProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
+		m_font = New dProtogFont.FromNode(New dSNode.LoadScriptFromObject("fonts/arial.font"), True)
 	End Method
 	
 	Method InitEntities()

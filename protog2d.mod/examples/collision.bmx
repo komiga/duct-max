@@ -61,7 +61,7 @@ Type MyGraphicsApp Extends dProtogGraphicsApp
 		m_color_grey = New dProtogColor.Create(0.6, 0.6, 0.6)
 		m_color_highlight = New dProtogColor.Create(1.0, 0.0, 0.0)
 		
-		m_font = New dProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
+		m_font = New dProtogFont.FromNode(New dSNode.LoadScriptFromObject("fonts/arial.font"), True)
 		dProtogTextEntity.SetDefaultFont(m_font)
 		
 		m_bmaxlogo = New dProtogTexture.Create(LoadPixmap("textures/max.png"), TEXTURE_RECTANGULAR, True)
@@ -121,7 +121,8 @@ Type MyGraphicsApp Extends dProtogGraphicsApp
 		m_infotext.SetReplacementByName("fps", TFPSCounter.GetFPS())
 		
 		If KeyHit(KEY_F1) = True
-			m_graphics.SetVSyncState(m_graphics.GetVSyncState() ~1)
+			Print(m_graphics.GetVSyncState() ~ 1)
+			m_graphics.SetVSyncState(m_graphics.GetVSyncState() ~ 1)
 			m_infotext.SetReplacementByName("vsync", m_graphics.GetVSyncState())
 		End If
 	End Method
