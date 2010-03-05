@@ -28,10 +28,12 @@ bbdoc: Scriptparser module
 End Rem
 Module duct.scriptparser
 
-ModuleInfo "Version: 0.7"
+ModuleInfo "Version: 0.8"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.8"
+ModuleInfo "History: Added multi-line quoted-string support"
 ModuleInfo "History: Version 0.7"
 ModuleInfo "History: Fixed eval variable parsing"
 ModuleInfo "History: Fixed documentation, licenses, examples"

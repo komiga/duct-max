@@ -19,4 +19,7 @@ node1 {
 node2 {
 	NullStringTest ""
 	stuff "goes" "here"
+	"Annd now for multi-line strings :)" "okgo" "abcdefg foobar
+wakka
+end. Note how the white-space after a newline gets removed" "Oh, you can also continue on." 112
 }

@@ -501,6 +501,7 @@ Type dSNodeParser
 		returns: Nothing.
 	End Rem
 	Method ReadQuotedStringToken()
+		Local eolreached:Int = False
 		'DebugLog("(dSNodeParser.ReadQuotedStringToken())")
 		
 		' Skip the first character (will be the initial quote)
@@ -512,9 +513,14 @@ Type dSNodeParser
 				Case CHAR_QUOTE
 					Exit
 				Default
+					If eolreached = False
+						m_token.AddChar(m_curchar)
+					End If
 					If m_eolset.Contains(m_curchar) = True
-						Throw(New dSNodeException.Create(dSNodeException.ParserError, "dSNodeParser.ReadQuotedStringToken()", "Unclosed quote (met EOL character)", m_token, Self))
-					Else
+						'Throw(New dSNodeException.Create(dSNodeException.ParserError, "dSNodeParser.ReadQuotedStringToken()", "Unclosed quote (met EOL character)", m_token, Self))
+						eolreached = True
+					Else If eolreached = True And m_whitespaceset.Contains(m_curchar) = False
+						eolreached = False
 						m_token.AddChar(m_curchar)
 					End If
 			End Select
@@ -563,6 +569,10 @@ Type dSNodeParserHandler Abstract
 		m_parser.SetHandler(Self)
 	End Method
 	
+	Rem
+		bbdoc: Clean the handler.
+		returns: Nothing.
+	End Rem
 	Method Clean()
 		m_rootnode = Null
 		m_currentnode = Null
@@ -628,7 +638,6 @@ Type dSNodeDefaultParserHandler Extends dSNodeParserHandler
 		returns: Nothing.
 	End Rem
 	Method HandleToken(token:dSNodeToken)
-		
 		'DebugLog("(dSNodeDefaultParserHandler.HandleToken())")
 		'DebugLog(token.TypeToString() + " " + token.LineRep() + ": ~q" + token.AsString() + "~q curchar: ~q" + Chr(m_parser.m_curchar) + "~q")
 		
