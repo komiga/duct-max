@@ -28,10 +28,12 @@ bbdoc: JSON handler for cower.jonk
 End Rem
 Module duct.json
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: Updated for API change"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: Corrected rootliness in dJEventHandler"
 ModuleInfo "History: Version 0.2"
@@ -45,7 +47,7 @@ Import cower.jonk
 Rem
 	bbdoc: duct JSON object.
 End Rem
-Type dJObject Extends TIdentifier
+Type dJObject Extends dIdentifier
 	
 	Rem
 		bbdoc: Create a new dJObject.
@@ -82,12 +84,15 @@ Type dJArray Extends dJObject
 	
 End Type
 
+Rem
+	bbdoc: Template variable type for the #dJNullVariable type.
+End Rem
 Const TV_NULL:Int = 100
 
 Rem
 	bbdoc: duct JSON null variable.
 End Rem
-Type dJNullVariable Extends TVariable
+Type dJNullVariable Extends dVariable
 	
 	Rem
 		bbdoc: Create a New dJNullVariable.
@@ -195,7 +200,7 @@ Type dJEventHandler Extends JEventHandler
 	Field m_root:dJObject
 	Field m_object:dJObject
 	
-	Field tmpvar:TVariable
+	Field tmpvar:dVariable
 	
 	Method BeginParsing()
 		'm_root = New dJObject.Create()
@@ -232,22 +237,22 @@ Type dJEventHandler Extends JEventHandler
 	
 	Method NumberValue(number:String, isdecimal:Int)
 		If isdecimal = True
-			tmpvar = New TFloatVariable.Create(Null, Float(number))
+			tmpvar = New dFloatVariable.Create(Null, Float(number))
 		Else
-			tmpvar = New TIntVariable.Create(Null, Int(number))
+			tmpvar = New dIntVariable.Create(Null, Int(number))
 		End If
 		SetAndClearName(tmpvar)
 		m_object.AddValue(tmpvar)
 	End Method
 	
 	Method StringValue(value:String)
-		tmpvar = New TStringVariable.Create(Null, value)
+		tmpvar = New dStringVariable.Create(Null, value)
 		SetAndClearName(tmpvar)
 		m_object.AddValue(tmpvar)
 	End Method
 	
 	Method BooleanValue(value:Int)
-		tmpvar = New TBoolVariable.Create(Null, value)
+		tmpvar = New dBoolVariable.Create(Null, value)
 		SetAndClearName(tmpvar)
 		m_object.AddValue(tmpvar)
 	End Method
@@ -262,7 +267,7 @@ Type dJEventHandler Extends JEventHandler
 		Return False
 	End Method
 	
-	Method SetAndClearName(variable:TVariable)
+	Method SetAndClearName(variable:dVariable)
 		variable.SetName(m_objname)
 		m_objname = Null
 	End Method

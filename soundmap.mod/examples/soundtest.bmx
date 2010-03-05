@@ -20,7 +20,7 @@ Local sound_path:String = "int01.ogg", sound:TSound
 
 ' This will create our main sound map
 ' NOTE: The engine will make sure there is a slash at the end of the root path
-Global map_sounds:TSoundMap = New TSoundMap.Create("sound/")
+Global map_sounds:dSoundMap = New dSoundMap.Create("sound/")
 
 If map_sounds.LoadAndInsertSound(sound_path) = Null ' Null=Failure
 	Print("Failed to load sound (" + map_sounds.GetRootPath() + sound_path + ")")

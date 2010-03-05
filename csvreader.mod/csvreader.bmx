@@ -1,24 +1,24 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 SuperStrict
@@ -28,10 +28,14 @@ bbdoc: CSV (comma-separated value) file reader module
 End Rem
 Module duct.csvreader
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: Fixed documentation, license, examples"
+ModuleInfo "History: Renamed TCSVMap to dCSVMap"
+ModuleInfo "History: Updated for API change"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.2"
@@ -44,26 +48,25 @@ Import duct.objectmap
 Import duct.variables
 
 Rem
-	bbdoc: The CSVMap type.
-	about: This type is for reading CSV (comma-separated value) files.
+	bbdoc: duct CSV (comma-separated value) map for reading CSV files.
 End Rem
-Type TCSVMap Extends TObjectMap
+Type dCSVMap Extends dObjectMap
 	
 	Field m_headers:String[]
 	Field m_rows:Int
 	
 	Rem
-		bbdoc: Create a new CSVMap.
-		returns: The new CSVMap (itself).
+		bbdoc: Create a new map.
+		returns: Itself.
 	End Rem
-	Method Create:TCSVMap()
+	Method Create:dCSVMap()
 		Return Self
 	End Method
 	
 '#region Field accessors
 	
 	Rem
-		bbdoc: Set the headers array for the CSVMap.
+		bbdoc: Set the headers array for the map.
 		returns: Nothing.
 	End Rem
 	Method SetHeaders(headers:String[])
@@ -71,15 +74,15 @@ Type TCSVMap Extends TObjectMap
 	End Method
 	
 	Rem
-		bbdoc: Get the CSVMap's headers array.
-		returns: The headers array for the CSVMap.
+		bbdoc: Get the map's headers array.
+		returns: The headers array for the map.
 	End Rem
 	Method GetHeaders:String[] ()
 		Return m_headers
 	End Method
 	
 	Rem
-		bbdoc: Get the number of headers (maximum possible number of records in a row) within the CSVMap.
+		bbdoc: Get the number of headers (maximum possible number of records in a row) within the map.
 		returns: The number of headers in the map, or 0 if the headers array is Null.
 	End Rem
 	Method GetHeaderCount:Int()
@@ -90,7 +93,7 @@ Type TCSVMap Extends TObjectMap
 	End Method
 	
 	Rem
-		bbdoc: Get the number of rows inthe CSVMap
+		bbdoc: Get the number of rows inthe map
 		returns: The number of rows in the map.
 	End Rem
 	Method GetRowCount:Int()
@@ -117,10 +120,10 @@ Type TCSVMap Extends TObjectMap
 	End Method
 	
 	Rem
-		bbdoc: Insert a CSVRecord into the map.
+		bbdoc: Insert a record into the map.
 		returns: True if the record was inserted into the map, or False if it was not (the record, or the record's variable, is Null).
 	End Rem
-	Method InsertRecord:Int(record:TCSVRecord)
+	Method InsertRecord:Int(record:dCSVRecord)
 		If record <> Null
 			If record.m_variable <> Null
 				_Insert(BuildKey(record.m_row, record.m_column), record)
@@ -134,11 +137,11 @@ Type TCSVMap Extends TObjectMap
 	End Method
 	
 	Rem
-		bbdoc: Get a CSVRecord at the given position.
+		bbdoc: Get a record at the given position.
 		returns: The record at the given position, or Null if the position does not contain a record.
 	End Rem
-	Method GetRecordByPosition:TCSVRecord(row:Int, column:Int)
-		Return TCSVRecord(_ValueByKey(BuildKey(row, column)))
+	Method GetRecordByPosition:dCSVRecord(row:Int, column:Int)
+		Return dCSVRecord(_ValueByKey(BuildKey(row, column)))
 	End Method
 	
 	Rem
@@ -150,7 +153,7 @@ Type TCSVMap Extends TObjectMap
 	End Method
 	
 	Rem
-		bbdoc: Clear the CSVMap.
+		bbdoc: Clear the map.
 		returns: Nothing.
 	End Rem
 	Method Clear()
@@ -163,12 +166,12 @@ Type TCSVMap Extends TObjectMap
 	
 	Rem
 		bbdoc: Parse a file containing CSV data.
-		returns: A CSVMap containing the values in the file, or Null if the file could not be read.
-		about: This simply opens a stream to the given url, passes it off to #ParseStream, closes the stream, then returns the value from #ParseStream.<br />
+		returns: A dCSVMap containing the values in the file, or Null if the file could not be read.
+		about: This simply opens a stream to the given url, passes it off to #ParseStream, closes the stream, then returns the value from #ParseStream.<br/>
 		@incblanks tells the parser to include blank values or not.
 	End Rem
-	Function ParseFile:TCSVMap(url:String, incblanks:Int = False)
-		Local stream:TStream, csvmap:TCSVMap
+	Function ParseFile:dCSVMap(url:String, incblanks:Int = False)
+		Local stream:TStream, csvmap:dCSVMap
 		stream = ReadStream(url)
 		csvmap = ParseStream(stream, incblanks)
 		stream.Close()
@@ -177,17 +180,17 @@ Type TCSVMap Extends TObjectMap
 	
 	Rem
 		bbdoc: Parse a stream containing CSV data.
-		returns: A CSVMap containing the values in the stream, or Null if the stream is Null.
-		about: This function will not close the given stream (remember to do so!)<br />
+		returns: A dCSVMap containing the values in the stream, or Null if the stream is Null.
+		about: This function will not close the given stream (remember to do so!)<br/>
 		@incblanks tells the parser to include blank values or not.
 	End Rem
-	Function ParseStream:TCSVMap(stream:TStream, incblanks:Int = False)
-		Local csvmap:TCSVMap, row:Int
+	Function ParseStream:dCSVMap(stream:TStream, incblanks:Int = False)
+		Local csvmap:dCSVMap, row:Int
 		Local line:String, headers:String[], tmparray:String[]
-		Local n:Int, value:String, tmpvar:TVariable
+		Local n:Int, value:String, tmpvar:dVariable
 		
 		If stream <> Null
-			csvmap = New TCSVMap.Create()
+			csvmap = New dCSVMap.Create()
 			While stream.Eof() = False
 				line = stream.ReadLine()
 				tmparray = line.Split(",")
@@ -204,9 +207,9 @@ Type TCSVMap Extends TObjectMap
 						For n = 0 To tmparray.Length - 1
 							value = tmparray[n].Trim()
 							If (value = Null And incblanks = True) Or (value <> Null)
-								tmpvar = TVariable.RawToVariable(value,, headers[n])
-								If csvmap.InsertRecord(New TCSVRecord.Create(row - 1, n, tmpvar)) = False
-									DebugLog("(TCSVMap.ParseStream) Failed to insert record")
+								tmpvar = dVariable.RawToVariable(value,, headers[n])
+								If csvmap.InsertRecord(New dCSVRecord.Create(row - 1, n, tmpvar)) = False
+									DebugLog("(dCSVMap.ParseStream) Failed to insert record")
 								End If
 							End If
 						Next
@@ -244,21 +247,21 @@ Type TCSVMap Extends TObjectMap
 End Type
 
 Rem
-	bbdoc: The TCSVRecord type.
+	bbdoc: The dCSVRecord type.
 End Rem
-Type TCSVRecord
+Type dCSVRecord
 	
 	Field m_row:Int, m_column:Int
-	Field m_variable:TVariable
+	Field m_variable:dVariable
 	
 	Method New()
 	End Method
 	
 	Rem
-		bbdoc: Create a new CSVRecord.
-		returns: The new CSVRecord (itself).
+		bbdoc: Create a new record.
+		returns: Itself.
 	End Rem
-	Method Create:TCSVRecord(row:Int, column:Int, variable:TVariable)
+	Method Create:dCSVRecord(row:Int, column:Int, variable:dVariable)
 		SetRow(row)
 		SetColumn(column)
 		SetVariable(variable)
@@ -268,7 +271,7 @@ Type TCSVRecord
 '#region Field accessors
 	
 	Rem
-		bbdoc: Set the row for the CSVRecord.
+		bbdoc: Set the row for the record.
 		returns: Nothing.
 	End Rem
 	Method SetRow(row:Int)
@@ -276,15 +279,15 @@ Type TCSVRecord
 	End Method
 	
 	Rem
-		bbdoc: Get the CSVRecord's row.
-		returns: The row for the CSVRecord.
+		bbdoc: Get the record's row.
+		returns: The row for the record.
 	End Rem
 	Method GetRow:Int()
 		Return m_row
 	End Method
 	
 	Rem
-		bbdoc: Set the column for the CSVRecord.
+		bbdoc: Set the column for the record.
 		returns: Nothing.
 	End Rem
 	Method SetColumn(column:Int)
@@ -292,32 +295,32 @@ Type TCSVRecord
 	End Method
 	
 	Rem
-		bbdoc: Get the CSVRecord's column.
-		returns: The column for the CSVRecord.
+		bbdoc: Get the record's column.
+		returns: The column for the record.
 	End Rem
 	Method GetColumn:Int()
 		Return m_column
 	End Method
 	
 	Rem
-		bbdoc: Set the variable for the CSVRecord.
+		bbdoc: Set the variable for the record.
 		returns: Nothing.
 	End Rem
-	Method SetVariable(variable:TVariable)
+	Method SetVariable(variable:dVariable)
 		m_variable = variable
 	End Method
 	
 	Rem
-		bbdoc: Get the CSVRecord's variable.
-		returns: The variable for the CSVRecord.
+		bbdoc: Get the record's variable.
+		returns: The variable for the record.
 	End Rem
-	Method GetVariable:TVariable()
+	Method GetVariable:dVariable()
 		Return m_variable
 	End Method
 	
 	Rem
-		bbdoc: Get the CSVRecord's header.
-		returns: The header for the CSVRecord, or Null if the record's variable is Null.
+		bbdoc: Get the record's header.
+		returns: The header for the record, or Null if the record's variable is Null.
 		about: This will return m_variable.GetName().
 	End Rem
 	Method GetHeader:String()

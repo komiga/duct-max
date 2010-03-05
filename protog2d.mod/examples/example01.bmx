@@ -21,13 +21,13 @@ Global mainapp:MyGraphicsApp = New MyGraphicsApp.Create()
 mainapp.Run()
 End
 
-Type MyGraphicsApp Extends TDProtogGraphicsApp
+Type MyGraphicsApp Extends dProtogGraphicsApp
 	
-	Field m_gdriver:TProtog2DDriver
+	Field m_gdriver:dProtog2DDriver
 	Field m_mvisible:Int = True
-	Field m_font:TProtogFont
-	Field m_color_white:TProtogColor, m_color_grey:TProtogColor
-	Field m_testtext:TProtogTextEntity, m_infotext:TProtogTextEntity
+	Field m_font:dProtogFont
+	Field m_color_white:dProtogColor, m_color_grey:dProtogColor
+	Field m_testtext:dProtogTextEntity, m_infotext:dProtogTextEntity
 	
 	Method New()
 	End Method
@@ -38,7 +38,7 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method OnInit()
-		m_graphics = New TDProtogGraphics.Create(800, 600, 0, 60,, 0, False)
+		m_graphics = New dProtogGraphics.Create(800, 600, 0, 60,, 0, False)
 		If m_graphics.StartGraphics() = False
 			Print("Failed to open graphics mode!")
 			End
@@ -52,20 +52,20 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method InitResources()
-		m_color_white = New TProtogColor.Create()
-		m_color_grey = New TProtogColor.Create(0.6, 0.6, 0.6)
-		m_font = New TProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
+		m_color_white = New dProtogColor.Create()
+		m_color_grey = New dProtogColor.Create(0.6, 0.6, 0.6)
+		m_font = New dProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
 	End Method
 	
 	Method InitEntities()
-		m_testtext = New TProtogTextEntity.Create(LoadText("text.txt"), m_font, New TVec2, New TProtogColor.Create(0.2, 0.5, 0.8))
+		m_testtext = New dProtogTextEntity.Create(LoadText("text.txt"), m_font, New dVec2, New dProtogColor.Create(0.2, 0.5, 0.8))
 		
-		m_infotext = New TProtogTextEntity.Create("fps: {fps} - vsync: {vsync} - mvisible: {mvisible}~n" + ..
+		m_infotext = New dProtogTextEntity.Create("fps: {fps} - vsync: {vsync} - mvisible: {mvisible}~n" + ..
 			"~tControls: F1 - vsync on/off~n" + ..
 			"~tSpace - mouse visibility~n" + ..
 			"~tRight click - vertical centering~n" + ..
 			"~tLeft click - horizontal centering",  ..
-			m_font, New TVec2.Create(2.0, 2.0), m_color_grey)
+			m_font, New dVec2.Create(2.0, 2.0), m_color_grey)
 		
 		m_infotext.SetupReplacer()
 		m_infotext.SetReplacementByName("vsync", m_graphics.GetVSyncState())

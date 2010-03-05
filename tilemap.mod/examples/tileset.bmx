@@ -15,7 +15,7 @@ Import duct.memcrypt
 Import duct.scriptparser
 
 AppTitle = "resourceset builder"
-brl.Graphics.SetGraphicsDriver(TProtog2DDriver.GetInstance())
+brl.Graphics.SetGraphicsDriver(dProtog2DDriver.GetInstance())
 brl.Graphics.Graphics(320, 240)
 
 Local rb:TResBuilder = New TResBuilder
@@ -28,32 +28,29 @@ rb.BuildScript("statics.scc")
 
 Type TResBuilder
 	
-	Global tpl_base:TTemplate = New TTemplate.Create(["base"], [[TV_INTEGER], [TV_STRING], [TV_STRING] ], False, False, Null)
-	Global tpl_flag:TTemplate = New TTemplate.Create(Null, [[TV_INTEGER, TV_STRING] ], False, False, Null)
-	Global tpl_static_height:TTemplate = New TTemplate.Create(["height"], [[TV_INTEGER] ], False, False, Null)
+	Global tpl_base:dTemplate = New dTemplate.Create(["base"], [[TV_INTEGER], [TV_STRING], [TV_STRING] ], False, False, Null)
+	Global tpl_flag:dTemplate = New dTemplate.Create(Null, [[TV_INTEGER, TV_STRING] ], False, False, Null)
+	Global tpl_static_height:dTemplate = New dTemplate.Create(["height"], [[TV_INTEGER] ], False, False, Null)
 	
-	'Global tpl_maskcolor:TTemplate = New TTemplate.Create(["maskcolor"], [[TV_INTEGER], [TV_INTEGER], [TV_INTEGER] ], False, False, Null)
-	Global tpl_datadir:TTemplate = New TTemplate.Create(["datadir"], [[TV_STRING] ], False, False, Null)
-	Global tpl_outputfile:TTemplate = New TTemplate.Create(["outputfile"], [[TV_STRING] ], False, False, Null)
-	Global tpl_idoffset:TTemplate = New TTemplate.Create(["idoffset"], [[TV_INTEGER] ], False, False, Null)
-	Global tpl_incrementoffset:TTemplate = New TTemplate.Create(["incrementoffset"], [[TV_INTEGER, TV_STRING] ], False, False, Null)
+	'Global tpl_maskcolor:dTemplate = New dTemplate.Create(["maskcolor"], [[TV_INTEGER], [TV_INTEGER], [TV_INTEGER] ], False, False, Null)
+	Global tpl_datadir:dTemplate = New dTemplate.Create(["datadir"], [[TV_STRING] ], False, False, Null)
+	Global tpl_outputfile:dTemplate = New dTemplate.Create(["outputfile"], [[TV_STRING] ], False, False, Null)
+	Global tpl_idoffset:dTemplate = New dTemplate.Create(["idoffset"], [[TV_INTEGER] ], False, False, Null)
+	Global tpl_incrementoffset:dTemplate = New dTemplate.Create(["incrementoffset"], [[TV_INTEGER, TV_STRING] ], False, False, Null)
 	
 	Field datadir:String, outputfile:String, idoffset:Int = 0, incrementoffset:Int = False
-	Field resourceset:TMapResourceSet
+	Field resourceset:dMapResourceSet
 	
 	Method BuildScript(scripturl:String)
-		Local script:TSNode
-		
-		resourceset = New TMapResourceSet.Create()
+		resourceset = New dMapResourceSet.Create()
 		outputfile = scripturl + "_auto.dts"
-		
 		Try
-			script = TSNode.LoadScriptFromObject(scripturl)
+			Local script:dSNode = dSNode.LoadScriptFromObject(scripturl)
 			If script <> Null
-				Local child:Object, node:TSNode, iden:TIdentifier
+				Local child:Object, node:dSNode, iden:TIdentifier
 				
 				For child = EachIn script.GetChildren()
-					node = TSNode(child) ; iden = TIdentifier(child)
+					node = dSNode(child) ; iden = TIdentifier(child)
 					If node <> Null
 						Select node.GetName().ToLower()
 							Case "tiles"
@@ -63,13 +60,13 @@ Type TResBuilder
 						End Select
 					Else If iden <> Null
 						If tpl_datadir.ValidateIdentifier(iden) = True
-							datadir = TStringVariable(iden.GetValueAtIndex(0)).Get()
+							datadir = dStringVariable(iden.GetValueAtIndex(0)).Get()
 						Else If tpl_outputfile.ValidateIdentifier(iden) = True
-							outputfile = TStringVariable(iden.GetValueAtIndex(0)).Get()
+							outputfile = dStringVariable(iden.GetValueAtIndex(0)).Get()
 						Else If tpl_idoffset.ValidateIdentifier(iden) = True
-							idoffset = TIntVariable(iden.GetValueAtIndex(0)).Get()
+							idoffset = dIntVariable(iden.GetValueAtIndex(0)).Get()
 						Else If tpl_incrementoffset.ValidateIdentifier(iden) = True
-							incrementoffset = TSNode.ConvertVariableToBool(TVariable(iden.GetValueAtIndex(0)))
+							incrementoffset = dSNode.ConvertVariableToBool(TVariable(iden.GetValueAtIndex(0)))
 						End If
 					End If
 				Next
@@ -84,21 +81,18 @@ Type TResBuilder
 		End Try
 	End Method
 	
-	Method DoTiles(root:TSNode)
-		Local child:Object, node:TSNode, iden:TIdentifier
-		
+	Method DoTiles(root:dSNode)
+		Local child:Object, node:dSNode, iden:TIdentifier
 		For child = EachIn root.GetChildren()
-			node = TSNode(child)
+			node = dSNode(child)
 			If node <> Null
 				If node.GetName().ToLower() = "tile"
-					Local tile:TMapTileResource
-					
-					tile = New TMapTileResource.Create(0, "generic_tile", Null)
+					Local tile:dMapTileResource = New dMapTileResource.Create(0, "generic_tile", Null)
 					For iden = EachIn node.GetChildren()
 						If tpl_base.ValidateIdentifier(iden) = True
-							tile.SetID(idoffset + TIntVariable(iden.GetValueAtIndex(0)).Get())
-							tile.SetName(TStringVariable(iden.GetValueAtIndex(1)).Get())
-							tile.SetTexture(New TProtogTexture.Create(LoadPixmap(datadir + "/" + TStringVariable(iden.GetValueAtIndex(2)).Get()), 0))
+							tile.SetID(idoffset + dIntVariable(iden.GetValueAtIndex(0)).Get())
+							tile.SetName(dStringVariable(iden.GetValueAtIndex(1)).Get())
+							tile.SetTexture(New dProtogTexture.Create(LoadPixmap(datadir + "/" + dStringVariable(iden.GetValueAtIndex(2)).Get()), 0))
 						End If
 					Next
 					resourceset.InsertResource(tile)
@@ -108,11 +102,10 @@ Type TResBuilder
 		Next
 	End Method
 	
-	Method DoStatics(root:TSNode)
-		Local child:Object, node:TSNode, iden:TIdentifier
-		
+	Method DoStatics(root:dSNode)
+		Local child:Object, node:dSNode, iden:TIdentifier
 		For child = EachIn root.GetChildren()
-			node = TSNode(child)
+			node = dSNode(child)
 			If node <> Null
 				If node.GetName().ToLower() = "static"
 					Local static:TMapStaticResource
@@ -120,11 +113,11 @@ Type TResBuilder
 					static = New TMapStaticResource.Create(0, 1, "generic_static", Null)
 					For iden = EachIn node.GetChildren()
 						If tpl_base.ValidateIdentifier(iden) = True
-							static.SetID(idoffset + TIntVariable(iden.GetValueAtIndex(0)).Get())
-							static.SetName(TStringVariable(iden.GetValueAtIndex(1)).Get())
-							static.SetTexture(New TProtogTexture.Create(LoadPixmap(datadir + "/" + TStringVariable(iden.GetValueAtIndex(2)).Get()), 0))
+							static.SetID(idoffset + dIntVariable(iden.GetValueAtIndex(0)).Get())
+							static.SetName(dStringVariable(iden.GetValueAtIndex(1)).Get())
+							static.SetTexture(New dProtogTexture.Create(LoadPixmap(datadir + "/" + dStringVariable(iden.GetValueAtIndex(2)).Get()), 0))
 						Else If tpl_flag.ValidateIdentifier(iden) = True
-							Local flag:Int = TSNode.ConvertVariableToBool(iden.GetValueAtIndex(0))
+							Local flag:Int = dSNode.ConvertVariableToBool(iden.GetValueAtIndex(0))
 							
 							Select iden.GetName().ToLower()
 								Case "impassable"
@@ -135,7 +128,7 @@ Type TResBuilder
 									If flag = True Then static.AddFlag(RESFLAG_BlocksView) Else static.RemoveFlag(RESFLAG_BlocksView)
 							End Select
 						Else If tpl_static_height.ValidateIdentifier(iden) = True
-							static.SetHeight(TIntVariable(iden.GetValueAtIndex(0)).Get())
+							static.SetHeight(dIntVariable(iden.GetValueAtIndex(0)).Get())
 						End If
 					Next
 					resourceset.InsertResource(static)

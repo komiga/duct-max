@@ -5,17 +5,17 @@ Framework brl.blitz
 Import brl.standardio
 Import duct.argparser
 
-Local root:TIdentifier = dArgParser.ParseArray(AppArgs[1..], False, -1) ' Appname off, unlimited option args
+Local root:dIdentifier = dArgParser.ParseArray(AppArgs[1..], False, -1) ' Appname off, unlimited option args
 Print(ArgsToString(root))
 Print("#################################")
 root = dArgParser.ParseArray(AppArgs, True, 1) ' Appname on, limited option args to one
 Print(ArgsToString(root))
 
-Function ArgsToString:String(root:TIdentifier)
+Function ArgsToString:String(root:dIdentifier)
 	Local build:String = "~q" + root.GetName() + "~q: [", subbuild:String, count:Int
-	For Local variable:TVariable = EachIn root.GetValues()
-		If TIdentifier(variable)
-			build:+ ArgsToString(TIdentifier(variable)) + ", "
+	For Local variable:dVariable = EachIn root.GetValues()
+		If dIdentifier(variable)
+			build:+ ArgsToString(dIdentifier(variable)) + ", "
 		Else
 			build:+ variable.ReportType() + ": ~q" + variable.ValueAsString() + "~q, "
 		End If

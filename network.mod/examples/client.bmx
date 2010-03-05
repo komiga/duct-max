@@ -10,8 +10,8 @@ Import brl.glmax2d
 Import duct.vector
 Import duct.network
 
-Include "inc/types/base.bmx"
-Include "inc/types/masterclient.bmx"
+Include "inc/base.bmx"
+Include "inc/masterclient.bmx"
 
 AppTitle = "Client"
 

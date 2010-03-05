@@ -1,6 +1,6 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
+	Copyright (c) 2010 Tim Howard
 	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ ModuleInfo "History: Initial release"
 Import brl.math
 
 Rem
-	bbdoc: Encrypt/decrypt a string.
+	bbdoc: Encrypt/decrypt the given string.
 	returns: The encryped/decrypted string.
 End Rem
 Function RC4:String(inp:String, key:String)
@@ -89,7 +89,7 @@ Function RC4:String(inp:String, key:String)
 End Function
 
 Rem
-	bbdoc: Encrypt/decrypt a block of data.
+	bbdoc: Encrypt/decrypt the given block of data.
 	returns: Nothing, this function will modify the data directly - no copies are made.
 End Rem
 Function RC4_Bytes(inp:Byte Ptr, count:Int, key:String) 

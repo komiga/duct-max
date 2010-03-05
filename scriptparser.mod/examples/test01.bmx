@@ -9,8 +9,8 @@ Import brl.standardio
 Import duct.scriptparser
 
 Try
-	Local root:TSNode
-	root = TSNode.LoadScriptFromObject("test.script")
+	Local root:dSNode
+	root = dSNode.LoadScriptFromObject("test.script")
 	If root <> Null
 		Local output:String, outstream:TStream
 		output = NodeTypeOutput(root)
@@ -21,37 +21,33 @@ Try
 	Else
 		Print("Root node is Null")
 	End If
-Catch e:TSNodeException
+Catch e:dSNodeException
 	Print("Caught exception: " + e.ToString())
 End Try
 
-Function NodeTypeOutput:String(node:TSNode, prepend:String = "")
-	Local bld:String, child:Object, n:TSNode, iden:TIdentifier
+Function NodeTypeOutput:String(node:dSNode, prepend:String = "")
+	Local bld:String, child:Object, n:dSNode, iden:dIdentifier
 	
 	For child = EachIn node.GetChildren()
-		n = TSNode(child)
-		iden = TIdentifier(child)
-		
+		n = dSNode(child)
+		iden = dIdentifier(child)
 		If n <> Null
 			bld:+prepend + "'" + n.GetName() + "' {~n"
 			bld:+NodeTypeOutput(n, prepend + "~t")
 			bld:+prepend + "}~n"
 		Else If iden <> Null
-			Local variable:TVariable
-			
 			' iden.ReportType() will always be "identifier".. but why not?! :)
 			bld:+prepend + iden.ReportType() + " "
-			
-			For variable = EachIn iden.GetValues()
+			For Local variable:dVariable = EachIn iden.GetValues()
 				' Use magic.
 				bld:+variable.ReportType() + " "
 				
 				' Deal with variables by-type
-				'If TStringVariable(variable)
+				'If dStringVariable(variable)
 				'	bld:+"string "
-				'Else If TIntVariable(variable)
+				'Else If dIntVariable(variable)
 				'	bld:+"int "
-				'Else If TFloatVariable(variable)
+				'Else If dFloatVariable(variable)
 				'	bld:+"float "
 				'End If
 			Next

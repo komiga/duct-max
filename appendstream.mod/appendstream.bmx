@@ -1,8 +1,4 @@
 
-Rem
-	appendstream.bmx (Contains: TAppendableCStream, TAppendableCStreamFactory, )
-End Rem
-
 SuperStrict
 
 Rem
@@ -15,9 +11,9 @@ ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: Public Domain"
 ModuleInfo "Copyright: Bruce A Henderson"
 
-ModuleInfo "History: 1.1"
+ModuleInfo "History: Version 1.1"
 ModuleInfo "History: General cleanup"
-ModuleInfo "History: 1.0"
+ModuleInfo "History: Version 1.0"
 ModuleInfo "History: Copied from http://www.blitzbasic.com/Community/posts.php?topic=83691#944177"
 
 Import brl.stream

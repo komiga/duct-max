@@ -1,6 +1,4 @@
 
-' Templates test
-
 SuperStrict
 
 Framework brl.blitz
@@ -8,20 +6,20 @@ Import brl.standardio
 
 Import duct.scriptparser
 
-Local tpl_test01:TTemplate = New TTemplate.Create(["test01", "testalt01"], [[TV_INTEGER], [TV_STRING], [TV_FLOAT], [TV_EVAL] ])
-Local tpl_test02:TTemplate = New TTemplate.Create(["Test02", "TestAlt02"], [[TV_INTEGER, TV_STRING, TV_FLOAT, TV_EVAL] ], True)
-Local tpl_test03:TTemplate = New TTemplate.Create(["test03"], [[TV_STRING] ], False, True)
-Local tpl_test04:TTemplate = New TTemplate.Create(["test04"], [[TV_EVAL] ], False, True, [TV_INTEGER])
-Local tpl_test05:TTemplate = New TTemplate.Create(["test05"], [[TV_EVAL] ], False, True, [TV_INTEGER, TV_STRING, TV_FLOAT])
-Local tpl_test06:TTemplate = New TTemplate.Create(["test06"], [[TV_FLOAT] ], False, True, [TV_INTEGER, TV_STRING, TV_FLOAT])
+Local tpl_test01:dTemplate = New dTemplate.Create(["test01", "testalt01"], [[TV_INTEGER], [TV_STRING], [TV_FLOAT], [TV_EVAL] ])
+Local tpl_test02:dTemplate = New dTemplate.Create(["Test02", "TestAlt02"], [[TV_INTEGER, TV_STRING, TV_FLOAT, TV_EVAL] ], True)
+Local tpl_test03:dTemplate = New dTemplate.Create(["test03"], [[TV_STRING] ], False, True)
+Local tpl_test04:dTemplate = New dTemplate.Create(["test04"], [[TV_EVAL] ], False, True, [TV_INTEGER])
+Local tpl_test05:dTemplate = New dTemplate.Create(["test05"], [[TV_EVAL] ], False, True, [TV_INTEGER, TV_STRING, TV_FLOAT])
+Local tpl_test06:dTemplate = New dTemplate.Create(["test06"], [[TV_FLOAT] ], False, True, [TV_INTEGER, TV_STRING, TV_FLOAT])
 
-Local tpl_test07:TTemplate = New TTemplate.Create(Null, [[TV_INTEGER], [TV_STRING] ])
-Local root:TSNode
+Local tpl_test07:dTemplate = New dTemplate.Create(Null, [[TV_INTEGER], [TV_STRING] ])
+Local root:dSNode
 
 Try
-	root = TSNode.LoadScriptFromObject("templates.scc")
+	root = dSNode.LoadScriptFromObject("templates.scc")
 	If root <> Null
-		Local pass:Int, identifier:TIdentifier
+		Local pass:Int, identifier:dIdentifier
 		For identifier = EachIn root.GetChildren()
 			pass = False
 			Select identifier.GetName().ToLower()

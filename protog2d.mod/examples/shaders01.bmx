@@ -21,16 +21,16 @@ Global mainapp:MyGraphicsApp = New MyGraphicsApp.Create()
 mainapp.Run()
 End
 
-Type MyGraphicsApp Extends TDProtogGraphicsApp
+Type MyGraphicsApp Extends dProtogGraphicsApp
 	
-	Field m_gdriver:TProtog2DDriver
-	Field m_font:TProtogFont
-	Field m_color_white:TProtogColor, m_color_grey:TProtogColor
-	Field m_bmaxlogo:TProtogTexture
+	Field m_gdriver:dProtog2DDriver
+	Field m_font:dProtogFont
+	Field m_color_white:dProtogColor, m_color_grey:dProtogColor
+	Field m_bmaxlogo:dProtogTexture
 	
-	Field m_infotext:TProtogTextEntity, m_bmaxsprite:TProtogSpriteEntity
+	Field m_infotext:dProtogTextEntity, m_bmaxsprite:dProtogSpriteEntity
 	
-	Field m_hueshader:TProtogShader, m_blurshader:TProtogShader, m_saturationshader:TProtogShader
+	Field m_hueshader:dProtogShader, m_blurshader:dProtogShader, m_saturationshader:dProtogShader
 	Field m_shadersenabled:Int = True
 	
 	Method New()
@@ -42,7 +42,7 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method OnInit()
-		m_graphics = New TDProtogGraphics.Create(800, 600, 0, 60,, 0, False)
+		m_graphics = New dProtogGraphics.Create(800, 600, 0, 60,, 0, False)
 		If m_graphics.StartGraphics() = False
 			Print("Failed to open graphics mode!")
 			End
@@ -59,27 +59,27 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method InitResources()
-		m_color_white = New TProtogColor.Create(1.0, 1.0, 1.0)
-		TProtogEntity.SetDefaultColor(m_color_white)
-		m_color_grey = New TProtogColor.Create(0.6, 0.6, 0.6)
+		m_color_white = New dProtogColor.Create(1.0, 1.0, 1.0)
+		dProtogEntity.SetDefaultColor(m_color_white)
+		m_color_grey = New dProtogColor.Create(0.6, 0.6, 0.6)
 		
-		m_font = New TProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
-		TProtogTextEntity.SetDefaultFont(m_font)
+		m_font = New dProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
+		dProtogTextEntity.SetDefaultFont(m_font)
 		
-		m_bmaxlogo = New TProtogTexture.Create(LoadPixmap("textures/max.png"), TEXTURE_RECTANGULAR, True)
+		m_bmaxlogo = New dProtogTexture.Create(LoadPixmap("textures/max.png"), TEXTURE_RECTANGULAR, True)
 	End Method
 	
 	Method InitShaders()
-		Local mat:TProtogMaterial
+		Local mat:dProtogMaterial
 		
-		mat = New TProtogMaterial.Create("shaders/blur")
+		mat = New dProtogMaterial.Create("shaders/blur")
 		m_blurshader = LoadShader("shaders/blur.glsl", mat)
 		
-		mat = New TProtogMaterial.Create("shaders/saturation")
+		mat = New dProtogMaterial.Create("shaders/saturation")
 		m_saturationshader = LoadShader("shaders/saturation.glsl", mat)
 		
-		mat = New TProtogMaterial.Create("shaders/hue")
-		mat.SetVec3("hue", New TVec3.Create(0.0, 0.4, 0.0))
+		mat = New dProtogMaterial.Create("shaders/hue")
+		mat.SetVec3("hue", New dVec3.Create(0.0, 0.4, 0.0))
 		m_hueshader = LoadShader("shaders/hue.glsl", mat)
 		
 		m_gdriver.AddRenderPassShader(m_hueshader)
@@ -87,17 +87,17 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method InitEntities()
-		m_infotext = New TProtogTextEntity.Create("fps: {fps} - vsync: {vsync} - shaders: {shaders}~n" + ..
+		m_infotext = New dProtogTextEntity.Create("fps: {fps} - vsync: {vsync} - shaders: {shaders}~n" + ..
 			"~tControls: F1 - vsync on/off~n" + ..
 			"~tSpace - Shaders on/off~n" + ..
 			"~tF2-F3 - Toggle individual shaders",  ..
-			, New TVec2.Create(2.0, 2.0), m_color_grey)
+			, New dVec2.Create(2.0, 2.0), m_color_grey)
 		
 		m_infotext.SetupReplacer()
 		m_infotext.SetReplacementByName("vsync", m_graphics.GetVSyncState())
 		m_infotext.SetReplacementByName("shaders", m_shadersenabled)
 		
-		m_bmaxsprite = New TProtogSpriteEntity.Create(m_bmaxlogo)
+		m_bmaxsprite = New dProtogSpriteEntity.Create(m_bmaxlogo)
 	End Method
 	
 	Method Run()
@@ -181,11 +181,11 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 		m_shadersenabled:~1
 	End Method
 	
-	Method LoadShader:TProtogShader(file:String, mat:TProtogMaterial)
-		Local shader:TProtogShader
+	Method LoadShader:dProtogShader(file:String, mat:dProtogMaterial)
+		Local shader:dProtogShader
 		Try
-			shader = New TProtogShader.CreateFromSourceFiles("shaders/vert.glsl", file, mat)
-			'shader = New TProtogShader.CreateFromDualFile(file, mat, False, True)
+			shader = New dProtogShader.CreateFromSourceFiles("shaders/vert.glsl", file, mat)
+			'shader = New dProtogShader.CreateFromDualFile(file, mat, False, True)
 		Catch e:Object
 			DebugLog("Exception caught: ~n" + e.ToString())
 			End

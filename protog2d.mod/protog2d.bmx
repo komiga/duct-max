@@ -1,24 +1,24 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 SuperStrict
@@ -28,10 +28,18 @@ bbdoc: Protog OpenGL 2D graphics engine
 End Rem
 Module duct.protog2d
 
-ModuleInfo "Version: 0.7"
+ModuleInfo "Version: 0.8"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.8"
+ModuleInfo "History: Restructured includes"
+ModuleInfo "History: Fixed documentation, licenses, examples"
+ModuleInfo "History: Renamed _TShaderSource to _dShaderSource"
+ModuleInfo "History: Renamed TShaderAssist to dShaderAssist"
+ModuleInfo "History: Renamed TDProtog* types to dProtog*"
+ModuleInfo "History: Renamed TProtog* types to dProtog*"
+ModuleInfo "History: Updated for API change"
 ModuleInfo "History: Version 0.7"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.6"
@@ -85,17 +93,17 @@ Import duct.vector
 Import duct.graphix
 Import duct.scriptparser
 
-Include "inc/types/protog.bmx"
-Include "inc/types/program.bmx"
-Include "inc/types/param.bmx"
-Include "inc/types/material.bmx"
-Include "inc/types/texture.bmx"
-Include "inc/types/fbo.bmx"
-Include "inc/types/font.bmx"
-Include "inc/types/entity.bmx"
-Include "inc/types/collision.bmx"
-Include "inc/types/color.bmx"
-Include "inc/types/primitives.bmx"
-Include "inc/types/drawstate.bmx"
+Include "inc/protog.bmx"
+Include "inc/program.bmx"
+Include "inc/param.bmx"
+Include "inc/material.bmx"
+Include "inc/texture.bmx"
+Include "inc/fbo.bmx"
+Include "inc/font.bmx"
+Include "inc/entity.bmx"
+Include "inc/collision.bmx"
+Include "inc/color.bmx"
+Include "inc/primitives.bmx"
+Include "inc/drawstate.bmx"
 
-Include "inc/types/app.bmx"
+Include "inc/app.bmx"

@@ -16,21 +16,21 @@ Import brl.jpgloader
 Import brl.pngloader
 
 Import duct.protog2d
-Import ductdev.p2d
+'Import ductdev.p2d
 
 Global mainapp:MyGraphicsApp = New MyGraphicsApp.Create()
 mainapp.Run()
 End
 
-Type MyGraphicsApp Extends TDProtogGraphicsApp
+Type MyGraphicsApp Extends dProtogGraphicsApp
 	
-	Field m_gdriver:TProtog2DDriver
+	Field m_gdriver:dProtog2DDriver
 	
-	Field m_font:TProtogFont
-	Field m_bmaxlogo:TProtogTexture
-	Field m_color_white:TProtogColor, m_color_grey:TProtogColor, m_color_highlight:TProtogColor
+	Field m_font:dProtogFont
+	Field m_bmaxlogo:dProtogTexture
+	Field m_color_white:dProtogColor, m_color_grey:dProtogColor, m_color_highlight:dProtogColor
 	
-	Field m_infotext:TProtogTextEntity, m_bmaxsprite:TProtogSpriteEntity
+	Field m_infotext:dProtogTextEntity, m_bmaxsprite:dProtogSpriteEntity
 	
 	Method New()
 	End Method
@@ -41,7 +41,7 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method OnInit()
-		m_graphics = New TDProtogGraphics.Create(800, 600, 0, 60,, 0, False)
+		m_graphics = New dProtogGraphics.Create(800, 600, 0, 60,, 0, False)
 		If m_graphics.StartGraphics() = False
 			Print("Failed to open graphics mode!")
 			End
@@ -56,32 +56,32 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method InitResources()
-		m_color_white = New TProtogColor.Create(1.0, 1.0, 1.0)
-		TProtogEntity.SetDefaultColor(m_color_white)
-		m_color_grey = New TProtogColor.Create(0.6, 0.6, 0.6)
-		m_color_highlight = New TProtogColor.Create(1.0, 0.0, 0.0)
+		m_color_white = New dProtogColor.Create(1.0, 1.0, 1.0)
+		dProtogEntity.SetDefaultColor(m_color_white)
+		m_color_grey = New dProtogColor.Create(0.6, 0.6, 0.6)
+		m_color_highlight = New dProtogColor.Create(1.0, 0.0, 0.0)
 		
-		m_font = New TProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
-		TProtogTextEntity.SetDefaultFont(m_font)
+		m_font = New dProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
+		dProtogTextEntity.SetDefaultFont(m_font)
 		
-		m_bmaxlogo = New TProtogTexture.Create(LoadPixmap("textures/max.png"), TEXTURE_RECTANGULAR, True)
+		m_bmaxlogo = New dProtogTexture.Create(LoadPixmap("textures/max.png"), TEXTURE_RECTANGULAR, True)
 	End Method
 	
 	Method InitEntities()
-		m_infotext = New TProtogTextEntity.Create("fps: {fps} - vsync: {vsync}~n" + ..
+		m_infotext = New dProtogTextEntity.Create("fps: {fps} - vsync: {vsync}~n" + ..
 			"~tControls: F1 - vsync on/off",  ..
-			, New TVec2.Create(2.0, 2.0), m_color_grey)
+			, New dVec2.Create(2.0, 2.0), m_color_grey)
 		
 		m_infotext.SetupReplacer()
 		m_infotext.SetReplacementByName("vsync", m_graphics.GetVSyncState())
-		m_bmaxsprite = New TProtogSpriteEntity.Create(m_bmaxlogo, New TVec2.Create(44.0, 44.0))
+		m_bmaxsprite = New dProtogSpriteEntity.Create(m_bmaxlogo, New dVec2.Create(44.0, 44.0))
 	End Method
 	
 	Method Run()
 		m_gdriver.SetBlend(BLEND_ALPHA)
 		While KeyDown(KEY_ESCAPE) = False And AppTerminate() = False
 			m_graphics.Cls()
-			TProtog2DCollision.ResetCollisions(ECollisionLayers.LAYER_1)
+			dProtog2DCollision.ResetCollisions(ECollisionLayers.LAYER_1)
 			Update()
 			Render()
 			m_graphics.Flip()
@@ -102,11 +102,11 @@ Type MyGraphicsApp Extends TDProtogGraphicsApp
 			DebugStop
 		End If
 		
-		Local pos:TVec2 = m_bmaxsprite.m_pos, size:TVec2 = m_bmaxsprite.m_size
-		TProtog2DCollision.CollideTexture(m_bmaxsprite.m_texture, pos.m_x, pos.m_y, 0, ECollisionLayers.LAYER_1, m_bmaxsprite)
+		Local pos:dVec2 = m_bmaxsprite.m_pos, size:dVec2 = m_bmaxsprite.m_size
+		dProtog2DCollision.CollideTexture(m_bmaxsprite.m_texture, pos.m_x, pos.m_y, 0, ECollisionLayers.LAYER_1, m_bmaxsprite)
 		
 		Local objs:Object[]
-		objs = TProtog2DCollision.CollideRect(MouseX(), MouseY(), 1.0, 1.0, ECollisionLayers.LAYER_1, 0, Null)
+		objs = dProtog2DCollision.CollideRect(MouseX(), MouseY(), 1.0, 1.0, ECollisionLayers.LAYER_1, 0, Null)
 		If objs <> Null
 			If objs[0] = m_bmaxsprite
 				DebugLog("Collided with sprite!!")

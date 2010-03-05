@@ -1,4 +1,6 @@
+
 SuperStrict
+
 Framework brl.blitz
 Import brl.standardio
 Import duct.json
@@ -8,8 +10,8 @@ Local root:dJObject = jreader.Parse()
 
 PrintObject(root)
 Function PrintObject(obj:dJObject, tablevel:String = "")
-	Local lastvar:TVariable = TVariable(obj.GetValues().Last())
-	For Local variable:TVariable = EachIn obj.GetValues()
+	Local lastvar:dVariable = dVariable(obj.GetValues().Last())
+	For Local variable:dVariable = EachIn obj.GetValues()
 		If dJArray(variable)
 			If variable.GetName() <> Null
 				Print(tablevel + "~q" + variable.GetName() + "~q: [")
@@ -40,3 +42,4 @@ Function PrintObject(obj:dJObject, tablevel:String = "")
 		End If
 	Next
 End Function
+

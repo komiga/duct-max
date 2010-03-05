@@ -1,8 +1,4 @@
 
-Rem
-	Test TTextReplacer
-End Rem
-
 SuperStrict
 
 Framework brl.blitz

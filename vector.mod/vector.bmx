@@ -1,24 +1,24 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 SuperStrict
@@ -28,11 +28,16 @@ bbdoc: Vector module
 End Rem
 Module duct.vector
 
-ModuleInfo "Version: 0.26"
+ModuleInfo "Version: 0.27"
 ModuleInfo "Copyright: Tim Howard"
-ModuleInfo "Author: Yahfree (most of TVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
+ModuleInfo "Author: Yahfree (most of dVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.27"
+ModuleInfo "History: Fixed documentation, licenses"
+ModuleInfo "History: Renamed TVec2 to dVec2"
+ModuleInfo "History: Renamed TVec3 to dVec3"
+ModuleInfo "History: Renamed TVec4 to dVec4"
 ModuleInfo "History: Version 0.26"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.25"
@@ -69,7 +74,7 @@ End Function
 
 Public
 
-Include "inc/types/vec2.bmx"
-Include "inc/types/vec3.bmx"
-Include "inc/types/vec4.bmx"
+Include "inc/vec2.bmx"
+Include "inc/vec3.bmx"
+Include "inc/vec4.bmx"
 

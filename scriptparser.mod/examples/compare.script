@@ -1,16 +1,16 @@
 
-attr value1 "value two! '' lalala {}"
+attr "value1" "value two! '' lalala {}"
 
 namednode {
 	data.zip\\sounds\intro.ogg 0 1 1 2 3 5 8 13
 }
 
 {
-	namelessnode this,is,sparta!
-	echoes "/eval:: a + b / 0.1392"
+	namelessnode "this,is,sparta!"
+	echoes "/e:: a + b / 0.1392"
 }
-test.some.struff largro(extera)
-"White-spaced identifier names" Booyah!
+test.some.struff "largro(extera)"
+"White-spaced identifier names" "Booyah!"
 
 SingleNode {
 	First "single line test"
@@ -25,7 +25,6 @@ SingleNode {
 }
 
 {
-	NullStringTest 
 	
 	Named {
 		Alloc 22

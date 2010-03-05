@@ -1,41 +1,40 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-	-----------------------------------------------------------------------------
-	
-	drawstate.bmx (Contains: TDrawState, )
-	
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 SuperStrict
 
 Rem
-bbdoc: Drawstate (Push, Pop stack) module.
+bbdoc: Drawstate (push, pop stack) module.
 End Rem
 Module duct.drawstate
 
-ModuleInfo "Version: 0.40"
+ModuleInfo "Version: 0.5"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.5"
+ModuleInfo "History: Fixed documentation, license"
+ModuleInfo "History: Renamed dDrawState to dDrawState"
 ModuleInfo "History: Version 0.40"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.39"
@@ -44,8 +43,8 @@ ModuleInfo "History: Version 0.38"
 ModuleInfo "History: General code cleanup"
 ModuleInfo "History: Version 0.37"
 ModuleInfo "History: Changed layout, all states now have Store and Set methods"
-ModuleInfo "History: TDrawState changed to be a stack"
-ModuleInfo "History: TDrawState updated to store the viewport, font and linewidth"
+ModuleInfo "History: dDrawState changed to be a stack"
+ModuleInfo "History: dDrawState updated to store the viewport, font and linewidth"
 ModuleInfo "History: Corrected usage of syntax (in Returns, Cases, News and Selects)"
 ModuleInfo "History: Version 0.36"
 ModuleInfo "History: Initial release."
@@ -53,17 +52,17 @@ ModuleInfo "History: Initial release."
 Import brl.max2d
 
 Rem
-	bbdoc: Drawstate holder.
+	bbdoc: duct drawstate holder.
 End Rem
-Type TDrawState
+Type dDrawState
 	
 	Rem
 		bbdoc: The default draw state.
-		about: This needs be initiated after the graphics window is setup (TDrawState.InitiateDefaultState()).
+		about: This needs be initiated after the graphics window is setup (dDrawState.InitiateDefaultState()).
 	End Rem
-	Global m_defaultstate:TDrawState
+	Global m_defaultstate:dDrawState
 	
-	'Global laststate:TDrawState
+	'Global laststate:dDrawState
 	Global m_stack:TList = New TList
 	
 	Field m_link:TLink
@@ -117,7 +116,7 @@ Type TDrawState
 		returns: The new DrawState (itself).
 		about: If @addstack is False, the DrawState will not be added to the stack.
 	End Rem
-	Method Create:TDrawState(addstack:Int = True)
+	Method Create:dDrawState(addstack:Int = True)
 		If addstack = True
 			AddToStack()
 		End If
@@ -441,10 +440,10 @@ Type TDrawState
 		bbdoc: Push the current graphics state on to the stack.
 		returns: The pushed state (for consistency).
 	End Rem
-	Function Push:TDrawState(_colors:Int = True, _transform:Int = True, _font:Int = True, _alpha:Int = True, _blend:Int = True, _viewport:Int = True, _offsets:Int = True, _line_width:Int = True)
-		Local dstate:TDrawState
+	Function Push:dDrawState(_colors:Int = True, _transform:Int = True, _font:Int = True, _alpha:Int = True, _blend:Int = True, _viewport:Int = True, _offsets:Int = True, _line_width:Int = True)
+		Local dstate:dDrawState
 		
-		dstate = New TDrawState.Create(True)
+		dstate = New dDrawState.Create(True)
 		dstate.StoreStates(_colors, _transform, _font, _alpha, _blend, _viewport, _offsets, _line_width)
 		Return dstate
 	End Function
@@ -454,7 +453,7 @@ Type TDrawState
 		returns: Nothing.
 	End Rem
 	Function Pop(_colors:Int = True, _transform:Int = True, _font:Int = True, _alpha:Int = True, _blend:Int = True, _viewport:Int = True, _offsets:Int = True, _line_width:Int = True)
-		Local dstate:TDrawState
+		Local dstate:dDrawState
 		
 		dstate = GetLastState()
 		If dstate <> Null
@@ -469,7 +468,7 @@ Type TDrawState
 		about: This should be called after setting your default drawing states (typically this should be called right after you create a graphics context).
 	End Rem
 	Function InitiateDefaultState()
-		m_defaultstate = New TDrawState.Create(False)
+		m_defaultstate = New dDrawState.Create(False)
 		m_defaultstate.StoreFullState()
 	End Function
 		
@@ -478,9 +477,9 @@ Type TDrawState
 		returns: The last drawstate.
 		about: This will get the last state that was set.
 	End Rem
-	Function GetLastState:TDrawState()
+	Function GetLastState:dDrawState()
 		If m_stack.IsEmpty() = False
-			Return TDrawState(m_stack.Last())
+			Return dDrawState(m_stack.Last())
 		End If
 		Return Null
 	End Function

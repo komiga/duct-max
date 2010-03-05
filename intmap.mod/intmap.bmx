@@ -1,48 +1,51 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 SuperStrict
 
 Rem
-bbdoc: IntMap (binary tree).
+bbdoc: duct integer map (binary tree).
 End Rem
 Module duct.intmap
 
-ModuleInfo "Version: 0.2"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.3"
+ModuleInfo "History: Fixed documentation, license, examples"
+ModuleInfo "History: Renamed TIntMapEnumerator to dIntMapEnumerator"
+ModuleInfo "History: Renamed TIntMap to dIntMap"
 ModuleInfo "History: Version 0.2"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
-' Used modules
 Import brl.blitz
 
 Import "intmap.cpp"
 
-Extern
+Extern "c"
 	Function bmx_intmap_create:Byte Ptr()
 	Function bmx_intmap_delete(imap:Byte Ptr)
 	
@@ -62,9 +65,9 @@ Extern
 End Extern
 
 Rem
-	bbdoc: Integer-key based binary tree.
+	bbdoc: duct integer-key based binary tree.
 End Rem
-Type TIntMap
+Type dIntMap
 	
 	Field m_pointer:Byte Ptr
 	
@@ -92,7 +95,7 @@ Type TIntMap
 		returns: Nothing.
 	End Rem
 	Method Insert(key:Int, obj:Object)
-		Assert obj, "(duct.intmap.TIntMap) Cannot set key (" + String(key) + ") to Null!"
+		Assert obj, "(duct.intmap.dIntMap) Cannot set key (" + String(key) + ") to Null!"
 		If obj <> Null
 			bmx_intmap_set(m_pointer, key, obj)
 		End If
@@ -118,31 +121,36 @@ Type TIntMap
 	
 	Rem
 		bbdoc: Get the number of objects in the map.
-		returns: Nothing.
+		returns: The number of objects in the map.
 	End Rem
 	Method Count:Int()
 		Return bmx_intmap_size(m_pointer)
 	End Method
 	
 	Rem
-		bbdoc: Returns whether or not the map contains the given key.
+		bbdoc: Check if the map contains the given key.
+		Returns: True if the given key is in the map, or False if it is not.
 	End Rem
 	Method Contains:Int(key:Int)
 		Return bmx_intmap_contains(m_pointer, key)
 	End Method
 	
-	Method ObjectEnumerator:TIntMapEnumerator()
-		Local enum:TIntMapEnumerator
-		enum = New TIntMapEnumerator.Create(m_pointer)
+	Rem
+		bbdoc: Get an object enumerator for the map.
+		returns: A #dIntMapEnumerator.
+	End Rem
+	Method ObjectEnumerator:dIntMapEnumerator()
+		Local enum:dIntMapEnumerator
+		enum = New dIntMapEnumerator.Create(m_pointer)
 		Return enum
 	End Method
 	
 End Type
 
 Rem
-	bbdoc: #TIntMap enumerator (enabled EachIn support).
+	bbdoc: #dIntMap enumerator (enables EachIn support).
 End Rem
-Type TIntMapEnumerator
+Type dIntMapEnumerator
 	  
 	Field m_intmap:Byte Ptr, m_iter:Byte Ptr
 	
@@ -150,7 +158,7 @@ Type TIntMapEnumerator
 	'	bmx_intmap_iter_delete(m_iter)
 	'End Method
 	
-	Method Create:TIntMapEnumerator(intmap:Byte Ptr)
+	Method Create:dIntMapEnumerator(intmap:Byte Ptr)
 		m_intmap = intmap
 		m_iter = bmx_intmap_iter_first(m_intmap)
 		Return Self

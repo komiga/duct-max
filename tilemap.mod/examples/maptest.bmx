@@ -22,21 +22,21 @@ Global mainapp:MyApp = New MyApp.Create()
 mainapp.Run()
 End
 
-Type MyApp Extends TDProtogGraphicsApp
+Type MyApp Extends dProtogGraphicsApp
 	
-	Field m_gdriver:TProtog2DDriver
+	Field m_gdriver:dProtog2DDriver
 	
-	Field m_font:TProtogFont
-	Field m_color_white:TProtogColor
-	Field m_staticres:TMapResourceSet, m_resources:TMapResourceSet
+	Field m_font:dProtogFont
+	Field m_color_white:dProtogColor
+	Field m_staticres:dMapResourceSet, m_resources:dMapResourceSet
 	
 	Field m_resids:Int[]
-	Field m_map:TTileMap, m_maphandler:TMyMapHandler, m_environment:TMapEnvironment
+	Field m_map:dTileMap, m_maphandler:TMyMapHandler, m_environment:dMapEnvironment
 	
 	Field m_omz:Int
 	Field m_tilerange:Int, m_tilerange_low:Int
 	
-	Field m_infotext:TProtogTextEntity
+	Field m_infotext:dProtogTextEntity
 	
 	Method New()
 	End Method
@@ -47,7 +47,7 @@ Type MyApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method OnInit()
-		m_graphics = New TDProtogGraphics.Create(1024, 768, 0, 60,, 0, False)
+		m_graphics = New dProtogGraphics.Create(1024, 768, 0, 60,, 0, False)
 		If m_graphics.StartGraphics() = False
 			Print("Failed to open graphics mode!")
 			End
@@ -56,7 +56,7 @@ Type MyApp Extends TDProtogGraphicsApp
 		m_gdriver.SetRenderBufferOnFlip(False)
 		m_gdriver.UnbindRenderBuffer()
 		
-		TTileMap.InitGL()
+		dTileMap.InitGL()
 		Try
 			InitResources()
 			InitMap()
@@ -69,19 +69,19 @@ Type MyApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method InitResources()
-		m_color_white = New TProtogColor.Create(1.0, 1.0, 1.0, 1.0)
-		m_font = New TProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
+		m_color_white = New dProtogColor.Create(1.0, 1.0, 1.0, 1.0)
+		m_font = New dProtogFont.FromNode(New TSNode.LoadScriptFromObject("fonts/arial.font"), True)
 		
-		m_resources = TMapResourceSet.LoadFromFile("tiles.dts")
-		m_staticres = TMapResourceSet.LoadFromFile("statics.dts")
-		m_environment = New TMapEnvironment.Create(1.0, 1.0, 1.0)
+		m_resources = dMapResourceSet.LoadFromFile("tiles.dts")
+		m_staticres = dMapResourceSet.LoadFromFile("statics.dts")
+		m_environment = New dMapEnvironment.Create(1.0, 1.0, 1.0)
 	End Method
 	
 	Method InitMap()
-		Local instream:TStream, staticres:TMapResourceSet
+		Local instream:TStream, staticres:dMapResourceSet
 		
-		' We don't call the Create method here because we're DeSerializing (we can set things manually)
-		m_map = New TTileMap
+		' We don't call the Create method here because we're Deserializing (we can set things manually)
+		m_map = New dTileMap
 		
 		m_maphandler = New TMyMapHandler.Create(m_map)
 		m_map.SetHandler(m_maphandler)
@@ -93,7 +93,7 @@ Type MyApp Extends TDProtogGraphicsApp
 		If instream = Null
 			Throw("Failed to load map!")
 		Else
-			m_map.DeSerialize(instream)
+			m_map.Deserialize(instream)
 			instream.Close()
 		End If
 		
@@ -125,8 +125,8 @@ Type MyApp Extends TDProtogGraphicsApp
 	End Method
 	
 	Method InitEntities()
-		m_infotext = New TProtogTextEntity.Create("fps: {fps} - [ {tilerange_low} - {tilerange} ]",  ..
-		m_font, New TVec2.Create(2.0, 2.0), m_color_white)
+		m_infotext = New dProtogTextEntity.Create("fps: {fps} - [ {tilerange_low} - {tilerange} ]",  ..
+		m_font, New dVec2.Create(2.0, 2.0), m_color_white)
 		
 		m_infotext.SetupReplacer()
 		m_infotext.SetReplacementByName("tilerange_low", m_tilerange_low)
@@ -151,7 +151,7 @@ Type MyApp Extends TDProtogGraphicsApp
 	Method Render()
 		Local tiley:Float, tilex:Float, tile:TMapResource
 		Local drawtime:Int, mz:Int
-		Local y:Int, x:Int, rid:Int, dtile:TDrawnTile
+		Local y:Int, x:Int, rid:Int, dtile:dDrawnTile
 		drawtime = MilliSecs()
 		m_map.Draw()
 		m_font.DrawStringParams("Draw time: " + String(MilliSecs() - drawtime) + "ms", 110.0, 13.0)
@@ -173,7 +173,7 @@ Type MyApp Extends TDProtogGraphicsApp
 		End If
 		
 		m_color_white.Bind()
-		TProtogPrimitives.DrawRectangle(m_map.GetWindowX(), m_map.GetWindowY(), m_map.GetWindowX() + (m_map.GetWindowWidth()), m_map.GetWindowY() + (m_map.GetWindowHeight()), False)
+		dProtogPrimitives.DrawRectangle(m_map.GetWindowX(), m_map.GetWindowY(), m_map.GetWindowX() + (m_map.GetWindowWidth()), m_map.GetWindowY() + (m_map.GetWindowHeight()), False)
 		
 		If m_maphandler.m_coll_terrain <> Null
 			m_font.DrawStringParams("tilez: " + m_maphandler.m_coll_terrain.GetZ(), 10.0, 25.0)
@@ -270,15 +270,15 @@ Type MyApp Extends TDProtogGraphicsApp
 	
 End Type
 
-Type TMyMapHandler Extends TTileMapHandler
+Type TMyMapHandler Extends dTileMapHandler
 	
 	Field m_debug:Int = False
-	Field m_mousep:TVec2 = New TVec2.Create(0.0, 0.0)
+	Field m_mousep:dVec2 = New dVec2.Create(0.0, 0.0)
 	
-	Field m_color_yellow:TProtogColor = New TProtogColor.Create(1.0, 1.0, 0.0)
+	Field m_color_yellow:dProtogColor = New dProtogColor.Create(1.0, 1.0, 0.0)
 	
-	Method Create:TMyMapHandler(map:TTileMap)
-		Init(map, New TMapPos, New TVec3, True, True)
+	Method Create:TMyMapHandler(map:dTileMap)
+		Init(map, New dMapPos, New dVec3, True, True)
 		Return Self
 	End Method
 	
@@ -286,7 +286,7 @@ Type TMyMapHandler Extends TTileMapHandler
 		m_color_yellow.Bind()
 	End Method
 	
-	Method AfterTileDrawn(tile:TDrawnTile)
+	Method AfterTileDrawn(tile:dDrawnTile)
 		If m_debug = True
 			'SetColor(255, 0, 0)
 			'cdata.m_quad.DrawTopOutline()

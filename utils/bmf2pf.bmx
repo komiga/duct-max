@@ -64,14 +64,13 @@ Print("Done!")
 
 Function Convert()
 	Local text:String, output:String, regex:TRegEx
-	
 	text = LoadText(in_file)
 	regex = TRegEx.Create("\S+\=")
 	output = regex.ReplaceAll(text, "")
 	SaveText(output, "tmp")
 	
-	Local root:TSNode, converted:TSNode
-	root = TSNode.LoadScriptFromObject("tmp", SNPEncoding_UTF8)
+	Local root:dSNode, converted:dSNode
+	root = dSNode.LoadScriptFromObject("tmp", SNPEncoding_UTF8)
 	converted = ConvertToScript(root)
 	
 	Print("Converting...")
@@ -80,66 +79,60 @@ Function Convert()
 	Else
 		converted.WriteToFile(out_file)
 	End If
-	
 	DeleteFile("tmp")
-	
 End Function
 
-Function ConvertToScript:TSNode(root:TSNode)
-	Local child:TIdentifier, cname:String
-	Local ivar:TIntVariable, char:Int
-	Local node:TSNode, iden:TIdentifier
+Function ConvertToScript:dSNode(root:dSNode)
+	Local child:dIdentifier, cname:String
+	Local ivar:dIntVariable, char:Int
+	Local node:dSNode, iden:dIdentifier
 	
-	node = New TSNode.Create(Null)
+	node = New dSNode.Create(Null)
 	
 	For child = EachIn root.GetChildren()
 		cname = child.GetName()
 		If cname = "info"
-			iden = New TIdentifier.CreateByData("name")
+			iden = New dIdentifier.CreateByData("name")
 			iden.AddValue(child.GetValueAtIndex(0))
 			node.AddIdentifier(iden)
-			iden = New TIdentifier.CreateByData("height")
-			ivar = TIntVariable(child.GetValueAtIndex(1))
-			iden.AddValue(New TFloatVariable.Create(Null, Float(ivar.Get())))
+			iden = New dIdentifier.CreateByData("height")
+			ivar = dIntVariable(child.GetValueAtIndex(1))
+			iden.AddValue(New dFloatVariable.Create(Null, Float(ivar.Get())))
 			node.AddIdentifier(iden)
 		Else If cname = "page"
-			iden = New TIdentifier.CreateByData("texture")
+			iden = New dIdentifier.CreateByData("texture")
 			iden.AddValue(child.GetValueAtIndex(1))
 			node.AddIdentifier(iden)
 		Else If cname = "char"
-			iden = New TIdentifier.CreateByData("char")
-			ivar = TIntVariable(child.GetValueAtIndex(0)) ' char (id)
+			iden = New dIdentifier.CreateByData("char")
+			ivar = dIntVariable(child.GetValueAtIndex(0)) ' char (id)
 			char = ivar.Get()
 			iden.AddValue(ivar)
-			ivar = TIntVariable(child.GetValueAtIndex(3)) ' width (width)
-			iden.AddValue(New TFloatVariable.Create(Null, Float(ivar.Get())))
-			ivar = TIntVariable(child.GetValueAtIndex(4)) ' height (height)
-			iden.AddValue(New TFloatVariable.Create(Null, Float(ivar.Get())))
-			ivar = TIntVariable(child.GetValueAtIndex(1)) ' xpos (x)
-			iden.AddValue(New TFloatVariable.Create(Null, Float(ivar.Get())))
-			ivar = TIntVariable(child.GetValueAtIndex(2)) ' ypos (y)
-			iden.AddValue(New TFloatVariable.Create(Null, Float(ivar.Get())))
-			ivar = TIntVariable(child.GetValueAtIndex(6)) ' offsety (offsety)
-			iden.AddValue(New TFloatVariable.Create(Null, Float(ivar.Get())))
+			ivar = dIntVariable(child.GetValueAtIndex(3)) ' width (width)
+			iden.AddValue(New dFloatVariable.Create(Null, Float(ivar.Get())))
+			ivar = dIntVariable(child.GetValueAtIndex(4)) ' height (height)
+			iden.AddValue(New dFloatVariable.Create(Null, Float(ivar.Get())))
+			ivar = dIntVariable(child.GetValueAtIndex(1)) ' xpos (x)
+			iden.AddValue(New dFloatVariable.Create(Null, Float(ivar.Get())))
+			ivar = dIntVariable(child.GetValueAtIndex(2)) ' ypos (y)
+			iden.AddValue(New dFloatVariable.Create(Null, Float(ivar.Get())))
+			ivar = dIntVariable(child.GetValueAtIndex(6)) ' offsety (offsety)
+			iden.AddValue(New dFloatVariable.Create(Null, Float(ivar.Get())))
 			node.AddIdentifier(iden)
-			
 			If char = char_empty
 				iden = iden.Copy()
-				TIntVariable(iden.GetValueAtIndex(0)).Set(- 1)
+				dIntVariable(iden.GetValueAtIndex(0)).Set(- 1)
 				node.AddIdentifier(iden)
 			End If
-			
 		End If
 	Next
-	
 	Return node
-	
 End Function
 
-Function ConvertToBinary(root:TSNode)
-	Local pfont:TProtogFont
+Function ConvertToBinary(root:dSNode)
+	Local pfont:dProtogFont
 	
-	pfont = New TProtogFont.FromNode(root, False)
+	pfont = New dProtogFont.FromNode(root, False)
 	
 	Local streamout:TStream
 	streamout = WriteStream(out_file)

@@ -1,22 +1,22 @@
 
-iden variable
-abcd 102.23 2054 245ello 23far choppers "'{} Enclosed string"
+iden "variable"
+abcd 102.23 2054 "245ello" "23far" "choppers" "'{} Enclosed string"
 
 node1 {
-	data riddo 775
+	data "riddo" 775
 	
 	{
 		enipt,epin
 	}
 	
 	{
-		captain obvious
+		captain "obvious"
 	}
 	Epilouge
-	"Special identifier name" Magic.
+	"Special identifier name" "Magic."
 }
 
 node2 {
-	NullStringTest 
-	stuff goes here
+	NullStringTest ""
+	stuff "goes" "here"
 }

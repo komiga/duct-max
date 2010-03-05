@@ -1,10 +1,4 @@
 
-Rem
-	example.bmx
-	Description:
-		A simple test for duct.csvreader!
-End Rem
-
 SuperStrict
 
 Framework brl.blitz
@@ -13,11 +7,11 @@ Import brl.standardio
 Import duct.csvreader
 
 Local file:String = "test.csv", includeblanks:Int = False
-Local csvmap:TCSVMap = TCSVMap.ParseFile(file, includeblanks)
+Local csvmap:dCSVMap = dCSVMap.ParseFile(file, includeblanks)
 
 If csvmap <> Null
 	' First way of enumerating
-	Local record:TCSVRecord, variable:TVariable
+	Local record:dCSVRecord, variable:dVariable
 	
 	Print("There are: " + csvmap.GetHeaderCount() + " possible column(s), " + csvmap.GetRowCount() + " row(s), and " + csvmap.Count() + " total record(s)")
 	For record = EachIn csvmap.ValueEnumerator()

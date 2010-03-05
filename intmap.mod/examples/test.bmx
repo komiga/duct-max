@@ -6,7 +6,7 @@ Import brl.standardio
 
 Import duct.intmap
 
-Local intmap:TIntMap = New TIntMap
+Local intmap:dIntMap = New dIntMap
 
 intmap.Insert(1, "ioudfg")
 Print(String(intmap.ForKey(1)))

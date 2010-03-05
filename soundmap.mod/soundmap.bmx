@@ -1,28 +1,24 @@
 
 Rem
-	Copyright (c) 2009 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-	-----------------------------------------------------------------------------
-	
-	soundmap.bmx (Contains: TSoundMap, )
-	
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 SuperStrict
@@ -32,10 +28,14 @@ bbdoc: Soundmap module
 End Rem
 Module duct.soundmap
 
-ModuleInfo "Version: 0.06"
+ModuleInfo "Version: 0.07"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.07"
+ModuleInfo "History: Fixed documentation, license, examples"
+ModuleInfo "History: Renamed TSoundMap to dSoundMap"
+ModuleInfo "History: Updated for API change"
 ModuleInfo "History: Version 0.06"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.05"
@@ -51,18 +51,18 @@ Import brl.audio
 Import duct.objectmap
 
 Rem
-	bbdoc: The SoundMap type.
+	bbdoc: duct soundmap.
 	about: Provides a simple pathing system for sounds.
 EndRem
-Type TSoundMap Extends TObjectMap
+Type dSoundMap Extends dObjectMap
 	
 	Field m_rootpath:String
 	
 	Rem
-		bbdoc: Create a new SoundMap.
-		returns: The new SoundMap (itself).
+		bbdoc: Create a new sound map.
+		returns: Itself.
 	End Rem
-	Method Create:TSoundMap(rootpath:String)
+	Method Create:dSoundMap(rootpath:String)
 		SetRootPath(rootpath)
 		Return Self
 	End Method
@@ -81,7 +81,7 @@ Type TSoundMap Extends TObjectMap
 	End Method
 	
 	Rem
-		bbdoc: Get the SoundMap's root path.
+		bbdoc: Get the map's root path.
 		returns: The root path for the map.
 	End Rem
 	Method GetRootPath:String()
@@ -111,7 +111,7 @@ Type TSoundMap Extends TObjectMap
 	Rem
 		bbdoc: Insert a sound into the map.
 		returns: True if the sound was added, or False if it was not (either @path or @sound are Null).
-		about: @path should be what comes after the root path.<br />
+		about: @path should be what comes after the root path.<br/>
 		i.e. If the root path is "sound/" and the path is "ambient/rain.ogg", then the resulting path (when trying to load) will be "sound/ambient/rain.ogg".
 	End Rem
 	Method InsertSound:Int(path:String, sound:TSound)
@@ -137,7 +137,6 @@ Type TSoundMap Extends TObjectMap
 '#end region (Collections)
 	
 End Type
-
 
 Private
 

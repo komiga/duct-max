@@ -28,10 +28,19 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.21"
+ModuleInfo "Version: 0.22"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.22"
+ModuleInfo "History: Fixed documentation, license"
+ModuleInfo "History: Renamed TVariable to dVariable"
+ModuleInfo "History: Renamed TIntVariable to dIntVariable"
+ModuleInfo "History: Renamed TStringVariable to dStringVariable"
+ModuleInfo "History: Renamed TFloatVariable to dFloatVariable"
+ModuleInfo "History: Renamed TEvalVariable to dEvalVariable"
+ModuleInfo "History: Renamed TIdentifier to dIdentifier"
+ModuleInfo "History: Renamed TBoolVariable to dBoolVariable"
 ModuleInfo "History: Version 0.21"
 ModuleInfo "History: Corrected TVariable.RawToVariable parsing for eval variables; added allowevalvars option"
 ModuleInfo "History: Version 0.20"
@@ -84,38 +93,38 @@ Import duct.etc
 Import duct.objectmap
 
 Rem
-	bbdoc: Template variable type for the #TIntVariable type.
+	bbdoc: Template variable type for the #dIntVariable type.
 End Rem
 Const TV_INTEGER:Int = 1
 Rem
-	bbdoc: Template variable type for the #TStringVariable type.
+	bbdoc: Template variable type for the #dStringVariable type.
 End Rem
 Const TV_STRING:Int = 2
 Rem
-	bbdoc: Template variable type for the #TFloatVariable type.
+	bbdoc: Template variable type for the #dFloatVariable type.
 End Rem
 Const TV_FLOAT:Int = 3
 Rem
-	bbdoc: Template variable type for the #TEvalVariable type.
+	bbdoc: Template variable type for the #dEvalVariable type.
 End Rem
 Const TV_EVAL:Int = 4
 Rem
-	bbdoc: Template variable type for the #TIdentifier type.
+	bbdoc: Template variable type for the #dIdentifier type.
 End Rem
 Const TV_IDEN:Int = 5
 Rem
-	bbdoc: Template variable type for the #TBoolVariable type.
+	bbdoc: Template variable type for the #dBoolVariable type.
 End Rem
 Const TV_BOOL:Int = 6
 
 Rem
-	bbdoc: Generic variable type.
+	bbdoc: duct generic variable.
 	about: This is the base variable type, you should extend from this to use it.
 End Rem
-Type TVariable Abstract
+Type dVariable Abstract
 	
 	Field m_name:String
-	Field m_parent:TVariable
+	Field m_parent:dVariable
 	
 '#region Field accessors
 	
@@ -139,7 +148,7 @@ Type TVariable Abstract
 		bbdoc: Set the variable's parent.
 		returns: Nothing.
 	End Rem
-	Method SetParent(parent:TVariable)
+	Method SetParent(parent:dVariable)
 		m_parent = parent
 	End Method
 	
@@ -147,7 +156,7 @@ Type TVariable Abstract
 		bbdoc: Get the variable's parent.
 		returns: The variable's parent.
 	End Rem
-	Method GetParent:TVariable()
+	Method GetParent:dVariable()
 		Return m_parent
 	End Method
 	
@@ -174,7 +183,7 @@ Type TVariable Abstract
 		bbdoc: Create a copy of the variable.
 		returns: A clone of the variable.
 	End Rem
-	Method Copy:TVariable() Abstract
+	Method Copy:dVariable() Abstract
 	
 	Rem
 		bbdoc: Serialize the variable to a stream.
@@ -188,7 +197,7 @@ Type TVariable Abstract
 		returns: The deserialized variable.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method Deserialize:TVariable(stream:TStream, tv:Int = True, name:Int = False) Abstract
+	Method Deserialize:dVariable(stream:TStream, tv:Int = True, name:Int = False) Abstract
 	
 '#end region (Data handling)
 	
@@ -203,17 +212,17 @@ Type TVariable Abstract
 	Function GetTVType:Int() Abstract
 	
 	Rem
-		bbdoc: Convert raw data (raw data being things like: "/e:(a+b/0.4181)*a-b" - a TEvalVariable, "A String variable", 3452134 - a TIntVariable, 1204.00321 - a FloatVariable) into a Variable.
+		bbdoc: Convert raw data (raw data being things like: "/e:(a+b/0.4181)*a-b" - a dEvalVariable, "A String variable", 3452134 - a dIntVariable, 1204.00321 - a variable) into a Variable.
 		returns: A new Variable, or Null if something whacky occured.
-		about: @etype is optional, it is used to go automagically to one type of a Variable (1 & 4=String (will check for '/e:' - TEvalVariables and TBoolVariables ['true' or 'false']), 2=Integer, 3=Float).<br/>
+		about: @etype is optional, it is used to go automagically to one type of a Variable (1 & 4=String (will check for '/e:' - dEvalVariables and dBoolVariables ['true' or 'false']), 2=Integer, 3=Float).<br/>
 		@varname is also an optional parameter. It will be used as the name of the variable.<br/>
 		If @allowevalvars (defaults to False) is True, eval variables will be checked for.
 	End Rem
-	Function RawToVariable:TVariable(vraw:String, etype:Int = 0, varname:String = "", allowevalvars:Int = False)
-		Local variable:TVariable
+	Function RawToVariable:dVariable(vraw:String, etype:Int = 0, varname:String = "", allowevalvars:Int = False)
+		Local variable:dVariable
 		If vraw = Null
-			DebugLog("(TVariable.RawToVariable) @vraw = Null; returning StringVariable (with @varname and Null value)")
-			Return New TStringVariable.Create(varname, Null)
+			DebugLog("(dVariable.RawToVariable) @vraw = Null; returning a dStringVariable (with @varname and Null value)")
+			Return New dStringVariable.Create(varname, Null)
 		End If
 		If etype = 0 ' Determine the value's type (must be either integer, double, or a string with no spaces)
 			' ASCII '0' to '9' = 48-57; '-' = 45, '+' = 43; and '.' = 46
@@ -232,28 +241,26 @@ Type TVariable Abstract
 					Exit
 				End If
 			Next
-			
-			Select etype
-				Case 2 ' Integer
-					variable = TVariable(New TIntVariable.Create(varname, Int(vraw)))
-				Case 3 ' Double/Float
-					variable = TVariable(New TFloatVariable.Create(varname, Float(vraw)))
-			End Select
 		End If
 		
-		If etype = 1 Or etype = 4
-			Local vrawlower:String = vraw.ToLower()
-			If vrawlower.StartsWith("/e:") = True and allowevalvars = True
-				variable = TVariable(New TEvalVariable.Create(varname, vraw[2..]))
-			Else If vrawlower = "true" Or vrawlower = "false"
-				variable = New TBoolVariable.Create(varname, (vrawlower = "true") And True Or False)
-			Else
-				variable = TVariable(New TStringVariable.Create(varname, vraw))
-			End If
-		End If
-		' DebugLog("TSNode.LoadScriptFromStream().RawToVariable(); vraw = ~q" + vraw + "~q \" + etype)
+		Select etype
+			Case 2 ' Integer
+				variable = dVariable(New dIntVariable.Create(varname, Int(vraw)))
+			Case 3 ' Double/Float
+				variable = dVariable(New dFloatVariable.Create(varname, Float(vraw)))
+			Case 1, 4
+				Local vrawlower:String = vraw.ToLower()
+				If vrawlower.StartsWith("/e:") = True and allowevalvars = True
+					variable = dVariable(New dEvalVariable.Create(varname, vraw[2..]))
+				Else If vrawlower = "true" Or vrawlower = "false"
+					variable = New dBoolVariable.Create(varname, (vrawlower = "true") And True Or False)
+				Else
+					variable = dVariable(New dStringVariable.Create(varname, vraw))
+				End If
+		End Select
+		'DebugLog("TSNode.LoadScriptFromStream().RawToVariable(); vraw = ~q" + vraw + "~q \" + etype)
 		?Debug
-		If variable = Null Then DebugLog("( TVariable.RawToVariable() ) Unknown error, 'variable' is Null.")
+		If variable = Null Then DebugLog("(dVariable.RawToVariable) Unknown error, 'variable' is Null.")
 		?
 		Return variable
 	End Function
@@ -265,23 +272,23 @@ Type TVariable Abstract
 		This requires the variable to have been serialized with the template type (see #Serialize parameters).<br/>
 		@name tells the further Deserialize calls if the name should be Deserialized or not.
 	End Rem
-	Function DeserializeUniversal:TVariable(stream:TStream, name:Int = False)
+	Function DeserializeUniversal:dVariable(stream:TStream, name:Int = False)
 		Local tv:Int = Int(stream.ReadByte())
 		Select tv
 			Case TV_INTEGER
-				Return New TIntVariable.Deserialize(stream, True, name)
+				Return New dIntVariable.Deserialize(stream, True, name)
 			Case TV_STRING
-				Return New TStringVariable.Deserialize(stream, True, name)
+				Return New dStringVariable.Deserialize(stream, True, name)
 			Case TV_FLOAT
-				Return New TFloatVariable.Deserialize(stream, True, name)
+				Return New dFloatVariable.Deserialize(stream, True, name)
 			Case TV_EVAL
-				Return New TEvalVariable.Deserialize(stream, True, name)
+				Return New dEvalVariable.Deserialize(stream, True, name)
 			Case TV_IDEN
-				Return New TIdentifier.Deserialize(stream, True, name)
+				Return New dIdentifier.Deserialize(stream, True, name)
 			Case TV_BOOL
-				Return New TBoolVariable.Deserialize(stream, True, name)
+				Return New dBoolVariable.Deserialize(stream, True, name)
 			Default
-				DebugLog("(TVariable.DeserializeUniversal) Failed to recognize the TV in the stream: " + tv)
+				DebugLog("(dVariable.DeserializeUniversal) Failed to recognize the TV in the stream: " + tv)
 		End Select
 		Return Null
 	End Function
@@ -289,19 +296,19 @@ Type TVariable Abstract
 End Type
 
 Rem
-	bbdoc: String variable.
+	bbdoc: duct string variable.
 End Rem
-Type TStringVariable Extends TVariable
+Type dStringVariable Extends dVariable
 	
 	Global m_alwaysusequotes:Int = True
 	
 	Field m_value:String
 	
 	Rem
-		bbdoc: Create a new StringVariable.
-		returns: The new StringVariable (itself).
+		bbdoc: Create a new String variable.
+		returns: Itself.
 	End Rem
-	Method Create:TStringVariable(name:String = Null, value:String)
+	Method Create:dStringVariable(name:String = Null, value:String)
 		SetName(name)
 		Set(value)
 		Return Self
@@ -326,7 +333,7 @@ Type TStringVariable Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Set the value of the TStringVariable to the given string (ambiguous).
+		bbdoc: Set the value of the variable to the given string (ambiguous).
 		returns: Nothing.
 		about: For this type, this method is no different than calling #Set.
 	End Rem
@@ -348,7 +355,7 @@ Type TStringVariable Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Get the StringVariable as a String.
+		bbdoc: Get the variable as a String.
 		returns: The variable's value converted to a String.
 		about: Here for complete-ness, no difference to `instance.Get()`.
 	End Rem
@@ -364,8 +371,8 @@ Type TStringVariable Extends TVariable
 		bbdoc: Create a copy of the variable
 		returns: A clone of the variable.
 	End Rem
-	Method Copy:TStringVariable()
-		Return New TStringVariable.Create(m_name, m_value)
+	Method Copy:dStringVariable()
+		Return New dStringVariable.Create(m_name, m_value)
 	End Method
 	
 	Rem
@@ -374,29 +381,19 @@ Type TStringVariable Extends TVariable
 		about: @tv tells the method whether it should serialize the TV type for the variable, or to not.
 	End Rem
 	Method Serialize(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.WriteByte(TV_STRING)
-		End If
-		If name = True
-			WriteLString(stream, m_name)
-		End If
-		
+		If tv = True Then stream.WriteByte(TV_STRING)
+		If name = True Then WriteLString(stream, m_name)
 		WriteLString(stream, m_value)
 	End Method
 	
 	Rem
 		bbdoc: Deserialize the variable from a stream.
-		returns: The deserialized variable.
+		returns: Itself.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method Deserialize:TStringVariable(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.ReadByte()
-		End If
-		If name = True
-			m_name = ReadLString(stream)
-		End If
-		
+	Method Deserialize:dStringVariable(stream:TStream, tv:Int = True, name:Int = False)
+		If tv = True Then stream.ReadByte()
+		If name = True Then m_name = ReadLString(stream)
 		m_value = ReadLString(stream)
 		Return Self
 	End Method
@@ -422,17 +419,17 @@ Type TStringVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: Float variable.
+	bbdoc: duct Float variable.
 End Rem
-Type TFloatVariable Extends TVariable
+Type dFloatVariable Extends dVariable
 	
 	Field m_value:Float
 	
 	Rem
-		bbdoc: Create a new FloatVariable.
-		returns: The new FloatVariable (itself).
+		bbdoc: Create a new Float variable.
+		returns: Itself.
 	End Rem
-	Method Create:TFloatVariable(name:String = Null, value:Float)
+	Method Create:dFloatVariable(name:String = Null, value:Float)
 		SetName(name)
 		Set(value)
 		Return Self
@@ -466,13 +463,12 @@ Type TFloatVariable Extends TVariable
 	
 	Rem
 		bbdoc: Convert the variable to a String.
-		returns: A scriptable form of the StringVariable.
+		returns: A scriptable form of the variable.
 		about: This function is for script output, for in-code use see #ValueAsString.
 	End Rem
 	Method ConvToString:String()
-		Local conv:String = String(m_value), i:Int, encountered:Int
-		
-		For i = conv.Find(".") To conv.Length - 1
+		Local conv:String = String(m_value), encountered:Int
+		For Local i:Int = conv.Find(".") To conv.Length - 1
 			If conv[i] = 48
 				If encountered = True
 					conv = conv[..i]
@@ -482,12 +478,11 @@ Type TFloatVariable Extends TVariable
 				encountered = True
 			End If
 		Next
-		
 		Return conv
 	End Method
 	
 	Rem
-		bbdoc: Get the FloatVariable as a String.
+		bbdoc: Get the variable as a String.
 		returns: The variable's value converted to a String.
 	End Rem
 	Method ValueAsString:String()
@@ -502,8 +497,8 @@ Type TFloatVariable Extends TVariable
 		bbdoc: Create a copy of the variable
 		returns: A clone of the variable.
 	End Rem
-	Method Copy:TFloatVariable()
-		Return New TFloatVariable.Create(m_name, m_value)
+	Method Copy:dFloatVariable()
+		Return New dFloatVariable.Create(m_name, m_value)
 	End Method
 	
 	Rem
@@ -512,27 +507,19 @@ Type TFloatVariable Extends TVariable
 		about: @tv tells the method whether it should serialize the TV type for the variable, or to not.
 	End Rem
 	Method Serialize(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.WriteByte(TV_FLOAT)
-		End If
-		If name = True
-			WriteLString(stream, m_name)
-		End If
+		If tv = True Then stream.WriteByte(TV_FLOAT)
+		If name = True Then WriteLString(stream, m_name)
 		stream.WriteFloat(m_value)
 	End Method
 	
 	Rem
 		bbdoc: Deserialize the variable from a stream.
-		returns: The deserialized variable.
+		returns: Itself.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method Deserialize:TFloatVariable(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.ReadByte()
-		End If
-		If name = True
-			m_name = ReadLString(stream)
-		End If
+	Method Deserialize:dFloatVariable(stream:TStream, tv:Int = True, name:Int = False)
+		If tv = True Then stream.ReadByte()
+		If name = True Then m_name = ReadLString(stream)
 		m_value = stream.ReadFloat()
 		Return Self
 	End Method
@@ -558,17 +545,17 @@ Type TFloatVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: Integer variable.
+	bbdoc: duct Int variable.
 End Rem
-Type TIntVariable Extends TVariable
+Type dIntVariable Extends dVariable
 	
 	Field m_value:Int
 	
 	Rem
-		bbdoc: Create a new IntVariable.
-		returns: The new IntVariable (itself).
+		bbdoc: Create a new Int variable.
+		returns: Itself.
 	End Rem
-	Method Create:TIntVariable(name:String = Null, value:Int)
+	Method Create:dIntVariable(name:String = Null, value:Int)
 		SetName(name)
 		Set(value)
 		Return Self
@@ -610,7 +597,7 @@ Type TIntVariable Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Get the IntVariable as a String.
+		bbdoc: Get the variable as a String.
 		returns: The variable's value converted to a String.
 	End Rem
 	Method ValueAsString:String()
@@ -625,8 +612,8 @@ Type TIntVariable Extends TVariable
 		bbdoc: Create a copy of the variable
 		returns: A clone of the variable.
 	End Rem
-	Method Copy:TIntVariable()
-		Return New TIntVariable.Create(m_name, m_value)
+	Method Copy:dIntVariable()
+		Return New dIntVariable.Create(m_name, m_value)
 	End Method
 	
 	Rem
@@ -635,29 +622,19 @@ Type TIntVariable Extends TVariable
 		about: @tv tells the method whether it should serialize the TV type for the variable, or to not.
 	End Rem
 	Method Serialize(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.WriteByte(TV_INTEGER)
-		End If
-		If name = True
-			WriteLString(stream, m_name)
-		End If
-		
+		If tv = True Then stream.WriteByte(TV_INTEGER)
+		If name = True Then WriteLString(stream, m_name)
 		stream.WriteInt(m_value)
 	End Method
 	
 	Rem
 		bbdoc: Deserialize the variable from a stream.
-		returns: The deserialized variable.
+		returns: Itself.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method Deserialize:TIntVariable(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.ReadByte()
-		End If
-		If name = True
-			m_name = ReadLString(stream)
-		End If
-		
+	Method Deserialize:dIntVariable(stream:TStream, tv:Int = True, name:Int = False)
+		If tv = True Then stream.ReadByte()
+		If name = True Then m_name = ReadLString(stream)
 		m_value = stream.ReadInt()
 		Return Self
 	End Method
@@ -683,17 +660,17 @@ Type TIntVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: Eval variable (for bah.muparser, and the likes).
+	bbdoc: duct eval variable (for bah.muparser, and the likes).
 End Rem
-Type TEvalVariable Extends TVariable
+Type dEvalVariable Extends dVariable
 	
 	Field m_value:String
 	
 	Rem
-		bbdoc: Create a new EvalVariable.
-		returns: The new EvalVariable (itself).
+		bbdoc: Create a new eval variable.
+		returns: Itself.
 	End Rem
-	Method Create:TEvalVariable(name:String = Null, value:String)
+	Method Create:dEvalVariable(name:String = Null, value:String)
 		SetName(name)
 		Set(value)
 		Return Self
@@ -702,7 +679,7 @@ Type TEvalVariable Extends TVariable
 '#region Field accessors
 	
 	Rem
-		bbdoc: Set the equation string for the EvalVariable.
+		bbdoc: Set the equation string for the variable.
 		returns: Nothing
 	End Rem
 	Method Set(value:String)
@@ -727,8 +704,8 @@ Type TEvalVariable Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Convert the EvalVariable to a visual representation of its data.
-		returns: The scriptable form of the EvalVariable.
+		bbdoc: Convert the variable to a visual representation of its data.
+		returns: The scriptable form of the variable.
 		about: This function is for script output, for in-code use see #ValueAsString.
 	End Rem
 	Method ConvToString:String()
@@ -736,7 +713,7 @@ Type TEvalVariable Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Get the EvalVariable as a String.
+		bbdoc: Get the variable as a String.
 		returns: The variable's value converted to a String.
 	End Rem
 	Method ValueAsString:String()
@@ -751,8 +728,8 @@ Type TEvalVariable Extends TVariable
 		bbdoc: Create a copy of the variable
 		returns: A clone of the variable.
 	End Rem
-	Method Copy:TEvalVariable()
-		Return New TEvalVariable.Create(m_name, m_value)
+	Method Copy:dEvalVariable()
+		Return New dEvalVariable.Create(m_name, m_value)
 	End Method
 	
 	Rem
@@ -761,29 +738,19 @@ Type TEvalVariable Extends TVariable
 		about: @tv tells the method whether it should serialize the TV type for the variable, or to not.
 	End Rem
 	Method Serialize(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.WriteByte(TV_EVAL)
-		End If
-		If name = True
-			WriteLString(stream, m_name)
-		End If
-		
+		If tv = True Then stream.WriteByte(TV_EVAL)
+		If name = True Then WriteLString(stream, m_name)
 		WriteLString(stream, m_value)
 	End Method
 	
 	Rem
 		bbdoc: Deserialize the variable from a stream.
-		returns: The deserialized variable.
+		returns: Itself.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method Deserialize:TEvalVariable(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.ReadByte()
-		End If
-		If name = True
-			m_name = ReadLString(stream)
-		End If
-		
+	Method Deserialize:dEvalVariable(stream:TStream, tv:Int = True, name:Int = False)
+		If tv = True Then stream.ReadByte()
+		If name = True Then m_name = ReadLString(stream)
 		m_value = ReadLString(stream)
 		Return Self
 	End Method
@@ -809,17 +776,17 @@ Type TEvalVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: Boolean variable.
+	bbdoc: duct boolean variable.
 End Rem
-Type TBoolVariable Extends TVariable
+Type dBoolVariable Extends dVariable
 	
 	Field m_value:Int
 	
 	Rem
-		bbdoc: Create a new BoolVariable.
-		returns: The new BoolVariable (itself).
+		bbdoc: Create a new boolean variable.
+		returns: Itself.
 	End Rem
-	Method Create:TBoolVariable(name:String = Null, value:Int)
+	Method Create:dBoolVariable(name:String = Null, value:Int)
 		SetName(name)
 		Set(value)
 		Return Self
@@ -861,7 +828,7 @@ Type TBoolVariable Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Get the TBoolVariable as a String.
+		bbdoc: Get the dBoolVariable as a String.
 		returns: The variable's value converted to a String.
 	End Rem
 	Method ValueAsString:String()
@@ -876,8 +843,8 @@ Type TBoolVariable Extends TVariable
 		bbdoc: Create a copy of the variable
 		returns: A clone of the variable.
 	End Rem
-	Method Copy:TBoolVariable()
-		Return New TBoolVariable.Create(m_name, m_value)
+	Method Copy:dBoolVariable()
+		Return New dBoolVariable.Create(m_name, m_value)
 	End Method
 	
 	Rem
@@ -886,12 +853,8 @@ Type TBoolVariable Extends TVariable
 		about: @tv tells the method whether it should serialize the TV type for the variable, or to not.
 	End Rem
 	Method Serialize(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.WriteByte(TV_BOOL)
-		End If
-		If name = True
-			WriteLString(stream, m_name)
-		End If
+		If tv = True Then stream.WriteByte(TV_BOOL)
+		If name = True Then WriteLString(stream, m_name)
 		stream.WriteByte(Byte(m_value))
 	End Method
 	
@@ -900,13 +863,9 @@ Type TBoolVariable Extends TVariable
 		returns: The deserialized variable.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method Deserialize:TBoolVariable(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.ReadByte()
-		End If
-		If name = True
-			m_name = ReadLString(stream)
-		End If
+	Method Deserialize:dBoolVariable(stream:TStream, tv:Int = True, name:Int = False)
+		If tv = True Then stream.ReadByte()
+		If name = True Then m_name = ReadLString(stream)
 		m_value = Int(stream.ReadByte())
 		Return Self
 	End Method
@@ -932,9 +891,9 @@ Type TBoolVariable Extends TVariable
 End Type
 
 Rem
-	bbdoc: Identifier (used in parsers, mostly).
+	bbdoc: duct identifier (used in parsers, mostly).
 End Rem
-Type TIdentifier Extends TVariable
+Type dIdentifier Extends dVariable
 	
 	Field m_values:TList
 	
@@ -942,20 +901,20 @@ Type TIdentifier Extends TVariable
 	End Method
 	
 	Rem
-		bbdoc: Create a new TIdentifier.
+		bbdoc: Create a new identifier.
 		returns: Itself.
 	End Rem
-	Method Create:TIdentifier()
+	Method Create:dIdentifier()
 		m_values = New TList
 		Return Self
 	End Method
 	
 	Rem
-		bbdoc: Create a new TIdentifier with the given data.
-		returns: The new Identfier (itself).
+		bbdoc: Create a new identifier with the given data.
+		returns: Itself.
 		about: If the @values parameter is Null a new list will be created.
 	End Rem
-	Method CreateByData:TIdentifier(name:String, values:TList = Null)
+	Method CreateByData:dIdentifier(name:String, values:TList = Null)
 		SetName(name)
 		If values = Null
 			m_values = New TList
@@ -1002,7 +961,7 @@ Type TIdentifier Extends TVariable
 		Else
 			op = m_name + " "
 		End If
-		For Local variable:TVariable = EachIn m_values
+		For Local variable:dVariable = EachIn m_values
 			op:+variable.ConvToString() + " "
 		Next
 		op = op[..op.Length - 1]
@@ -1027,9 +986,9 @@ Type TIdentifier Extends TVariable
 		returns: The value in the identifier's list at the given index, or Null if it could not be retrieved.
 		about: The index is zero-based.
 	End Rem
-	Method GetValueAtIndex:TVariable(index:Int)
+	Method GetValueAtIndex:dVariable(index:Int)
 		If m_values <> Null And index > - 1 And index < m_values.Count()
-			Return TVariable(m_values.ValueAtIndex(index))
+			Return dVariable(m_values.ValueAtIndex(index))
 		End If
 		Return Null
 	End Method
@@ -1050,7 +1009,7 @@ Type TIdentifier Extends TVariable
 		returns: True for success, or False for failure.
 		about: NOTE: This will set the given value's parent.
 	End Rem
-	Method AddValue:Int(value:TVariable)
+	Method AddValue:Int(value:dVariable)
 		If m_values <> Null And value <> Null
 			m_values.AddLast(value)
 			value.SetParent(Self)
@@ -1067,10 +1026,10 @@ Type TIdentifier Extends TVariable
 		bbdoc: Create a copy of the identifier
 		returns: A clone of the identifier.
 	End Rem
-	Method Copy:TIdentifier()
-		Local clone:TIdentifier
-		clone = New TIdentifier.CreateByData(m_name)
-		For Local variable:TVariable = EachIn m_values
+	Method Copy:dIdentifier()
+		Local clone:dIdentifier
+		clone = New dIdentifier.CreateByData(m_name)
+		For Local variable:dVariable = EachIn m_values
 			clone.AddValue(variable.Copy())
 		Next
 		Return clone
@@ -1083,10 +1042,8 @@ Type TIdentifier Extends TVariable
 		In this case @name tells the method whether it should serialize the <i><b>values</b></i>' name (the identifier's name is always read/written to the stream).
 	End Rem
 	Method Serialize(stream:TStream, tv:Int = True, name:Int = False)
-		Local variable:TVariable
-		If tv = True
-			stream.WriteByte(TV_STRING)
-		End If
+		Local variable:dVariable
+		If tv = True Then stream.WriteByte(TV_STRING)
 		WriteLString(stream, m_name)
 		If m_values = Null
 			stream.WriteInt(0)
@@ -1104,11 +1061,9 @@ Type TIdentifier Extends TVariable
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.<br/>
 		In this case @name tells the method whether it should deserialize the <i><b>values</b></i>' name (the identifier's name is always read/written to the stream).
 	End Rem
-	Method Deserialize:TIdentifier(stream:TStream, tv:Int = True, name:Int = False)
+	Method Deserialize:dIdentifier(stream:TStream, tv:Int = True, name:Int = False)
 		Local count:Int, n:Int
-		If tv = True
-			stream.ReadByte()
-		End If
+		If tv = True Then stream.ReadByte()
 		m_name = ReadLString(stream)
 		count = stream.ReadInt()
 		If count > 0
@@ -1140,15 +1095,15 @@ Type TIdentifier Extends TVariable
 End Type
 
 Rem
-	bbdoc: Variable map (stores any variable).
+	bbdoc: #dVariable map (stores any variable).
 EndRem
-Type TVariableMap Extends TObjectMap
+Type dVariableMap Extends dObjectMap
 	
 	Rem
-		bbdoc: Create a new TVariableMap.
+		bbdoc: Create a new variable map.
 		returns: Itself.
 	End Rem
-	Method Create:TVariableMap()
+	Method Create:dVariableMap()
 		Return Self
 	End Method
 	
@@ -1158,7 +1113,7 @@ Type TVariableMap Extends TObjectMap
 		bbdoc: Insert a variable into the map.
 		returns: True if the variable was added, or False if it was not (the variable's name is Null).
 	End Rem
-	Method InsertVariable:Int(variable:TVariable)
+	Method InsertVariable:Int(variable:dVariable)
 		If variable.GetName() <> Null
 			_Insert(variable.GetName(), variable)
 			Return True
@@ -1180,8 +1135,8 @@ Type TVariableMap Extends TObjectMap
 		returns: The variable object, or if the variable was not found, Null.
 		about: The name <b>is</b> case-sensitive.
 	End Rem
-	Method GetVariableByName:TVariable(name:String)
-		Return TVariable(_ValueByKey(name))
+	Method GetVariableByName:dVariable(name:String)
+		Return dVariable(_ValueByKey(name))
 	End Method
 	
 '#end region (Collections)
