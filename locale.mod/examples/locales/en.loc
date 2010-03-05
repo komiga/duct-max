@@ -14,6 +14,10 @@ nativename	"English"
 	more {
 		' Text names only have to be quoted if they contain whitespace!
 		rubbish "Rabbit!"
+		multiline "Have some pangrams!
+			A very bad quack might jinx zippy fowls.
+			Pack my box with five dozen liquor jugs.
+			The jay, pig, fox, zebra, and my wolves quack!"
 	}
 }
 

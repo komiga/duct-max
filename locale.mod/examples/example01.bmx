@@ -45,6 +45,8 @@ Function TestLanguage(langname:String)
 	
 	Print(_cat("blargh").TextFromStructure("more.rubbish")) ' Wrapper: Name -> Structure
 	
+	Print(_cat("blargh").TextFromStructure("more.multiline")) ' Wrapper: Name -> Structure
+	
 End Function
 
 ' Wrapper functions

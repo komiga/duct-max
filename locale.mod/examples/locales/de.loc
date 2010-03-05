@@ -14,5 +14,9 @@ nativename	"Deutsch"
 	more {
 		' Text names only have to be quoted if they contain whitespace!
 		rubbish "Kaninchen!"
+		multiline "Have some pangrams!
+			Sylvia wagt quick den Jux bei Pforzheim.
+			Falsches Üben von Xylophonmusik quält jeden größeren Zwerg.
+			Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich."
 	}
 }
