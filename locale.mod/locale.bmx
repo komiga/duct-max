@@ -28,10 +28,12 @@ bbdoc: Localization
 End Rem
 Module duct.locale
 
-ModuleInfo "Version: 0.4"
+ModuleInfo "Version: 0.5"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.5"
+ModuleInfo "History: Changed dLocaleManager.SetCurrentLocale from a Method to a Function (oops)"
 ModuleInfo "History: Version 0.4"
 ModuleInfo "History: Fixed documentation, licenses, examples"
 ModuleInfo "History: Renamed TLocalizationCategory to dLocalizationCategory"

@@ -341,9 +341,9 @@ Type dLocaleManager
 		bbdoc: Set the current locale.
 		returns: Nothing.
 	End Rem
-	Method SetCurrentLocale(locale:dLocale)
+	Function SetCurrentLocale(locale:dLocale)
 		m_currentlocale = locale
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Set the current locale from the name given (English name, not native).
