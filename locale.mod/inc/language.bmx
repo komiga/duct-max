@@ -332,6 +332,7 @@ Type dLocaleManager
 	
 	Global m_map:dObjectMap = New dObjectMap
 	Global m_currentlocale:dLocale
+	Global m_ppfunc:String(text:String)
 	
 	Global m_locale_ext:String = "loc"
 	
@@ -384,6 +385,24 @@ Type dLocaleManager
 	End Rem
 	Function GetLocaleExtension:String()
 		Return m_locale_ext
+	End Function
+	
+	Rem
+		bbdoc: Set the post-process function.
+		returns: Nothing.
+		about: This function will be called everytime localized text is loaded.<br/>
+		You could set a function, for example, that replaces "~q", "~t", and such for the appropriate characters.
+	End Rem
+	Function SetPostProcessFunc(ppfunc:String(text:String))
+		m_ppfunc = ppfunc
+	End Function
+	
+	Rem
+		bbdoc: Get the post-process function.
+		returns: The post-process function.
+	End Rem
+	Function GetPostProcessFunc:String(text:String)()
+		Return m_ppfunc
 	End Function
 	
 '#end region (Setters and getters)
@@ -538,6 +557,18 @@ Type dLocaleManager
 			End If
 		Forever
 		CloseDir(dir)
+	End Function
+	
+	Rem
+		bbdoc: Use the post-process function (if set) to process the given text.
+		returns: The processed text, or the given text if the post-process function has not been set.
+		about: See also #SetPostProcessFunc.
+	End Rem
+	Function PostProcessText:String(text:String)
+		If m_ppfunc <> Null
+			text = m_ppfunc(text)
+		End If
+		Return text
 	End Function
 	
 '#end region (Parsing)

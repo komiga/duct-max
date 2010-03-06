@@ -265,7 +265,7 @@ Type dLocalizationCategory Extends dObjectMap
 		For child = EachIn node.GetChildren()
 			iden = dIdentifier(child)
 			If iden <> Null
-				AddText(New dLocalizedText.FromIdentifier(iden))
+				AddText(New dLocalizedText.FromIdentifier(iden, True))
 			Else
 				cnode = dSNode(child)
 				AddCategory(New dLocalizationCategory.FromNode(cnode))
@@ -323,8 +323,12 @@ Type dLocalizedText
 	Rem
 		bbdoc: Set the string value for the localized text.
 		returns: Nothing.
+		about: If @process is True (False by default), the given text will be post-processed (see #dLocaleManager #PostProcessText).
 	End Rem
-	Method SetValue(text:String)
+	Method SetValue(text:String, process:Int = False)
+		If process = True
+			text = dLocaleManager.PostProcessText(text)
+		End If
 		m_text = text
 	End Method
 	
@@ -355,10 +359,10 @@ Type dLocalizedText
 		bbdoc: Load a localized text from the given identifier.
 		returns: The loaded localized text (itself), or Null if the given identifier is not of the correct template (see #m_template).
 	End Rem
-	Method FromIdentifier:dLocalizedText(iden:dIdentifier)
+	Method FromIdentifier:dLocalizedText(iden:dIdentifier, process:Int = True)
 		If m_template.ValidateIdentifier(iden) = True
 			SetName(iden.GetName())
-			SetValue(dStringVariable(iden.GetValueAtIndex(0)).Get())
+			SetValue(dStringVariable(iden.GetValueAtIndex(0)).Get(), process)
 			Return Self
 		Else
 			Return Null
