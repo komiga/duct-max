@@ -28,10 +28,12 @@ bbdoc: Application argument parser
 End Rem
 Module duct.argparser
 
-ModuleInfo "Version: 0.2"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.3"
+ModuleInfo "History: Fixed argument parsing for commands"
 ModuleInfo "History: Version 0.2"
 ModuleInfo "History: Updated for API change"
 ModuleInfo "History: Version 0.1"
@@ -82,10 +84,12 @@ Type dArgParser
 				End While
 				root.AddValue(sub)
 			Else
-				root.AddValue(sub)
 				If subset = False
+					root.AddValue(sub)
 					root = sub
 					subset = True
+				Else
+					root.AddValue(dVariable.RawToVariable(arg))
 				End If
 			End If
 		Next
