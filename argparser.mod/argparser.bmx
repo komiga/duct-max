@@ -28,10 +28,12 @@ bbdoc: Application argument parser
 End Rem
 Module duct.argparser
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: Changed parsing for single-dash options"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: Fixed argument parsing for commands"
 ModuleInfo "History: Version 0.2"
@@ -49,9 +51,10 @@ Type dArgParser
 	Rem
 		bbdoc: Parse the given arguments string array.
 		returns: The root identifier containing the parsed arguments.
-		about: The expected value does <b>not</b> (by default) contain the first argument of AppArgs (the application location).<br/>
-		You can override this by passing @fullargs as True. If you leave it as False, the root identifier's name will be set to the first argument (which should be the application location - if you're passing AppArgs).<br/>
-		@optarglimit limits how many arguments can be given to an option (options start with "--" or "-"). If set to -1, there is no limit.
+		about: The expected value does <b>not</b> (by default) contain the first argument of AppArgs (the application location).<br>
+		You can override this by passing @fullargs as True. If you leave it as False, the root identifier's name will be set to the first argument (which should be the application location - if you're passing AppArgs).<br>
+		@optarglimit limits how many arguments can be given to an option (options start with "--" or "-"). If set to -1, there is no limit.<br>
+		Single-dash options (e.g. "-a") are not parsed for arguments, whereas double-dash options (e.g. "--foobar wakka") will be.
 	End Rem
 	Function ParseArray:dIdentifier(args:String[], fullargs:Int = False, optarglimit:Int = 1)
 		Local root:dIdentifier = New dIdentifier.Create()
@@ -66,23 +69,27 @@ Type dArgParser
 			arg = args[i]
 			sub = New dIdentifier.CreateByData(arg, Null)
 			If arg <> Null And arg[0] = 45 ' "-"
-				Local lim:Int = Min(length, i + optarglimit)
-				i:+1
-				While i <= length
-					arg = args[i]
-					If arg = Null Or arg[0] <> 45 ' "-"
-						sub.AddValue(dVariable.RawToVariable(arg))
-						i:+1
-						If i > lim
+				If arg[1] = 45 ' "-"
+					Local lim:Int = Min(length, i + optarglimit)
+					i:+1
+					While i <= length
+						arg = args[i]
+						If arg = Null Or arg[0] <> 45 ' "-"
+							sub.AddValue(dVariable.RawToVariable(arg))
+							i:+1
+							If i > lim
+								i:-1
+								Exit
+							End If
+						Else
 							i:-1
 							Exit
 						End If
-					Else
-						i:-1
-						Exit
-					End If
-				End While
-				root.AddValue(sub)
+					End While
+					root.AddValue(sub)
+				Else
+					root.AddValue(sub)
+				End If
 			Else
 				If subset = False
 					root.AddValue(sub)
