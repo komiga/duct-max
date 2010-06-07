@@ -178,7 +178,7 @@ Type dSNode
 '#region Data handling
 	
 	Rem
-		bbdoc: Write the node and it's children (child nodes and identifiers) to a file.
+		bbdoc: Write the node and its children (child nodes and identifiers) to a file.
 		returns: True if completed successfully, or False if an error occured.
 		about: This will overwrite an existing file without warning.
 	End Rem
@@ -194,7 +194,7 @@ Type dSNode
 	End Method
 	
 	Rem
-		bbdoc: Write the node and it's children (child nodes and identifiers) to a stream.
+		bbdoc: Write the node and its children (child nodes and identifiers) to a stream.
 		returns: True if completed successfully, or False if an error occured.
 	End Rem
 	Method WriteToStream:Int(stream:TStream, tablevel:String = "")

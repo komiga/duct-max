@@ -28,10 +28,12 @@ bbdoc: JSON handler for cower.jonk
 End Rem
 Module duct.json
 
-ModuleInfo "Version: 0.4"
+ModuleInfo "Version: 0.5"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.5"
+ModuleInfo "History: Added GetVariableWithName method to dJObject"
 ModuleInfo "History: Version 0.4"
 ModuleInfo "History: Updated for API change"
 ModuleInfo "History: Version 0.3"
@@ -64,6 +66,19 @@ Type dJObject Extends dIdentifier
 	End Rem
 	Method GetParent:dJObject()
 		Return dJObject(m_parent)
+	End Method
+	
+	Rem
+		bbdoc: Get the variable with the given name.
+		returns: The variable with the given name, or Null if there is no variable with the given name.
+	End Rem
+	Method GetVariableWithName:dVariable(name:String)
+		For Local v:dVariable = EachIn m_values
+			If v.m_name = name
+				Return v
+			End If
+		Next
+		Return Null
 	End Method
 	
 End Type
