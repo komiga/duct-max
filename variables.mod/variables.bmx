@@ -28,10 +28,12 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.22"
+ModuleInfo "Version: 0.23"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.23"
+ModuleInfo "History: dIdentifier now uses TListEx"
 ModuleInfo "History: Version 0.22"
 ModuleInfo "History: Fixed documentation, license"
 ModuleInfo "History: Renamed TVariable to dVariable"
@@ -895,7 +897,7 @@ Rem
 End Rem
 Type dIdentifier Extends dVariable
 	
-	Field m_values:TList
+	Field m_values:TListEx
 	
 	Method New()
 	End Method
@@ -905,7 +907,7 @@ Type dIdentifier Extends dVariable
 		returns: Itself.
 	End Rem
 	Method Create:dIdentifier()
-		m_values = New TList
+		m_values = New TListEx
 		Return Self
 	End Method
 	
@@ -914,10 +916,10 @@ Type dIdentifier Extends dVariable
 		returns: Itself.
 		about: If the @values parameter is Null a new list will be created.
 	End Rem
-	Method CreateByData:dIdentifier(name:String, values:TList = Null)
+	Method CreateByData:dIdentifier(name:String, values:TListEx = Null)
 		SetName(name)
 		If values = Null
-			m_values = New TList
+			m_values = New TListEx
 		Else
 			m_values = values
 		End If
@@ -930,7 +932,7 @@ Type dIdentifier Extends dVariable
 		bbdoc: Set the identifier's values.
 		returns: Nothing.
 	End Rem
-	Method SetValues(values:TList)
+	Method SetValues(values:TListEx)
 		m_values = values
 	End Method
 	
@@ -938,7 +940,7 @@ Type dIdentifier Extends dVariable
 		bbdoc: Get the identifier's values.
 		returns: A list containing the values which the identifier holds.
 	End Rem
-	Method GetValues:TList()
+	Method GetValues:TListEx()
 		Return m_values
 	End Method
 	
