@@ -28,10 +28,20 @@ bbdoc: duct integer map (binary tree).
 End Rem
 Module duct.intmap
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: Added Null return in dIntMap.ForKey for non-Null gets (insignificant)"
+ModuleInfo "History: Changed enumerator types to use duct.enumerator"
+ModuleInfo "History: Corrected C++ code (added some consts, removed the success parameter from bmx_intmap_getlastkey)"
+ModuleInfo "History: Added IsEmpty to dIntMap"
+ModuleInfo "History: Added GetLastObject and GetLastKey to dIntMap"
+ModuleInfo "History: Added reversed enumeration"
+ModuleInfo "History: Corrected assert message in dIntMap.Insert"
+ModuleInfo "History: dIntMap.Remove now returns True or False for success/failure"
+ModuleInfo "History: Corrected extern function signature for bmx_intmap_remove (it doesn't return anything)"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: Fixed documentation, license, examples"
 ModuleInfo "History: Renamed TIntMapEnumerator to dIntMapEnumerator"
@@ -42,26 +52,47 @@ ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
 Import brl.blitz
+Import duct.enumerator
 
 Import "intmap.cpp"
 
 Extern "c"
-	Function bmx_intmap_create:Byte Ptr()
-	Function bmx_intmap_delete(imap:Byte Ptr)
+	Type dCIntMap
+	End Type
+	Function bmx_intmap_create:dCIntMap()
+	Function bmx_intmap_delete(imap:dCIntMap)
 	
-	Function bmx_intmap_clear(imap:Byte Ptr)
-	Function bmx_intmap_size:Int(imap:Byte Ptr)
-	Function bmx_intmap_contains:Int(imap:Byte Ptr, key:Int)
+	Function bmx_intmap_clear(imap:dCIntMap)
+	Function bmx_intmap_size:Int(imap:dCIntMap)
+	Function bmx_intmap_isempty:Int(imap:dCIntMap)
+	Function bmx_intmap_contains:Int(imap:dCIntMap, key:Int)
 	
-	Function bmx_intmap_remove:Object(imap:Byte Ptr, key:Int)
-	Function bmx_intmap_set(imap:Byte Ptr, key:Int, obj:Object)
-	Function bmx_intmap_get:Object(imap:Byte Ptr, key:Int)
+	Function bmx_intmap_remove(imap:dCIntMap, key:Int)
+	Function bmx_intmap_set(imap:dCIntMap, key:Int, obj:Object)
+	Function bmx_intmap_get:Object(imap:dCIntMap, key:Int)
 	
-	Function bmx_intmap_iter_first:Byte Ptr(imap:Byte Ptr)
-	Function bmx_intmap_iter_next:Byte Ptr(iter:Byte Ptr)
-	Function bmx_intmap_iter_hasnext:Int(imap:Byte Ptr, iter:Byte Ptr)
-	Function bmx_intmap_iter_getobject:Object(iter:Byte Ptr)
-	Function bmx_intmap_iter_delete(iter:Byte Ptr)
+	Function bmx_intmap_getlastobj:Object(imap:dCIntMap)
+	Function bmx_intmap_getlastkey:Int(imap:dCIntMap)
+	
+	' Iterator
+	Type dCIntMapIter
+	End Type
+	Function bmx_intmap_iter_first:dCIntMapIter(imap:dCIntMap)
+	Function bmx_intmap_iter_next(iter:dCIntMapIter)
+	Function bmx_intmap_iter_hasnext:Int(imap:dCIntMap, iter:dCIntMapIter)
+	Function bmx_intmap_iter_getobject:Object(iter:dCIntMapIter)
+	Function bmx_intmap_iter_getkey:Int(iter:dCIntMapIter)
+	Function bmx_intmap_iter_delete(iter:dCIntMapIter)
+	
+	' Reverse iterator
+	Type dCIntMapReverseIter
+	End Type
+	Function bmx_intmap_riter_first:dCIntMapReverseIter(imap:dCIntMap)
+	Function bmx_intmap_riter_next(iter:dCIntMapReverseIter)
+	Function bmx_intmap_riter_hasnext:Int(imap:dCIntMap, iter:dCIntMapReverseIter)
+	Function bmx_intmap_riter_getobject:Object(iter:dCIntMapReverseIter)
+	Function bmx_intmap_riter_getkey:Int(iter:dCIntMapReverseIter)
+	Function bmx_intmap_riter_delete(iter:dCIntMapReverseIter)
 End Extern
 
 Rem
@@ -69,25 +100,29 @@ Rem
 End Rem
 Type dIntMap
 	
-	Field m_pointer:Byte Ptr
+	Field m_cmap:dCIntMap
 	
 	Method New()
-		m_pointer = bmx_intmap_create()
+		m_cmap = bmx_intmap_create()
 	End Method
 	
 	Method Delete()
-		bmx_intmap_delete(m_pointer)
-		m_pointer = Null
+		If m_cmap
+			bmx_intmap_delete(m_cmap)
+			m_cmap = Null
+		End If
 	End Method
 	
 	Rem
 		bbdoc: Remove the given key from the map.
-		returns: Nothing.
+		returns: True if the object with the given key was removed, or False if it was not (key not found).
 	End Rem
-	Method Remove(key:Int)
-		If bmx_intmap_contains(m_pointer, key) = True
-			bmx_intmap_remove(m_pointer, key)
+	Method Remove:Int(key:Int)
+		If bmx_intmap_contains(m_cmap, key) = True
+			bmx_intmap_remove(m_cmap, key)
+			Return True
 		End If
+		Return False
 	End Method
 	
 	Rem
@@ -95,9 +130,9 @@ Type dIntMap
 		returns: Nothing.
 	End Rem
 	Method Insert(key:Int, obj:Object)
-		Assert obj, "(duct.intmap.dIntMap) Cannot set key (" + String(key) + ") to Null!"
-		If obj <> Null
-			bmx_intmap_set(m_pointer, key, obj)
+		Assert obj, "(dIntMap.Insert) Cannot set key (" + String(key) + ") to Null!"
+		If obj
+			bmx_intmap_set(m_cmap, key, obj)
 		End If
 	End Method
 	
@@ -107,8 +142,31 @@ Type dIntMap
 	End Rem
 	Method ForKey:Object(key:Int)
 		If Contains(key) = True
-			Return bmx_intmap_get(m_pointer, key)
+			Return bmx_intmap_get(m_cmap, key)
 		End If
+		Return Null
+	End Method
+	
+	Rem
+		bbdoc: Get the last object.
+		returns: The last object, or Null if the map is empty.
+	End Rem
+	Method GetLastObject:Object()
+		Return bmx_intmap_getlastobj(m_cmap)
+	End Method
+	
+	Rem
+		bbdoc: Get the last key.
+		returns: The last key in the map.
+		about: @success will be set to False if the map is empty.
+	End Rem
+	Method GetLastKey:Int(success:Int Var)
+		If Not IsEmpty()
+			success = True
+			Return bmx_intmap_getlastkey(m_cmap)
+		End If
+		success = False
+		Return 0
 	End Method
 	
 	Rem
@@ -116,7 +174,7 @@ Type dIntMap
 		returns: Nothing.
 	End Rem
 	Method Clear()
-		bmx_intmap_clear(m_pointer)
+		bmx_intmap_clear(m_cmap)
 	End Method
 	
 	Rem
@@ -124,7 +182,15 @@ Type dIntMap
 		returns: The number of objects in the map.
 	End Rem
 	Method Count:Int()
-		Return bmx_intmap_size(m_pointer)
+		Return bmx_intmap_size(m_cmap)
+	End Method
+	
+	Rem
+		bbdoc: Check if the map is empty.
+		returns: True if the map is empty, or False if it is not.
+	End Rem
+	Method IsEmpty:Int()
+		Return bmx_intmap_isempty(m_cmap)
 	End Method
 	
 	Rem
@@ -132,50 +198,114 @@ Type dIntMap
 		Returns: True if the given key is in the map, or False if it is not.
 	End Rem
 	Method Contains:Int(key:Int)
-		Return bmx_intmap_contains(m_pointer, key)
+		Return bmx_intmap_contains(m_cmap, key)
 	End Method
 	
 	Rem
 		bbdoc: Get an object enumerator for the map.
-		returns: A #dIntMapEnumerator.
+		returns: An object enumerator.
 	End Rem
-	Method ObjectEnumerator:dIntMapEnumerator()
-		Local enum:dIntMapEnumerator
-		enum = New dIntMapEnumerator.Create(m_pointer)
-		Return enum
+	Method ObjectEnumerator:dIntMapStandardEnum()
+		Return New dIntMapStandardEnum.Create(m_cmap)
+	End Method
+	
+	Rem
+		bbdoc: Get a reverse object enumerator for the map.
+		returns: A reverse object enumerator.
+	End Rem
+	Method ReverseEnumerator:dIntMapReverseEnum()
+		Return New dIntMapReverseEnum.Create(m_cmap)
 	End Method
 	
 End Type
 
 Rem
-	bbdoc: #dIntMap enumerator (enables EachIn support).
+	bbdoc: #dIntMap standard enumerator.
 End Rem
-Type dIntMapEnumerator
+Type dIntMapStandardEnum Extends dEnumerator
 	  
-	Field m_intmap:Byte Ptr, m_iter:Byte Ptr
+	Field m_cmap:dCIntMap, m_iter:dCIntMapIter
 	
-	'Method Delete()
-	'	bmx_intmap_iter_delete(m_iter)
-	'End Method
+	Method Delete()
+		Free()
+	End Method
 	
-	Method Create:dIntMapEnumerator(intmap:Byte Ptr)
-		m_intmap = intmap
-		m_iter = bmx_intmap_iter_first(m_intmap)
+	Method Free()
+		If m_iter
+			bmx_intmap_iter_delete(m_iter)
+			m_iter = Null
+		End If
+	End Method
+	
+	Method Create:dIntMapStandardEnum(cmap:dCIntMap)
+		m_cmap = cmap
+		m_iter = bmx_intmap_iter_first(m_cmap)
 		Return Self
 	End Method
 	
 	Method HasNext:Int()
-		Local has:Int = bmx_intmap_iter_hasnext(m_intmap, m_iter)
+		Local has:Int = bmx_intmap_iter_hasnext(m_cmap, m_iter)
 		If has = False
-			bmx_intmap_iter_delete(m_iter)
+			Free()
 		End If
 		Return has
 	End Method
 	
 	Method NextObject:Object()
-		Local value:Object
-		value = bmx_intmap_iter_getobject(m_iter)
-		m_iter = bmx_intmap_iter_next(m_iter)
+		Local value:Object = bmx_intmap_iter_getobject(m_iter)
+		bmx_intmap_iter_next(m_iter)
+		Return value
+	End Method
+	
+	Method NextKey:Int()
+		Local value:Int = bmx_intmap_iter_getkey(m_iter)
+		bmx_intmap_iter_next(m_iter)
+		Return value
+	End Method
+	
+End Type
+
+Rem
+	bbdoc: #dIntMap reverse enumerator.
+End Rem
+Type dIntMapReverseEnum Extends dEnumerator
+	
+	Field m_cmap:dCIntMap, m_iter:dCIntMapReverseIter
+	
+	Method Delete()
+		Free()
+	End Method
+	
+	Method Free()
+		If m_iter
+			bmx_intmap_riter_delete(m_iter)
+			m_iter = Null
+		End If
+	End Method
+	
+	Method Create:dIntMapReverseEnum(cmap:dCIntMap)
+		m_cmap = cmap
+		m_iter = bmx_intmap_riter_first(m_cmap)
+		Return Self
+	End Method
+	
+	Method HasNext:Int()
+		Local has:Int = bmx_intmap_riter_hasnext(m_cmap, m_iter)
+		If has = False
+			Free()
+		End If
+		Return has
+	End Method
+	
+	Method NextObject:Object()
+		Local value:Object = bmx_intmap_riter_getobject(m_iter)
+		bmx_intmap_riter_next(m_iter)
+		Return value
+	End Method
+	
+	Method NextKey:Int()
+		Local value:Int = bmx_intmap_riter_getkey(m_iter)
+		bmx_intmap_riter_next(m_iter)
 		Return value
 	End Method
 	

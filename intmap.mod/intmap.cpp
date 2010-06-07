@@ -23,81 +23,125 @@ THE SOFTWARE.
 
 #include "intmap.hpp"
 
-intmap * bmx_intmap_create() {
+intmap* bmx_intmap_create() {
 	return new intmap();
 }
 
-void bmx_intmap_delete(intmap * imap) {
+void bmx_intmap_delete(intmap* imap) {
 	bmx_intmap_clear(imap);
 	delete imap;
 }
 
-void bmx_intmap_clear(intmap * imap) {	
+void bmx_intmap_clear(intmap* imap) {	
 	intmap::iterator p;
-	for(p = imap->begin(); p != imap->end(); ++p)
-	{
-		BBObject * obj = (*imap)[p->first];
+	for (p = imap->begin(); p != imap->end(); ++p) {
+		BBObject* obj = (*imap)[p->first];
 		if (obj) {
-			BBRELEASE(obj);
+			if (obj != &bbNullObject)
+				BBRELEASE(obj);
 			(*imap)[p->first] = 0;
 		}
 	}
 	imap->clear();
 }
 
-int bmx_intmap_size(intmap const * imap) {	
-	return int(imap->size());
+int bmx_intmap_size(intmap const* imap) {	
+	return (int)imap->size();
 }
 
-int bmx_intmap_contains(intmap const * imap, int key) {
+int bmx_intmap_isempty(intmap const* imap) {
+	return (int)imap->empty();
+}
+
+int bmx_intmap_contains(intmap const* imap, int key) {
 	return imap->end() != imap->find(key);
 }
 
-void bmx_intmap_remove(intmap * imap, int key) {
+void bmx_intmap_remove(intmap* imap, int key) {
 	imap->erase(key);
 }
 
-void bmx_intmap_set(intmap * imap, int key, BBObject * obj) {
-	BBObject * value = (*imap)[key];
+void bmx_intmap_set(intmap* imap, int key, BBObject* obj) {
+	BBObject* value = (*imap)[key];
 	if (value) {
 		BBRELEASE(value);
 	}
-	
 	// Null checks are now on the Max-side, this is just a sanity check
 	if (obj != &bbNullObject) {
 		BBRETAIN(obj);
 	}
-	//else {
-	//	obj = 0;
-	//}
-	
 	(*imap)[key] = obj;
 }
 
-BBObject * bmx_intmap_get(intmap * imap, int key) {
-	BBObject * obj = (*imap)[key];
+BBObject* bmx_intmap_get(intmap* imap, int key) {
+	BBObject* obj = (*imap)[key];
 	//return obj ? obj : &bbNullObject;
 	return obj;
 }
 
-intmap::iterator * bmx_intmap_iter_first(intmap * imap) {
+BBObject* bmx_intmap_getlastobj(intmap const* imap) {
+	if (!imap->empty())
+		return imap->rbegin()->second;
+	else
+		return &bbNullObject;
+}
+
+int bmx_intmap_getlastkey(intmap const* imap) {
+	if (!imap->empty())
+		return imap->rbegin()->first;
+	else
+		return 0;
+}
+
+// Iterator
+
+intmap::iterator* bmx_intmap_iter_first(intmap* imap) {
 	return new intmap::iterator(imap->begin());
 }
 
-intmap::iterator * bmx_intmap_iter_next(intmap::iterator * iter) {
+void bmx_intmap_iter_next(intmap::iterator* iter) {
 	++(*iter);
-	return iter;
 }
 
-int bmx_intmap_iter_hasnext(intmap * imap, intmap::iterator * iter) {
-	return imap->end() != *iter ? 1 : 0;
+int bmx_intmap_iter_hasnext(intmap* imap, intmap::iterator const* iter) {
+	return *iter != imap->end() ? 1 : 0;
 }
 
-BBObject * bmx_intmap_iter_getobject(intmap::iterator * iter) {
+BBObject* bmx_intmap_iter_getobject(intmap::iterator const* iter) {
 	return (*iter)->second;
 }
 
-void bmx_intmap_iter_delete(intmap::iterator * iter) {
+int bmx_intmap_iter_getkey(intmap::iterator const* iter) {
+	return (*iter)->first;
+}
+
+void bmx_intmap_iter_delete(intmap::iterator* iter) {
+	delete iter;
+}
+
+// Reverse iterator
+
+intmap::reverse_iterator* bmx_intmap_riter_first(intmap* imap) {
+	return new intmap::reverse_iterator(imap->rbegin());
+}
+
+void bmx_intmap_riter_next(intmap::reverse_iterator* iter) {
+	++(*iter);
+}
+
+int bmx_intmap_riter_hasnext(intmap* imap, intmap::reverse_iterator const* iter) {
+	return *iter != imap->rend() ? 1 : 0;
+}
+
+BBObject* bmx_intmap_riter_getobject(intmap::reverse_iterator const* iter) {
+	return (*iter)->second;
+}
+
+int bmx_intmap_riter_getkey(intmap::reverse_iterator const* iter) {
+	return (*iter)->first;
+}
+
+void bmx_intmap_riter_delete(intmap::reverse_iterator* iter) {
 	delete iter;
 }
 

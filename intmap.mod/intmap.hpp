@@ -27,25 +27,37 @@ THE SOFTWARE.
 #include <map>
 #include <blitz.h>
 
-typedef std::map<int, BBObject *> intmap;
+typedef std::map<int, BBObject*> intmap;
 
 extern "C" {
-	intmap * bmx_intmap_create();
-	void bmx_intmap_delete(intmap * imap);
+	intmap* bmx_intmap_create();
+	void bmx_intmap_delete(intmap* imap);
 	
-	void bmx_intmap_clear(intmap * imap);
-	int bmx_intmap_size(intmap const * imap);
-	int bmx_intmap_contains(intmap const * imap, int key);
+	void bmx_intmap_clear(intmap* imap);
+	int bmx_intmap_size(intmap const* imap);
+	int bmx_intmap_isempty(intmap const* imap);
+	int bmx_intmap_contains(intmap const* imap, int key);
 	
-	void bmx_intmap_remove(intmap * imap, int key);
-	void bmx_intmap_set(intmap * imap, int key, BBObject * obj);
-	BBObject * bmx_intmap_get(intmap * imap, int key);
+	void bmx_intmap_remove(intmap* imap, int key);
+	void bmx_intmap_set(intmap* imap, int key, BBObject* obj);
+	BBObject* bmx_intmap_get(intmap* imap, int key);
 	
-	intmap::iterator * bmx_intmap_iter_first(intmap * imap);
-	intmap::iterator * bmx_intmap_iter_next(intmap::iterator * iter);
-	int bmx_intmap_iter_hasnext(intmap * imap, intmap::iterator * iter);
-	BBObject * bmx_intmap_iter_getobject(intmap::iterator * iter);
-	void bmx_intmap_iter_delete(intmap::iterator * iter);
+	BBObject* bmx_intmap_getlastobj(intmap const* imap);
+	int bmx_intmap_getlastkey(intmap const* imap);
+	
+	intmap::iterator* bmx_intmap_iter_first(intmap* imap);
+	void bmx_intmap_iter_next(intmap::iterator* iter);
+	int bmx_intmap_iter_hasnext(intmap* imap, intmap::iterator const* iter);
+	BBObject* bmx_intmap_iter_getobject(intmap::iterator const* iter);
+	int bmx_intmap_iter_getkey(intmap::iterator const* iter);
+	void bmx_intmap_iter_delete(intmap::iterator* iter);
+	
+	intmap::reverse_iterator* bmx_intmap_riter_first(intmap* imap);
+	void bmx_intmap_riter_next(intmap::reverse_iterator* iter);
+	int bmx_intmap_riter_hasnext(intmap* imap, intmap::reverse_iterator const* iter);
+	BBObject* bmx_intmap_riter_getobject(intmap::reverse_iterator const* iter);
+	int bmx_intmap_riter_getkey(intmap::reverse_iterator const* iter);
+	void bmx_intmap_riter_delete(intmap::reverse_iterator* iter);
 };
 
 #endif // _intmap_HPP_

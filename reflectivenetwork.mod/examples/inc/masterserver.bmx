@@ -5,8 +5,9 @@ End Rem
 Type TMasterServer Extends dServer
 	
 	Field m_slotmap:TSlotMap
-	Field m_opmessage:TPlayerOperationMessage
-	Field m_movemessage:TPlayerMoveMessage
+	
+	Field m_opmessage:TPlayerOperationMessage {create}
+	Field m_movemessage:TPlayerMoveMessage {create}
 	
 	Method New()
 		m_slotmap = New TSlotMap.Create(2)
@@ -18,8 +19,6 @@ Type TMasterServer Extends dServer
 	End Rem
 	Method Create:TMasterServer(socket:TSocket, port:Int, accept_timeout:Int)
 		_init(mainapp.m_msgmap, socket, port, accept_timeout)
-		m_opmessage = New TPlayerOperationMessage
-		m_movemessage = New TPlayerMoveMessage
 		Return Self
 	End Method
 	
@@ -52,7 +51,7 @@ Type TMasterServer Extends dServer
 	End Rem
 	Method OnSocketAccept:dClient(socket:TSocket)
 		Local player:TServerPlayer = New TServerPlayer.Create(socket)
-		local pid:Int = m_slotmap.GetFreeSlot()
+		Local pid:Int = m_slotmap.GetFreeSlot()
 		If pid = 0
 			Print("Client Refused (no empty slots); ip: " + player.GetIPAddressAsString())
 			socket.Close()
@@ -172,12 +171,18 @@ Type TServerPlayer Extends TPlayer
 			Print("(TServerPlayer.HandleMessage) Unknown message id: " + msgid + "; From: " + GetIPAddressAsString())
 		Else
 			message.Deserialize(Self, False)
-			Select msgid
-				Case MSGID_POSITION
-					Local posmsg:TPositionMessage = TPositionMessage(message)
-					SetPosition(posmsg.m_x, posmsg.m_y)
-			End Select
+			If mainapp.m_msgmap.HandleMessage(Self, message) = False
+				Print("(TServerPlayer.HandleMessage) Unhandled message: " + msgid)
+			End If
 		End If
+	End Method
+	
+	Rem
+		bbdoc: Handler for position messages.
+		returns: Nothing.
+	End Rem
+	Method OnPositionMessage(msg:TPositionMessage) {handle = "TPositionMessage"}
+		SetPosition(msg.m_x, msg.m_y)
 	End Method
 	
 End Type

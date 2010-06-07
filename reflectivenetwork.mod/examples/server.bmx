@@ -7,25 +7,26 @@ Framework brl.blitz
 Import brl.standardio
 Import brl.glmax2d
 
-Import duct.objectmap
 Import duct.graphix
 Import duct.vector
-Import duct.network
+Import duct.reflectivenetwork
 
 Include "inc/base.bmx"
-Include "inc/masterclient.bmx"
+Include "inc/masterserver.bmx"
 
-Global mainapp:TClientApp
-New TClientApp.Create()
+Global mainapp:TServerApp
+TServerApp(New TServerApp.Create())
 mainapp.Run()
 
 Rem
-	bbdoc: Client application.
+	bbdoc: Server application.
 End Rem
-Type TClientApp Extends dGraphicsApp
+Type TServerApp Extends dGraphicsApp
 	
-	Field m_msgmap:dNetMessageMap = New dNetMessageMap.Create()
-	Field m_client:TMasterClient
+	Field m_msgmap:dReflNetMessageMap = New dReflNetMessageMap.Create()
+	Field m_server:TMasterServer
+	
+	Field m_posmessage:TPositionMessage {create insert}
 	
 	Rem
 		bbdoc: This method is called when the app is initialized.
@@ -33,15 +34,18 @@ Type TClientApp Extends dGraphicsApp
 	End Rem
 	Method OnInit()
 		mainapp = Self
-		AppTitle = "Client"
-		m_msgmap.InsertMessage(New TPlayerOperationMessage)
-		m_msgmap.InsertMessage(New TPlayerMoveMessage)
-		m_client = New TMasterClient.Create(TSocket.CreateTCP())
-		If m_client.Connect(HostIp("localhost"), 30249) = False
-			Print("Unable to connect to server!")
+		AppTitle = "Server"
+		m_server = New TMasterServer.Create(TSocket.CreateTCP(), 30249, 1)
+		m_server.Start()
+		If m_server.Connected() = False
+			Print("Server on port " + m_server.GetPort() + " could not be created")
 			Shutdown()
 		End If
-		Print("Connected!")
+		Print("Server created on port 30249")
+		m_msgmap.InitializeFields(Self)
+		m_msgmap.InitializeFields(m_server)
+		m_msgmap.AttachHandlers(TTypeId.ForName("TServerPlayer"))
+		
 		SetGraphicsDriver(GLMax2DDriver())
 		Graphics(320, 240, 0)
 	End Method
@@ -52,9 +56,9 @@ Type TClientApp Extends dGraphicsApp
 	End Rem
 	Method OnExit()
 		EndGraphics()
-		If m_client <> Null
-			m_client.Close()
-			m_client = Null
+		If m_server <> Null
+			m_server.Close()
+			m_server = Null
 		End If
 		End
 	End Method
@@ -78,7 +82,7 @@ Type TClientApp Extends dGraphicsApp
 		returns: Nothing.
 	End Rem
 	Method Render()
-		m_client.DrawPlayers()
+		m_server.DrawPlayers()
 	End Method
 	
 	Rem
@@ -86,12 +90,9 @@ Type TClientApp Extends dGraphicsApp
 		returns: Nothing.
 	End Rem
 	Method Update()
-		If m_client.Connected() = False
-			Print("Disconnected from server!")
-			Shutdown()
-		End If
-		m_client.CheckTransmissions()
-		m_client.SetPosition(Float(MouseX()), Float(MouseY()))
+		m_server.HandleNewClients()
+		m_server.CheckTransmissions()
+		m_server.UpdatePlayers()
 	End Method
 	
 End Type

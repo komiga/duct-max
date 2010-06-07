@@ -7,7 +7,11 @@ Type TMasterClient Extends TPlayer
 	Field m_slotmap:TSlotMap
 	Field m_lastpos:dVec2
 	
-	Field m_posmessage:TPositionMessage
+	' Notice here that we're only inserting the messages that will be /received/
+	' (There is no reason to insert a message which will never be received)
+	Field m_opmessage:TPlayerOperationMessage {create insert}
+	Field m_movemessage:TPlayerMoveMessage {create insert}
+	Field m_posmessage:TPositionMessage {create}
 	
 	Method New()
 		m_slotmap = New TSlotMap.Create(2)
@@ -20,7 +24,6 @@ Type TMasterClient Extends TPlayer
 	End Rem
 	Method Create:TMasterClient(socket:TSocket, pid:Int = 0)
 		Super.Create(socket, pid)
-		m_posmessage = New TPositionMessage
 		Return Self
 	End Method
 	
@@ -64,30 +67,9 @@ Type TMasterClient Extends TPlayer
 			Print("(TMasterClient.HandleMessage) Unknown message id: " + msgid)
 		Else
 			message.Deserialize(Self, False)
-			Select msgid
-				Case MSGID_PLAYEROPERATION
-					Local opmsg:TPlayerOperationMessage = TPlayerOperationMessage(message)
-					Select opmsg.m_action
-						Case OPACTION_ASSIGNID
-							Print("Assigned ID: " + opmsg.m_pid)
-							m_pid = opmsg.m_pid
-							m_slotmap.InsertPlayer(Self)
-						Case OPACTION_ADDPLAYER
-							Print("Added player (id: " + opmsg.m_pid + ")")
-							m_slotmap.InsertPlayer(New TPlayer.Create(Null, opmsg.m_pid))
-						Case OPACTION_REMOVEPLAYER
-							Print("Removed player (id: " + opmsg.m_pid + ")")
-							m_slotmap.InsertPlayerByID(opmsg.m_pid, Null)
-					End Select
-				Case MSGID_PLAYERMOVE
-					Local movemsg:TPlayerMoveMessage = TPlayerMoveMessage(message)
-					Local player:TPlayer = m_slotmap.GetPlayerByID(movemsg.m_pid)
-					If player = Null
-						Print("(TMasterClient.HandleMessage) MasterClient does not have a player with the recieved id (" + movemsg.m_pid + ")")
-					Else
-						player.SetPosition(movemsg.m_x, movemsg.m_y)
-					End If
-			End Select
+			If mainapp.m_msgmap.HandleMessage(Self, message) = False
+				Print("(TMasterClient.HandleMessage) Unhandled message: " + msgid)
+			End If
 		End If
 	End Method
 	
@@ -105,6 +87,38 @@ Type TMasterClient Extends TPlayer
 					HandleMessage(msgid, message)
 				Wend
 			End If
+		End If
+	End Method
+	
+	Rem
+		bbdoc: Handler for the player operation messages.
+		returns: Nothing.
+	End Rem
+	Method OnPlayerOperationMessage(msg:TPlayerOperationMessage) {handle = "TPlayerOperationMessage"}
+		Select msg.m_action
+			Case OPACTION_ASSIGNID
+				m_pid = msg.m_pid
+				m_slotmap.InsertPlayer(Self)
+				Print("Assigned ID: " + msg.m_pid)
+			Case OPACTION_ADDPLAYER
+				m_slotmap.InsertPlayer(New TPlayer.Create(Null, msg.m_pid))
+				Print("Added player (id: " + msg.m_pid + ")")
+			Case OPACTION_REMOVEPLAYER
+				m_slotmap.InsertPlayerByID(msg.m_pid, Null)
+				Print("Removed player (id: " + msg.m_pid + ")")
+		End Select
+	End Method
+	
+	Rem
+		bbdoc: Handler for the player movement messages.
+		returns: Nothing.
+	End Rem
+	Method OnPlayerMoveMessage(msg:TPlayerMoveMessage) {handle = "TPlayerMoveMessage"}
+		Local player:TPlayer = m_slotmap.GetPlayerByID(msg.m_pid)
+		If player
+			player.SetPosition(msg.m_x, msg.m_y)
+		Else
+			Print("(TMasterClient.OnPlayerMoveMessage) MasterClient does not have a player with the recieved id (" + msg.m_pid + ")")
 		End If
 	End Method
 	

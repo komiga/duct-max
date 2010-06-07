@@ -19,9 +19,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-TODO:
-	Cleanup the type structure.
 End Rem
 
 SuperStrict
@@ -31,10 +28,15 @@ bbdoc: Networking module
 End Rem
 Module duct.network
 
-ModuleInfo "Version: 0.6"
+ModuleInfo "Version: 0.7"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.7"
+ModuleInfo "History: Appified example code"
+ModuleInfo "History: dNetMessageMap now uses dIntMap instead of extending dObjectMap"
+ModuleInfo "History: dNetMessageMap.InsertMessage now returns True/False as intended"
+ModuleInfo "History: dServer now disconnects clients /before/ closing the socket"
 ModuleInfo "History: Version 0.6"
 ModuleInfo "History: Fixed documentation, licenses, examples"
 ModuleInfo "History: Renamed TNetMessageMap to dNetMessageMap"
@@ -59,7 +61,7 @@ Import brl.linkedlist
 Import brl.socket
 
 Import duct.etc
-Import duct.objectmap
+Import duct.intmap
 
 Include "inc/client.bmx"
 Include "inc/server.bmx"

@@ -139,12 +139,12 @@ Type dServer
 		about: If @ondisconnect is True, OnClientDisconnect will be called for each client that is dropped.
 	End Rem
 	Method Close(ondisconnect:Int = True)
-		If m_socket <> Null
-			m_socket.Close()
-		End If
 		For Local client:dClient = EachIn m_clients
 			DisconnectClient(client, ondisconnect)
 		Next
+		If m_socket <> Null
+			m_socket.Close()
+		End If
 	End Method
 	
 	Rem

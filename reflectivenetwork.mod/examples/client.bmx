@@ -7,16 +7,14 @@ Framework brl.blitz
 Import brl.standardio
 Import brl.glmax2d
 
-Import duct.objectmap
 Import duct.graphix
 Import duct.vector
-Import duct.network
+Import duct.reflectivenetwork
 
 Include "inc/base.bmx"
 Include "inc/masterclient.bmx"
 
-Global mainapp:TClientApp
-New TClientApp.Create()
+Global mainapp:TClientApp = TClientApp(New TClientApp.Create())
 mainapp.Run()
 
 Rem
@@ -24,7 +22,7 @@ Rem
 End Rem
 Type TClientApp Extends dGraphicsApp
 	
-	Field m_msgmap:dNetMessageMap = New dNetMessageMap.Create()
+	Field m_msgmap:dReflNetMessageMap = New dReflNetMessageMap.Create()
 	Field m_client:TMasterClient
 	
 	Rem
@@ -32,11 +30,9 @@ Type TClientApp Extends dGraphicsApp
 		returns: Nothing.
 	End Rem
 	Method OnInit()
-		mainapp = Self
 		AppTitle = "Client"
-		m_msgmap.InsertMessage(New TPlayerOperationMessage)
-		m_msgmap.InsertMessage(New TPlayerMoveMessage)
 		m_client = New TMasterClient.Create(TSocket.CreateTCP())
+		m_msgmap.Initialize(m_client)
 		If m_client.Connect(HostIp("localhost"), 30249) = False
 			Print("Unable to connect to server!")
 			Shutdown()

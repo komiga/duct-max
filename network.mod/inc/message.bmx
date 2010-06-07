@@ -28,7 +28,6 @@ End Rem
 Type dNetMessage Abstract
 	
 	Const MSGID_BASE:Byte = 1
-	'Const MSGID_FREESTART:Byte = 10
 	
 	Field m_id:Int
 	
@@ -105,7 +104,13 @@ End Type
 Rem
 	bbdoc: duct #dNetMessage map.
 End Rem
-Type dNetMessageMap Extends dObjectMap
+Type dNetMessageMap
+	
+	Field m_map:dIntMap
+	
+	Method New()
+		m_map = New dIntMap
+	End Method
 	
 	Rem
 		bbdoc: Create a new message map.
@@ -119,8 +124,13 @@ Type dNetMessageMap Extends dObjectMap
 		bbdoc: Insert a message into the map.
 		returns: True if the message was inserted, or False if it was unable to be inserted.
 	End Rem
-	Method InsertMessage(msg:dNetMessage)
-		_Insert(String(msg.m_id), msg)
+	Method InsertMessage:Int(msg:dNetMessage)
+		If msg
+			m_map.Insert(msg.m_id, msg)
+			Return True
+		Else
+			Return False
+		End If
 	End Method
 	
 	Rem
@@ -128,7 +138,7 @@ Type dNetMessageMap Extends dObjectMap
 		returns: The message with the ID given, or Null if the map does not contain a message for the given ID.
 	End Rem
 	Method GetMessageByID:dNetMessage(msgid:Int)
-		Return dNetMessage(_ValueByKey(String(msgid)))
+		Return dNetMessage(m_map.ForKey(msgid))
 	End Method
 	
 End Type

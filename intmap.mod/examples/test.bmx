@@ -15,7 +15,7 @@ Local array:Float[] = [2.0, 1.0]
 intmap.Insert(2, array)
 
 Local garray:Float[]
-garray = Float[] (intmap.ForKey(2))
+garray = Float[](intmap.ForKey(2))
 
 If array = garray
 	Print("Works!")
@@ -42,8 +42,8 @@ intmap.Insert(4, "if86r")
 intmap.Insert(5, "wi56s")
 
 For Local str:String = EachIn intmap
-	Local str2:String = str + str
+	Print(str)
 Next
 
-Print("End!")
+Print("Tada!")
 
