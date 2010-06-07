@@ -28,10 +28,12 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.21"
+ModuleInfo "Version: 0.22"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.22"
+ModuleInfo "History: Removed TimeInFormat and FileTimeWithFormat (adapted to duct.time)"
 ModuleInfo "History: Version 0.21"
 ModuleInfo "History: Added TStringBuilder"
 ModuleInfo "History: Corrected documentation"

@@ -70,32 +70,6 @@ Function CopyFileExplicitly:Int(from:String, _to:String)
 End Function
 
 Rem
-	bbdoc: Get the time with the given format.
-	returns: The time with the given format.
-End Rem
-Function TimeInFormat:String(format:String)
-	Local time:Int[256], buff:Byte[256]
-	time_(time)
-	strftime_(buff, 256, format, localtime_(time))
-	Return String.FromCString(buff)
-End Function
-
-Rem
-	bbdoc: Get the FileTime of the given file in the given format.
-	returns: The formatted filetime, or Null if the given file does not exist (this may be a mistake if you also accidently passed @format as Null).
-End Rem
-Function FileTimeWithFormat:String(path:String, format:String)
-	Local time:Int Ptr, buff:Byte[256], ftime:Int
-	If format <> Null And path <> Null And FileType(path) = FILETYPE_FILE
-		ftime = FileTime(path)
-		time = Varptr(ftime)
-		strftime_(buff, 256, format, localtime_(time))
-		Return String.FromCString(buff)
-	End If
-	Return Null
-End Function
-
-Rem
 	bbdoc: Fix the endings for the path given.
 	returns: Nothing.
 	about: This will change "\" to "/" (at the end of the path), and will add "/" if no slash is at the end of the path given.<br />
