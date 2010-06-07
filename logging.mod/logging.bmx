@@ -28,10 +28,12 @@ bbdoc: Logging module
 End Rem
 Module duct.logging
 
-ModuleInfo "Version: 0.4"
+ModuleInfo "Version: 0.5"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.5"
+ModuleInfo "History: Adapted for time module"
 ModuleInfo "History: Version 0.4"
 ModuleInfo "History: Fixed documentation, license, examples"
 ModuleInfo "History: Renamed TLogger to dLogger"
@@ -47,6 +49,7 @@ Import brl.stream
 
 Import duct.appendstream
 Import duct.etc
+Import duct.time
 
 Rem
 	bbdoc: duct stream/debug/stdio based logger.
@@ -229,7 +232,7 @@ Type dLogger
 	End Rem
 	Method GetFormattedTime:String()
 		If m_timeformat <> Null
-			Return TimeInFormat(m_timeformat)
+			Return dTime.CurrentFormat(m_timeformat)
 		Else
 			Return Null
 		End If
