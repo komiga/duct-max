@@ -28,10 +28,13 @@ bbdoc: CSV (comma-separated value) reading/writing
 End Rem
 Module duct.csv
 
-ModuleInfo "Version: 0.5"
+ModuleInfo "Version: 0.6"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.6"
+ModuleInfo "History: Added RemoveRow and RemoveRecord to dCSVMap, added RemoveRecord to dCSVRow"
+ModuleInfo "History: Use dStringVariable.Create(, Null) instead of dVariable.RawToVariable(Null) in dCSVRow.InsertRecordsFromString"
 ModuleInfo "History: Version 0.5"
 ModuleInfo "History: dCSVMap rewritten, added serialization"
 ModuleInfo "History: Added dCSVRow"
@@ -139,6 +142,26 @@ Type dCSVMap
 			Return True
 		End If
 		Return False 
+	End Method
+	
+	Rem
+		bbdoc: Remove the row at the given index.
+		returns: True if the row was removed, or False if there is no row at the given index.
+	End Rem
+	Method RemoveRow:Int(index:Int)
+		Return m_rows.Remove(index)
+	End Method
+	
+	Rem
+		bbdoc: Remove the record at the given position.
+		returns: True if the record was removed, or False if there is no record at the given position.
+	End Rem
+	Method RemoveRecord:Int(row:Int, column:Int)
+		Local trow:dCSVRow = GetRow(row, False)
+		If trow
+			Return trow.RemoveRecord(column)
+		End If
+		Return False
 	End Method
 	
 	Rem
@@ -353,7 +376,7 @@ Type dCSVRow
 					'n:+ separator.Length
 					index:+ 1
 					If issep And n = line.Length - 1
-						InsertRecord(New dCSVRecord.Create(index, dVariable.RawToVariable("")))
+						InsertRecord(New dCSVRecord.Create(index, New dStringVariable.Create(, Null)))
 						index:+ 1
 					End If
 					If char = 10 Then Exit
@@ -362,6 +385,14 @@ Type dCSVRow
 			Return index
 		End If
 		Return -1
+	End Method
+	
+	Rem
+		bbdoc: Remove the record at the given index.
+		returns: True if the record was removed, or False if there is no record at the given index.
+	End Rem
+	Method RemoveRecord:Int(index:Int)
+		Return m_records.Remove(index)
 	End Method
 	
 	Rem
