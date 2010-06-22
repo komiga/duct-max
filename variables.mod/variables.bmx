@@ -28,10 +28,12 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.23"
+ModuleInfo "Version: 0.24"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.24"
+ModuleInfo "History: Removed silly debuglog"
 ModuleInfo "History: Version 0.23"
 ModuleInfo "History: dIdentifier now uses TListEx"
 ModuleInfo "History: Version 0.22"
@@ -223,7 +225,7 @@ Type dVariable Abstract
 	Function RawToVariable:dVariable(vraw:String, etype:Int = 0, varname:String = "", allowevalvars:Int = False)
 		Local variable:dVariable
 		If vraw = Null
-			DebugLog("(dVariable.RawToVariable) @vraw = Null; returning a dStringVariable (with @varname and Null value)")
+			'DebugLog("(dVariable.RawToVariable) @vraw = Null; returning a dStringVariable (with @varname and Null value)")
 			Return New dStringVariable.Create(varname, Null)
 		End If
 		If etype = 0 ' Determine the value's type (must be either integer, double, or a string with no spaces)
