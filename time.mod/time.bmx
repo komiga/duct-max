@@ -28,10 +28,13 @@ bbdoc: Time module
 End Rem
 Module duct.time
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: Added (limited) Win32 support (no timezone conversion (or strptime for that matter), because Microsoft is a homosexual deviant)"
+ModuleInfo "History: Removed SetFromFormatted and CreateFromFormatted methods in dTime"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
@@ -43,7 +46,6 @@ Import "dtime.c"
 
 Extern "c"
 	'Function gmtime:Byte Ptr(timep:Byte Ptr)
-	Function bmx_dtime_strtotime:Int(str:String, fmt:String)
 	Function bmx_dtime_totimezone:Int(time:Int, tz:String)
 	Function bmx_dtime_format:String(time:Int, fmt:String, tz:String)
 End Extern
@@ -80,17 +82,6 @@ Type dTime
 	End Rem
 	Method CreateFromFile:dTime(path:String, creationtime:Int = False)
 		If SetFromPath(path, creationtime)
-			Return Self
-		End If
-		Return Null
-	End Method
-	
-	Rem
-		bbdoc: Create a container from the given time-formatted string.
-		returns: Itself or Null if there was an error reversing the format/string.
-	End Rem
-	Method CreateFromFormatted:dTime(str:String, fmt:String, tz:String = Null)
-		If SetFromFormatted(str, fmt, tz)
 			Return Self
 		End If
 		Return Null
@@ -148,22 +139,6 @@ Type dTime
 					Return True
 				End If
 			End If
-		End If
-		Return False
-	End Method
-	
-	Rem
-		bbdoc: Set the container's time to the given formatted time (converts string to number, essentially).
-		returns: True if the time was set, or False if it was not (Null str/format, non-matching format or other error).
-		about: If @tz is set, the timezone will be temporarily set to @tz to ensure the conversion uses the correct timezone.
-	End Rem
-	Method SetFromFormatted:Int(str:String, fmt:String, tz:String = Null)
-		If str And fmt
-			Local time:Int = bmx_dtime_strtotime(str, fmt)
-			If time = -1 Then Return False
-			m_time = time
-			ConvertToTimeZone(tz)
-			Return True
 		End If
 		Return False
 	End Method

@@ -23,55 +23,55 @@ THE SOFTWARE.
 
 #include "dtime.h"
 
-time_t bmx_dtime_strtotime(const BBString* str, const BBString* fmt) {
-	struct tm tm;
-	if (!strptime(bbTmpCString(str), bbTmpCString(fmt), &tm))
-		return (time_t)-1;
-	time_t time = mktime(&tm);
-	return time;
+void c_dtime_settz(const char* value) {
+	if (value) {
+		#ifdef _WIN32
+			SetEnvironmentVariable("TZ", value);
+		#else
+			setenv("TZ", value, 1);
+		#endif
+	} else {
+		#ifdef _WIN32
+			SetEnvironmentVariable("TZ", NULL);
+			//_putenv("TZ=NULL");
+		#else
+			unsetenv("TZ");
+		#endif
+	}
+	#ifdef _WIN32
+		_tzset();
+	#else
+		tzset();
+	#endif
 }
 
 time_t bmx_dtime_totimezone(time_t time, const BBString* tz) {
 	if (tz && tz->length > 0) {
 		struct tm* tm = localtime(&time);
 		char* tzo = getenv("TZ");
-		setenv("TZ", bbTmpCString(tz), 1);
-		tzset();
+		c_dtime_settz(bbTmpCString(tz));
 		time = mktime(tm);
-		if (tzo)
-			setenv("TZ", tzo, 1);
-		else
-			unsetenv("TZ");
-		tzset();
+		c_dtime_settz(tzo);
 	}
 	return time;
 }
 
 BBString* bmx_dtime_format(time_t time, BBString* fmt, BBString* tz) {
-	#define BUFSIZE 256
+	#define BUFSIZE 512
 	char buf[BUFSIZE];
 	char* tzo;
 	//printf("tzset tz=\"%s\"  tz#%p, empty#%p, null#%p\n", bbTmpCString(tz), tz, &bbEmptyString, &bbNullObject);
 	if (tz && tz->length > 0) {
 		tzo = getenv("TZ");
-		setenv("TZ", bbTmpCString(tz), 1);
-		tzset();
+		c_dtime_settz(bbTmpCString(tz));
 	}
 	struct tm* tm = localtime(&time);
 	int count = strftime(buf, BUFSIZE, bbTmpCString(fmt), tm);
 	if (tz && tz->length > 0) {
-		if (tzo)
-			setenv("TZ", tzo, 1);
-		else
-			unsetenv("TZ");
-		tzset();
+		c_dtime_settz(tzo);
 	}
 	if (count == 0)
 		return &bbEmptyString;
 	return bbStringFromBytes(buf, count);
 }
-
-/*int unsetenv_(BBString* name) {
-	return unsetenv(bbTmpCString(name)) == 0;
-}*/
 

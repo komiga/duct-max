@@ -16,12 +16,6 @@ Print(tc.Format(format, "UTC"))
 tc.SetFromPath("test.bmx")
 Print(tc.Format(format, convtz))
 
-Local str:String = "2009-07-01T11:12:05Z"
-Print(tc.SetFromFormatted(str, format, convtz))
-Print(str)
-Print(tc.Format(format, "UTC"))
-Print(tc.Format(format, Null))
-
 tc.SetCurrent()
-Print(tc.Format(format, "UTC"))
+Print(tc.Format(format, "UTC-5"))
 

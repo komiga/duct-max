@@ -29,9 +29,11 @@ THE SOFTWARE.
 #include <sys/time.h>
 #include <stdlib.h>
 
-extern time_t bmx_dtime_strtotime(const BBString* str, const BBString* fmt);
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 extern time_t bmx_dtime_totimezone(time_t time, const BBString* tz);
 extern BBString* bmx_dtime_format(time_t time, BBString* fmt, BBString* tz);
-//extern int unsetenv_(BBString* name);
 
 #endif // _dtime_H_
