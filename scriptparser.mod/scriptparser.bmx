@@ -28,10 +28,12 @@ bbdoc: Scriptparser module
 End Rem
 Module duct.scriptparser
 
-ModuleInfo "Version: 0.8"
+ModuleInfo "Version: 0.9"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.9"
+ModuleInfo "History: Added bool-from-string support in dSNodeDefaultParserHandler"
 ModuleInfo "History: Version 0.8"
 ModuleInfo "History: Added multi-line quoted-string support"
 ModuleInfo "History: Version 0.7"

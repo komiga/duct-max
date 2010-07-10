@@ -1,16 +1,16 @@
 
-iden "variable"
-abcd 102.23 2054 "245ello" "23far" "choppers" "'{} Enclosed string"
+iden 0
+abcd 102.23 2054 0 0 0 "'{} Enclosed string"
 
 node1 {
-	data "riddo" 775
+	data 0 775
 	
 	{
 		enipt,epin
 	}
 	
 	{
-		captain "obvious"
+		captain 0
 	}
 	Epilouge
 	"Special identifier name" "Magic."
@@ -18,8 +18,8 @@ node1 {
 
 node2 {
 	NullStringTest ""
-	stuff "goes" "here"
-	"Annd now for multi-line strings :)" "okgo" "abcdefg foobar
+	stuff 0 0
+	"Annd now for multi-line strings :)" 0 "abcdefg foobar
 wakka
-end. Note how the white-space after a newline gets removed" "Oh, you can also continue on." 112
+Note how the white-space after a newline gets removed" "Oh, you can also continue on." 112
 }

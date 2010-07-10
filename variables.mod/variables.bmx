@@ -28,10 +28,12 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.24"
+ModuleInfo "Version: 0.25"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.25"
+ModuleInfo "History: The dBoolVariable.ConvToString method now returns 'true' or 'false' according to value"
 ModuleInfo "History: Version 0.24"
 ModuleInfo "History: Removed silly debuglog"
 ModuleInfo "History: Version 0.23"
@@ -828,7 +830,8 @@ Type dBoolVariable Extends dVariable
 		about: This function is for script output, for in-code use see #ValueAsString.
 	End Rem
 	Method ConvToString:String()
-		Return String(m_value)
+		If m_value = False Then Return "false"
+		Return "true"
 	End Method
 	
 	Rem

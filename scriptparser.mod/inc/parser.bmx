@@ -646,10 +646,18 @@ Type dSNodeDefaultParserHandler Extends dSNodeParserHandler
 				If m_currentiden = Null
 					m_currentiden = New dIdentifier.CreateByData(token.AsString())
 				Else
-					If token.AsString().StartsWith("/e:")
-						m_currentiden.AddValue(New dEvalVariable.Create(Null, token.m_bufs[2..]))
+					Local value:String = token.AsString()
+					If token.m_type = StringToken
+						Local lvalue:String = value.ToLower()
+						If lvalue = "true" Or lvalue = "false"
+							m_currentiden.AddValue(New dBoolVariable.Create(Null, (lvalue = "true") And True Or False))
+							Return
+						End If
+					End If
+					If value.StartsWith("/e:")
+						m_currentiden.AddValue(New dEvalVariable.Create(Null, value[2..]))
 					Else
-						m_currentiden.AddValue(New dStringVariable.Create(Null, token.m_bufs))
+						m_currentiden.AddValue(New dStringVariable.Create(Null, value))
 					End If
 				End If
 			Case NumberToken
