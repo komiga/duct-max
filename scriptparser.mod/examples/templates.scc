@@ -49,3 +49,7 @@ TimeWillTell 123141 "Or will it?"
 
 'Fail (07)
 NameIsGood 1010001.0 13411
+
+'Pass
+bools true false true false
+

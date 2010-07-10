@@ -31,7 +31,7 @@ Type dTemplate
 		about: Definition: template "IDENNAME" FLEXIBLE CASESENS INFINITISM VARTYPE_1 VARTYPE_2 VARTYPE_3<br />
 		Currently the script definition is limited, INFINITISM does not support multiple values, yet.
 	End Rem
-	Global m_template:dTemplate = New dTemplate.Create(["template"], [[TV_STRING], [TV_BOOL], [TV_BOOL] ], False, True, [TV_INTEGER])
+	Global m_template:dTemplate = New dTemplate.Create(["template"], [[TV_STRING], [TV_BOOL], [TV_BOOL]], False, True, [TV_INTEGER])
 	
 	Field m_iden:String[]
 	Field m_vars:Int[][]

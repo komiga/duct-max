@@ -6,16 +6,17 @@ Import brl.standardio
 
 Import duct.scriptparser
 
-Local tpl_test01:dTemplate = New dTemplate.Create(["test01", "testalt01"], [[TV_INTEGER], [TV_STRING], [TV_FLOAT], [TV_EVAL] ])
-Local tpl_test02:dTemplate = New dTemplate.Create(["Test02", "TestAlt02"], [[TV_INTEGER, TV_STRING, TV_FLOAT, TV_EVAL] ], True)
-Local tpl_test03:dTemplate = New dTemplate.Create(["test03"], [[TV_STRING] ], False, True)
-Local tpl_test04:dTemplate = New dTemplate.Create(["test04"], [[TV_EVAL] ], False, True, [TV_INTEGER])
-Local tpl_test05:dTemplate = New dTemplate.Create(["test05"], [[TV_EVAL] ], False, True, [TV_INTEGER, TV_STRING, TV_FLOAT])
-Local tpl_test06:dTemplate = New dTemplate.Create(["test06"], [[TV_FLOAT] ], False, True, [TV_INTEGER, TV_STRING, TV_FLOAT])
+Local tpl_test01:dTemplate = New dTemplate.Create(["test01", "testalt01"], [[TV_INTEGER], [TV_STRING], [TV_FLOAT], [TV_EVAL]])
+Local tpl_test02:dTemplate = New dTemplate.Create(["Test02", "TestAlt02"], [[TV_INTEGER, TV_STRING, TV_FLOAT, TV_EVAL]], True)
+Local tpl_test03:dTemplate = New dTemplate.Create(["test03"], [[TV_STRING]], False, True)
+Local tpl_test04:dTemplate = New dTemplate.Create(["test04"], [[TV_EVAL]], False, True, [TV_INTEGER])
+Local tpl_test05:dTemplate = New dTemplate.Create(["test05"], [[TV_EVAL]], False, True, [TV_INTEGER, TV_STRING, TV_FLOAT])
+Local tpl_test06:dTemplate = New dTemplate.Create(["test06"], [[TV_FLOAT]], False, True, [TV_INTEGER, TV_STRING, TV_FLOAT])
+Local tpl_test07:dTemplate = New dTemplate.Create(Null, [[TV_INTEGER], [TV_STRING]])
 
-Local tpl_test07:dTemplate = New dTemplate.Create(Null, [[TV_INTEGER], [TV_STRING] ])
+Local tpl_bools:dTemplate = New dTemplate.Create(["bools"], [[TV_BOOL], [TV_BOOL], [TV_BOOL], [TV_BOOL]])
+
 Local root:dSNode
-
 Try
 	root = dSNode.LoadScriptFromObject("templates.scc")
 	If root <> Null
@@ -35,6 +36,8 @@ Try
 					pass = tpl_test05.ValidateIdentifier(identifier)
 				Case "test06"
 					pass = tpl_test06.ValidateIdentifier(identifier)
+				Case "bools"
+					pass = tpl_bools.ValidateIdentifier(identifier)
 				Default
 					pass = tpl_test07.ValidateIdentifier(identifier)
 			End Select
