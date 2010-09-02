@@ -33,31 +33,31 @@ Type TNStringReadException
 End Type
 
 Rem
-	bbdoc: Read newline-terminated String from a Stream.
+	bbdoc: Read a newline-terminated string from the given stream.
 	returns: A string.
 	about: This function may throw a TNStringReadException (search went past the max buffer), or it may throw a TStreamReadException (no more data to be read).
 End Rem
 Function ReadNString:String(stream:TStream, maxbuffer:Int = 256)
-	Local str:String, Buf:Byte[1024], p:Int, count:Int
+	Local str:String, buf:Byte[1024], p:Int, count:Int
+	Local n:Byte
 	Repeat
-		Local n:Byte
 		n = stream.ReadByte() 'Read(VarPtr n, 1) <> 1 Exit
-		'Reached the newline character?
+		' Reached the newline character?
 		If n = 10 Then Exit
-		'Beyond the search amount?
+		' Beyond the search amount?
 		If p > maxbuffer Then Throw New TNStringReadException
 		If stream.Eof() = True Then Throw New TStreamReadException
-		Buf[p] = n; p:+1
-		If p <> Buf.Length Then Continue
-		str:+String.FromBytes(Buf, p)
+		buf[p] = n; p:+ 1
+		If p <> buf.Length Then Continue
+		str:+ String.FromBytes(buf, p)
 		p = 0
 	Forever
-	If p Then str:+String.FromBytes(Buf, p)
+	If p Then str:+String.FromBytes(buf, p)
 	Return str
 End Function
 
 Rem
-	bbdoc: Write newline-terminated String to a Stream.
+	bbdoc: Write a newline-terminated string to the given stream.
 	returns: Nothing.
 End Rem
 Function WriteNString(stream:TStream, value:String)
@@ -65,18 +65,41 @@ Function WriteNString(stream:TStream, value:String)
 End Function
 
 Rem
-	bbdoc: Read a length-defined String from a Stream.
-	returns: A String read from the given Stream.
+	bbdoc: Read a length-defined string from the given stream.
+	returns: A string.
 End Rem
 Function ReadLString:String(stream:TStream)
 	Return stream.ReadString(stream.ReadInt())
 End Function
 
 Rem
-	bbdoc: Write a length-defined String to a Stream.
+	bbdoc: Write a length-defined string to the given stream.
 	returns: Nothing.
 End Rem
 Function WriteLString(stream:TStream, value:String)
 	stream.WriteInt(value.Length)
 	stream.WriteString(value)
 End Function
+
+Rem
+	bbdoc: Read a newline-terminated, length-defined string from the given stream.
+	returns: A string.
+End Rem
+Function ReadNLString:String(stream:TStream)
+	Local length:Int = stream.ReadInt()
+	If length > 0
+		Return String.FromBytes(stream.ReadString(length), length - 1)
+	End If
+	Return Null
+End Function
+
+Rem
+	bbdoc: Write a newline-terminated, length-defined string to the given stream.
+	returns: Nothing.
+End Rem
+Function WriteNLString(stream:TStream, value:String)
+	If Not value.Length Or Not (value[value.Length - 1] = 0) Then value:+ "~0"
+	stream.WriteInt(value.Length)
+	stream.WriteString(value)
+End Function
+

@@ -28,10 +28,13 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.22"
+ModuleInfo "Version: 0.23"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.23"
+ModuleInfo "History: Several doc and code fixes, added ReadNLString and WriteNLString"
+ModuleInfo "History: Renamed inc/ to src/"
 ModuleInfo "History: Version 0.22"
 ModuleInfo "History: Removed TimeInFormat and FileTimeWithFormat (adapted to duct.time)"
 ModuleInfo "History: Version 0.21"
@@ -80,15 +83,15 @@ Import brl.stream
 Import brl.linkedlist
 Import brl.filesystem
 
-Include "inc/pow2size.bmx"
-Include "inc/nstring.bmx"
-Include "inc/minmax.bmx"
-Include "inc/other.bmx"
+Include "src/pow2size.bmx"
+Include "src/nstring.bmx"
+Include "src/minmax.bmx"
+Include "src/other.bmx"
 
-Include "inc/listreversed.bmx"
-Include "inc/fpscounter.bmx"
-Include "inc/mstimer.bmx"
-Include "inc/replacer.bmx"
-Include "inc/listex.bmx"
-Include "inc/stringbuilder.bmx"
+Include "src/listreversed.bmx"
+Include "src/fpscounter.bmx"
+Include "src/mstimer.bmx"
+Include "src/replacer.bmx"
+Include "src/listex.bmx"
+Include "src/stringbuilder.bmx"
 
