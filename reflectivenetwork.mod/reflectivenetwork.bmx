@@ -28,10 +28,14 @@ bbdoc: Reflective networking module
 End Rem
 Module duct.reflectivenetwork
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Updated for duct.objectmap changes"
+ModuleInfo "History: dReflNetMessageMap.HandleMessage now clears the argument array after a method call"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
@@ -41,7 +45,7 @@ Import duct.network
 Import duct.objectmap
 
 Rem
-	bbdoc: duct reflective #dNetMessage map.
+	bbdoc: duct reflective dNetMessage map.
 End Rem
 Type dReflNetMessageMap Extends dNetMessageMap
 	
@@ -50,7 +54,7 @@ Type dReflNetMessageMap Extends dNetMessageMap
 	Field m_handlers:dObjectMap = New dObjectMap
 	
 	Rem
-		bbdoc: Create a new reflective message map.
+		bbdoc: Create a reflective message map.
 		returns: Itself.
 	End Rem
 	Method Create:dReflNetMessageMap()
@@ -69,7 +73,7 @@ Type dReflNetMessageMap Extends dNetMessageMap
 	Rem
 		bbdoc: Initialize the fields.
 		returns: Nothing.
-		about: If 'create' is in the metadata for a field, it will be instantiated. If 'insert' is in the metadata for a field, it will be inserted (if it is derived from #dNetMessage).</br>
+		about: If 'create' is in the metadata for a field, it will be instantiated. If 'insert' is in the metadata for a field, it will be inserted (if it is derived from #dNetMessage).<br>
 		If @class is non-Null, only fields with 'class' in the metadata equal to @class will be initialized.
 	End Rem
 	Method InitializeFields(obj:Object, class:String = Null)
@@ -78,7 +82,7 @@ Type dReflNetMessageMap Extends dNetMessageMap
 			For Local fld:TField = EachIn tid.EnumFields()
 				If fld._meta.Length > 0
 					If Not class Or fld.MetaData("class") = class
-						If fld.MetaData("create") = True
+						If fld.MetaData("create")
 							If Not fld.Get(obj)
 								fld.Set(obj, fld.TypeId().NewObject())
 								?Debug
@@ -93,7 +97,7 @@ Type dReflNetMessageMap Extends dNetMessageMap
 								?
 							End If
 						End If
-						If fld.MetaData("insert") = True
+						If fld.MetaData("insert")
 							Local msg:dNetMessage = dNetMessage(fld.Get(obj))
 							If msg
 								InsertMessage(msg)
@@ -110,7 +114,7 @@ Type dReflNetMessageMap Extends dNetMessageMap
 	Rem
 		bbdoc: Attach the message handlers from the given object.
 		returns: Nothing.
-		about: Message handler methods must have this signature (class is optional): MethodName(MessageType) {class="someclass" handle="MessageType"}</br>
+		about: Message handler methods must have this signature (class is optional): MethodName(MessageType) {class="someclass" handle="MessageType"}<br>
 		If @class is non-Null, only methods with 'class' in the metadata equal to @class will be attached (as above).
 	End Rem
 	Method AttachHandlers(tid:TTypeId, class:String = Null)
@@ -144,10 +148,11 @@ Type dReflNetMessageMap Extends dNetMessageMap
 	Method HandleMessage:Int(obj:Object, msg:dNetMessage)
 		Local objtid:TTypeId = TTypeId.ForObject(obj)
 		Local tid:TTypeId = TTypeId.ForObject(msg)
-		Local meth:TMethod = TMethod(m_handlers._ValueByKey(objtid.Name() + "#" + tid.Name()))
+		Local meth:TMethod = TMethod(m_handlers._ObjectWithKey(objtid.Name() + "#" + tid.Name()))
 		If meth And obj
 			m_callargs[0] = msg
 			meth.Invoke(obj, m_callargs)
+			m_callargs[0] = Null
 			Return True
 		End If
 		Return False

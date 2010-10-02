@@ -49,7 +49,7 @@ End Type
 
 Rem
 	bbdoc: Reversed list (for enumerating a list backwards).
-	about: Understood to be Public Domain. Thanks to Merx and more specifically (for this bit) Brucey.<br/>
+	about: Understood to be Public Domain. Thanks to Merx and more specifically (for this bit) Brucey.<br>
 	Reference: http://www.blitzbasic.com/Community/posts.php?topic=82916
 End Rem
 Type TListReversed Extends TList
@@ -71,7 +71,11 @@ Type TListReversed Extends TList
 		Return Self
 	End Method
 	
-	Method ObjectEnumerator:TListEnum()
+	Rem
+		bbdoc: Object enumerator for the list
+		returns: The object enumerator for the list.
+	End Rem
+	Method ObjectEnumerator:TListReversedEnum()
 		Local enum:TListReversedEnum = New TListReversedEnum
 		enum._link = _head
 		Return enum

@@ -28,10 +28,25 @@ bbdoc: Scriptparser module
 End Rem
 Module duct.scriptparser
 
-ModuleInfo "Version: 0.9"
+ModuleInfo "Version: 1.0"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 1.0"
+ModuleInfo "History: Corrected some documentation"
+ModuleInfo "History: Added Finish method to dScriptParserHandler as a safeguard"
+ModuleInfo "History: Fixed dScriptParser non-newline-ending parsing (EOFToken was never sent)"
+ModuleInfo "History: Fixed dScriptParser.InitWithString (crash due to incorrect data handling)"
+ModuleInfo "History: Renamed dSNodeParserException"
+ModuleInfo "History: Renamed dSNodeDefaultParserHandler to dScriptDefaultParserHandler"
+ModuleInfo "History: Renamed dSNodeParserHandler to dScriptParserHandler"
+ModuleInfo "History: Renamed dSNodeParser to dScriptParser"
+ModuleInfo "History: Renamed dSNodeToken to dScriptToken"
+ModuleInfo "History: Added dScriptFormatter.FormatValue and dScriptFormatter.FormatIdentifier"
+ModuleInfo "History: Renamed dScriptFormatter.LoadScriptFromString to dScriptFormatter.LoadFromString"
+ModuleInfo "History: Removed dScriptFormatter.LoadScriptFromObject; added dScriptFormatter.LoadFromFile and dScriptFormatter.LoadFromStream"
+ModuleInfo "History: Replaced dSNode with dScriptFormatter (static format handler type)"
+ModuleInfo "History: Got rid of EvalVariable stuff, moved inc/ to src/"
 ModuleInfo "History: Version 0.9"
 ModuleInfo "History: Added bool-from-string support in dSNodeDefaultParserHandler"
 ModuleInfo "History: Version 0.8"
@@ -79,12 +94,157 @@ ModuleInfo "History: Initial release"
 
 Import brl.ramstream
 Import brl.textstream
-Import brl.linkedlist
-Import brl.filesystem
+Import duct.etc
 Import duct.variables
 Import cower.charset
 
-Include "inc/snode.bmx"
-Include "inc/parser.bmx"
-Include "inc/template.bmx"
+Include "src/parser.bmx"
+
+Rem
+	bbdoc: duct Quake-style script formatter for the variable framework.
+End Rem
+Type dScriptFormatter
+	
+	Global m_handler:dScriptDefaultParserHandler = New dScriptDefaultParserHandler
+	
+'#region Data handling
+	
+	Rem
+		bbdoc: Write the given node to the given file.
+		returns: True if the node was written, or False if the path could not be opened.
+	End Rem
+	Function WriteToFile:Int(root:dNode, path:String, encoding:Int = ENC_UTF8, nameformat:Int = FMT_NAME_DEFAULT, varformat:Int = FMT_ALL_DEFAULT)
+		Local stream:TStream = WriteStream(path)
+		If stream
+			Local ts:TTextStream = New TTextStream.Create(stream, encoding)
+			WriteToStream(root, ts, "", nameformat, varformat)
+			ts.Close()
+			stream.Close()
+			Return True
+		End If
+		Return False
+	End Function
+	
+	Rem
+		bbdoc: Write the node and its children to a stream.
+		returns: Nothing.
+		about: NOTE: The given stream is not closed.
+	End Rem
+	Function WriteToStream(root:dNode, stream:TStream, tablevel:String = "", nameformat:Int = FMT_NAME_DEFAULT, varformat:Int = FMT_ALL_DEFAULT)
+		Local tableveld:String
+		If root.m_parent
+			If root.m_name
+				stream.WriteLine(tablevel + root.GetNameFormatted() + " {")
+			Else
+				stream.WriteLine(tablevel + "{")
+			End If
+			tableveld = tablevel + "~t"
+		Else
+			'stream.WriteLine("")
+			tableveld = tablevel
+		End If
+		Local iden:dIdentifier, node:dNode, value:dValueVariable, writtenvariable:Int
+		For Local child:dVariable = EachIn root.m_children
+			value = dValueVariable(child)
+			iden = dIdentifier(child)
+			node = dNode(child)
+			If Not node And Not child.m_name
+				DebugLog("(dScriptFormatter.WriteToStream) Ignored dValueVariable or dIdentifier because of null name [" + value.ToString() + "]")
+			Else
+				If value
+					stream.WriteLine(tableveld + FormatValue(value))
+					writtenvariable = True
+				Else If iden
+					stream.WriteLine(tableveld + FormatIdentifier(iden))
+					writtenvariable = True
+				Else If node
+					If Not root.m_parent And writtenvariable Then stream.WriteLine(tableveld)
+					WriteToStream(node, stream, tableveld, nameformat, varformat)
+					If Not root.m_parent Then stream.WriteLine(tableveld)
+					writtenvariable = False
+				End If
+			End If
+		Next
+		If root.m_parent
+			stream.WriteLine(tablevel + "}")
+		End If
+	End Function
+	
+	Rem
+		bbdoc: Format the given identifier into a string.
+		returns: The formatted identifier, or Null if the given identifier does not have a name.
+		about: The return format is "<identifier_name> <variable_value> <variable_value> <variable_value> ...".
+	End Rem
+	Function FormatIdentifier:String(iden:dIdentifier, nameformat:Int = FMT_NAME_DEFAULT, varformat:Int = FMT_ALL_DEFAULT)
+		If iden.m_name
+			Local op:String = iden.GetNameFormatted(nameformat)
+			If iden.GetChildCount()
+				For Local variable:dValueVariable = EachIn iden.m_children
+					op:+ " " + variable.GetValueFormatted(varformat)
+				Next
+			End If
+			Return op
+		Else
+			DebugLog("(dScriptFormatter.FormatIdentifier) identifier name is Null [" + iden.ToString() + "]")
+		End If
+		Return Null
+	End Function
+	
+	Rem
+		bbdoc: Format the given value variable into a string.
+		returns: The formatted value, or Null if the given value does not have a name.
+		about: The return format is "<variable_name>=<variable_value>".
+	End Rem
+	Function FormatValue:String(value:dValueVariable, nameformat:Int = FMT_NAME_DEFAULT, varformat:Int = FMT_ALL_DEFAULT)
+		If value.m_name
+			Return value.GetNameFormatted(nameformat) + "=" + value.GetValueFormatted(varformat)
+		Else
+			DebugLog("(dScriptFormatter.FormatValue) value name is Null [" + value.ToString() + "]")
+		End If
+		Return Null
+	End Function
+	
+	Rem
+		bbdoc: Load a script from a file.
+		returns: The root node of the script, or Null if the path could not be opened.
+		about: A #dScriptException might be thrown if an error occurs in parsing.
+	End Rem
+	Function LoadFromFile:dNode(path:String, encoding:Int = ENC_UTF8)
+		Local stream:TStream = ReadStream(path)
+		If stream
+			Local root:dNode = m_handler.ProcessFromStream(stream, encoding)
+			stream.Close()
+			Return root
+		End If
+		Return Null
+	End Function
+	
+	Rem
+		bbdoc: Load a script from the given stream.
+		returns: The root node of the script, or Null if the stream given was Null.
+		about: A #dScriptException might be thrown if an error occurs in parsing.<br>
+		NOTE: The given stream will not be closed.
+	End Rem
+	Function LoadFromStream:dNode(stream:TStream, encoding:Int = ENC_UTF8)
+		If stream
+			Return m_handler.ProcessFromStream(stream, encoding)
+		End If
+		Return Null
+	End Function
+	
+	Rem
+		bbdoc: Load a script from a string containing the source.
+		returns: The root node of the script, or Null if the given string was Null.
+		about: A #dScriptException might be thrown if an error occurs in parsing.
+	End Rem
+	Function LoadFromString:dNode(data:String, encoding:Int = ENC_UTF8)
+		If data
+			Return m_handler.ProcessFromString(data, encoding)
+		End If
+		Return Null
+	End Function
+	
+'#end region Data handling
+	
+End Type
 

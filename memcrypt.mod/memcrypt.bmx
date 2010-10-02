@@ -28,10 +28,12 @@ bbdoc: In-memory encryption module
 End Rem
 Module duct.memcrypt
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.03"
@@ -45,22 +47,20 @@ ModuleInfo "History: Initial release"
 Import brl.stream
 Import brl.bank
 Import brl.bankstream
-Import duct.RC4
+Import duct.rc4
 
 Rem
-	bbdoc: Decrypt/Encrypt a stream.
-	returns: A BankStream containing the decrypted data, or Null if it failed to create a BankStream around @url.
-	about: @url can be a path or a Stream.<br />
+	bbdoc: Decrypt/encrypt a stream.
+	returns: A bank stream containing the decrypted data, or Null if it failed to create a bank stream on @url.
+	about: @url can be a path or a Stream.<br>
 	You can use this to either encrypt or decrypt a stream.
 End Rem
 Function CryptStream:TBankStream(url:Object, key:String)
 	Local bstream:TBankStream = TBankStream(url)
-	
-	If bstream = Null
+	If Not bstream
 		bstream = TBankStream.Create(TBank.Load(url))
 	End If
-	
-	If bstream <> Null
+	If bstream
 		RC4_Bytes(bstream._bank.Lock(), bstream._bank.Capacity(), key)
 	End If
 	Return bstream

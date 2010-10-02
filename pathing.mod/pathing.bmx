@@ -28,10 +28,14 @@ bbdoc: Abstract path keeping/provider module
 End Rem
 Module duct.pathing
 
-ModuleInfo "Version: 0.15"
+ModuleInfo "Version: 0.16"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.16"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Updated for duct.objectmap changes"
+ModuleInfo "History: Corrected variable code for duct.variables update"
 ModuleInfo "History: Version 0.15"
 ModuleInfo "History: Fixed documentation, license"
 ModuleInfo "History: Renamed TPathProvider to dPathProvider"
@@ -51,7 +55,7 @@ ModuleInfo "History: Initial release"
 
 Import brl.stream
 Import brl.filesystem
-Import duct.scriptparser
+Import duct.variables
 
 Rem
 	bbdoc: duct path provider.
@@ -59,9 +63,6 @@ End Rem
 Type dPathProvider Extends dObjectMap
 	
 	Field m_option_newnodepaths:Int
-	
-	Method New()
-	End Method
 	
 	Rem
 		bbdoc: Create a path provider.
@@ -94,7 +95,7 @@ Type dPathProvider Extends dObjectMap
 		Return m_option_newnodepaths
 	End Method
 	
-'#end region
+'#end region Field accessors
 	
 	Rem
 		bbdoc: Add a path to the provider.
@@ -118,7 +119,7 @@ Type dPathProvider Extends dObjectMap
 		about: The @name is not case sensitive.
 	End Rem
 	Method GetPathByName:dPath(name:String)
-		Return dPath(_ValueByKey(name.ToLower()))
+		Return dPath(_ObjectWithKey(name.ToLower()))
 	End Method
 	
 	Rem
@@ -129,7 +130,7 @@ Type dPathProvider Extends dObjectMap
 	Method GetPathLocationByName:String(name:String)
 		Local path:dPath
 		path = GetPathByName(name)
-		If path <> Null
+		If path
 			Return path.GetLocation()
 		End If
 		Return Null
@@ -142,9 +143,8 @@ Type dPathProvider Extends dObjectMap
 		The @name is not case sensitive.
 	End Rem
 	Method SetPathLocationByName:Int(location:String, name:String)
-		Local path:dPath
-		path = GetPathByName(name)
-		If path <> Null
+		Local path:dPath = GetPathByName(name)
+		If path
 			path.SetLocation(location)
 			Return True
 		End If
@@ -172,9 +172,8 @@ Type dPathProvider Extends dObjectMap
 		returns: Nothing.
 	End Rem
 	Method Serialize(stream:TStream)
-		Local path:dPath
 		stream.WriteInt(Count())
-		For path = EachIn ValueEnumerator()
+		For Local path:dPath = EachIn ValueEnumerator()
 			path.Serialize(stream)
 		Next
 	End Method
@@ -183,15 +182,13 @@ Type dPathProvider Extends dObjectMap
 		bbdoc: Deserialize a path provider from the given stream.
 		returns: The deserialized path provider (itself).
 	End Rem
-	Method DeSerialize:dPathProvider(stream:TStream)
+	Method Deserialize:dPathProvider(stream:TStream)
 		Local path:dPath
-		Local n:Int, count:Int
-		
-		count = stream.ReadInt()
-		For n = 0 To count - 1
-			path = New dPath.DeSerialize(stream)
+		Local count:Int = stream.ReadInt()
+		For Local n:Int = 0 Until count
+			path = New dPath.Deserialize(stream)
 			' If the path is not already in the provider, we need to add it
-			If SetPathLocationByName(path.GetLocation(), path.GetName()) = False
+			If Not SetPathLocationByName(path.GetLocation(), path.GetName())
 				' Instead of simply adding the path in the first place we need to make sure any 
 				' path references kept outside the Provider stay the same (adding the path would replace
 				' any existing path with the same name, thus destorying the reference to the path that
@@ -206,19 +203,18 @@ Type dPathProvider Extends dObjectMap
 		bbdoc: Load the Provider's Paths from a node.
 		returns: Nothing.
 	End Rem
-	Method LoadFromNode:dPathProvider(node:dSNode)
-		Local iden:dIdentifier, path:dPath
-		
-		For iden = EachIn node.GetChildren()
-			If dPath.ValidateIdentifier(iden) = True
+	Method LoadFromNode:dPathProvider(node:dNode)
+		Local path:dPath
+		For Local iden:dIdentifier = EachIn node
+			If dPath.ValidateIdentifier(iden)
 				path = New dPath.FromIdentifier(iden)
 				' If the path is not already in the provider, we need to add it
-				If SetPathLocationByName(path.GetLocation(), path.GetName()) = False
+				If Not SetPathLocationByName(path.GetLocation(), path.GetName())
 					' Instead of simply adding the path in the first place (which would work fine..) we
 					' need to make sure any path references kept outside the Provider stay the same (adding the
 					' path would replace any existing path with the same name, thus destorying the reference to
 					' the path that was just there).
-					If m_option_newnodepaths = True
+					If m_option_newnodepaths
 						AddPath(path)
 					End If
 				End If
@@ -231,16 +227,15 @@ Type dPathProvider Extends dObjectMap
 		bbdoc: Get a node containing all the Paths within the path provider.
 		returns: A node containing the provider's Paths.
 	End Rem
-	Method ToNode:dSNode(nodename:String = "paths")
-		Local node:dSNode, path:dPath
-		node = New dSNode.Create(nodename)
-		For path = EachIn ValueEnumerator()
-			node.AddIdentifier(path.ToIdentifier())
+	Method ToNode:dNode(nodename:String = "paths")
+		Local node:dNode = New dNode.Create(nodename)
+		For Local path:dPath = EachIn ValueEnumerator()
+			node.AddVariable(path.ToIdentifier())
 		Next
 		Return node
 	End Method
 	
-'#end region (Data handling)
+'#end region Data handling
 	
 End Type
 
@@ -251,18 +246,15 @@ End Rem
 Type dPath
 	
 	Rem
-		bbdoc: Path template (for dSNodes) (example data: <b>setpath</b> <i>or</i> <b>path</b> "logs" "struct\logs\").
+		bbdoc: Path template (for dNodes) (example data: <b>setpath</b> <i>or</i> <b>path</b> "logs" "struct\logs\").
 	End Rem
 	Global m_template:dTemplate = New dTemplate.Create(["setpath", "path"], [[TV_STRING], [TV_STRING] ])
 	
 	Field m_name:String, m_location:String
 	
-	Method New()
-	End Method
-	
 	Rem
-		bbdoc: Create a new path.
-		returns: The new path (itself).
+		bbdoc: Create a path.
+		returns: Itself.
 	End Rem
 	Method Create:dPath(name:String, location:String)
 		SetName(name)
@@ -304,7 +296,7 @@ Type dPath
 		Return m_location
 	End Method
 	
-'#end region (Field accessors)
+'#end region Field accessors
 	
 '#region Data handling
 	
@@ -313,17 +305,17 @@ Type dPath
 		returns: Nothing.
 	End Rem
 	Method Serialize(stream:TStream)
-		WriteLString(stream, GetName())
-		WriteLString(stream, GetLocation())
+		dStreamIO.WriteLString(stream, GetName())
+		dStreamIO.WriteLString(stream, GetLocation())
 	End Method
 	
 	Rem
 		bbdoc: Deserialize a path from the given stream.
 		returns: The deserialized path (itself).
 	End Rem
-	Method DeSerialize:dPath(stream:TStream)
-		SetName(ReadLString(stream))
-		SetLocation(ReadLString(stream))
+	Method Deserialize:dPath(stream:TStream)
+		SetName(dStreamIO.ReadLString(stream))
+		SetLocation(dStreamIO.ReadLString(stream))
 		Return Self
 	End Method
 	
@@ -333,9 +325,9 @@ Type dPath
 	End Rem
 	Method ToIdentifier:dIdentifier()
 		Local iden:dIdentifier
-		iden = New dIdentifier.CreateByData(m_template.GetIden()[0])
-		iden.AddValue(New dStringVariable.Create(Null, GetName()))
-		iden.AddValue(New dStringVariable.Create(Null, GetLocation()))
+		iden = New dIdentifier.Create(m_template.GetIden()[0])
+		iden.AddVariable(New dStringVariable.Create(Null, GetName()))
+		iden.AddVariable(New dStringVariable.Create(Null, GetLocation()))
 		Return iden
 	End Method
 	
@@ -349,7 +341,7 @@ Type dPath
 		Return Self
 	End Method
 	
-'#end region (Data handling)
+'#end region Data handling
 	
 	Rem
 		bbdoc: Validate an identifier against the template for the path.

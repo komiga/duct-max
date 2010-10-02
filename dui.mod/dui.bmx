@@ -28,11 +28,19 @@ bbdoc: duct ui module
 End Rem
 Module duct.dui
 
-ModuleInfo "Version: 0.47"
+ModuleInfo "Version: 0.48"
 ModuleInfo "Copyright: Liam McGuigan (FryGUI creator)"
 ModuleInfo "Copyright: Tim Howard (dui is a heavily modified FryGUI)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.48"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Updated for duct.objectmap changes"
+ModuleInfo "History: Renamed *ByName and *FromName methods/functions to *WithName"
+ModuleInfo "History: Added safe draw state changing for cursor rendering"
+ModuleInfo "History: duiMain default-state methods are now functions (oops)"
+ModuleInfo "History: Renamed 'Draw' methods to 'Render'"
+ModuleInfo "History: Corrected variable code for duct.variables update"
 ModuleInfo "History: Version 0.47"
 ModuleInfo "History: Fixed documentation, licences"
 ModuleInfo "History: Renamed all dui_* types to dui*"
@@ -62,25 +70,21 @@ ModuleInfo "TODO: Implement a registry system for extra gadget types (something 
 ModuleInfo "TODO: Find a good way to handle scripted ui <-> code and incapsulated event-handling"
 ModuleInfo "ISSUE: The event EVENT_KEYCHAR is not repeated whilst a character key is held down under Linux [see temporary fix in duiMain.__keyinputhook(...)]"
 
-Import brl.linkedlist
-
 Import duct.etc
 Import duct.objectmap
-Import duct.scriptparser
 Import duct.vector
-
+Import duct.scriptparser
 Import duct.protog2d
-
 Import duct.duimisc
 Import duct.duidate
 Import duct.duidraw
 
-Include "inc/event.bmx"
-Include "inc/theme.bmx"
-Include "inc/renderers.bmx"
-Include "inc/gadgets/gadgets.bmx"
+Include "src/event.bmx"
+Include "src/theme.bmx"
+Include "src/renderers.bmx"
+Include "src/gadgets/gadgets.bmx"
 
-Include "inc/other/extra.bmx"
+Include "src/other/extra.bmx"
 
 Const dui_SELECTED_ITEM:Int = -2
 
@@ -122,7 +126,6 @@ Type duiMain
 	Function InitiateUI()
 		'about: This needs to be called AFTER you open your graphics context.
 		'duiFont.SetupDefaultFont()
-		
 		AddHook(EmitEventHook, __keyinputhook, Null, 0)
 	End Function
 	
@@ -131,9 +134,9 @@ Type duiMain
 		returns: Nothing.
 	End Rem
 	Function SetCurrentScreen(screen:duiScreen, doevent:Int = False)
-		If screen <> Null
+		If screen
 			m_currentscreen = screen
-			If doevent = True
+			If doevent
 				New duiEvent.Create(dui_EVENT_SETSCREEN, Null, 0, 0, 0, screen)
 			End If
 		End If
@@ -144,11 +147,11 @@ Type duiMain
 		returns: Nothing.
 	End Rem
 	Function SendKeyToActiveGadget(key:Int, _type:Int = 0)
-		If m_activegadget <> Null
+		If m_activegadget
 			m_activegadget.SendKey(key, _type)
 		Else
-			If m_focusedgadget <> Null
-				If duiTextField(m_focusedgadget) = Null
+			If m_focusedgadget
+				If Not duiTextField(m_focusedgadget)
 					'DebugLog("SKTAG; Focused")
 					m_focusedgadget.SendKey(key, _type)
 				End If
@@ -156,7 +159,7 @@ Type duiMain
 		End If
 	End Function
 	
-'#end region (Miscellaneous)
+'#end region Miscellaneous
 	
 '#region System dimensions
 	
@@ -185,7 +188,7 @@ Type duiMain
 		Return m_height
 	End Function
 	
-'#end region (System dimensions)
+'#end region System dimensions
 	
 '#region Update/Refresh & Render
 	
@@ -230,7 +233,7 @@ Type duiMain
 		
 		UpdateExtra()
 		m_currentscreen.Update()
-		' Draw the cursor
+		' Render the cursor
 		RenderCursor()
 		
 		' Re-instate the pushed graphics state
@@ -242,7 +245,7 @@ Type duiMain
 		duiGadget.m_oz = MouseZ()
 	End Function
 	
-'#end region (Update/Refresh & Render)
+'#end region Update/Refresh & Render
 	
 '#region Theme
 	
@@ -265,7 +268,6 @@ Type duiMain
 		duiSearchBox.RefreshSkin(m_theme)
 		duiSearchPanel.RefreshSkin(m_theme)
 		duiSlider.RefreshSkin(m_theme)
-		
 		SetupCursorRenderer(m_theme)
 	End Function
 	
@@ -277,7 +279,7 @@ Type duiMain
 		m_cursorrenderer.Create(theme, "cursor")
 	End Function
 	
-'#end region (Theme)
+'#end region Theme
 	
 '#region Collections
 	
@@ -286,7 +288,7 @@ Type duiMain
 		returns: Nothing.
 	End Rem
 	Function AddExtra(extra:duiGadget)
-		If extra <> Null
+		If extra
 			m_extras.AddLast(extra)
 		End If
 	End Function
@@ -296,20 +298,19 @@ Type duiMain
 		returns: Nothing.
 	End Rem
 	Function AddScreen(screen:duiScreen)
-		If screen <> Null
+		If screen
 			m_screens.AddLast(screen)
 		End If
 	End Function
 	
 	Rem
-		bbdoc: Get a screen the given name.
-		returns: The screen with the given name, or Null if there is no screen with the name.
+		bbdoc: Get a screen with the given name.
+		returns: The screen with the given name, or Null if there is no screen with the name given.
 	End Rem
-	Function GetScreenFromName:duiScreen(name:String)
-		Local screen:duiScreen
-		If name <> Null
+	Function GetScreenWithName:duiScreen(name:String)
+		If name
 			name = name.ToLower()
-			For screen = EachIn m_screens
+			For Local screen:duiScreen = EachIn m_screens
 				If screen.GetName().ToLower() = name
 					Return screen
 				End If
@@ -319,21 +320,20 @@ Type duiMain
 	End Function
 	
 	Rem
-		bbdoc: Get a panel from the given name.
-		returns: The panel with the given name, or Null if there is no panel with the name.
+		bbdoc: Get a panel with the given name.
+		returns: The panel with the given name, or Null if there is no panel with the name given.
 		about: If @fromscreen is not Null it will be searched, if it is Null all screens will be searched.
 	End Rem
-	Function GetPanelFromName:duiPanel(fromscreen:duiScreen, name:String)
-		Local screen:duiScreen, panel:duiPanel
-		
-		If name <> Null
-			If fromscreen <> Null
-				panel = screen.GetPanelByName(name)
+	Function GetPanelWithName:duiPanel(fromscreen:duiScreen, name:String)
+		Local panel:duiPanel
+		If name
+			If fromscreen
+				panel = fromscreen.GetPanelWithName(name)
 			Else
 				'_name = name.ToLower()
-				For screen = EachIn m_screens
-					panel = screen.GetPanelByName(name)
-					If panel <> Null
+				For Local screen:duiScreen = EachIn m_screens
+					panel = screen.GetPanelWithName(name)
+					If panel
 						Return panel
 					End If
 				Next
@@ -342,7 +342,7 @@ Type duiMain
 		Return panel
 	End Function
 	
-'#end region (Collections)
+'#end region Collections
 	
 '#region Active and focus
 	
@@ -351,7 +351,7 @@ Type duiMain
 		returns: True if the active gadget is Null or @gadget, or False if it was neither (some other gadget).
 	End Rem
 	Function IsGadgetActive:Int(gadget:duiGadget)
-		If m_activegadget = Null Or m_activegadget = gadget
+		If Not m_activegadget Or m_activegadget = gadget
 			Return True
 		End If
 		Return False
@@ -388,7 +388,7 @@ Type duiMain
 	End Rem
 	Function SetFocusedGadget(gadget:duiGadget, x:Int, y:Int)
 		' Only make the change if no gadget has focus already (should be removed? - look at SetFocusedPanel \/)
-		If m_focusedgadget = Null
+		If Not m_focusedgadget
 			m_focusedgadget = gadget
 			New duiEvent.Create(dui_EVENT_MOUSEOVER, gadget, 0, x, y, Null)
 		End If
@@ -415,14 +415,14 @@ Type duiMain
 		returns: True if the focused panel is Null or if it is @panel, or False if it was neither (some other panel).
 	End Rem
 	Function IsPanelFocused:Int(panel:duiPanel)
-		If m_focusedpanel = Null Or m_focusedpanel = panel Or m_focusedpanel = panel.m_parent
+		If Not m_focusedpanel Or m_focusedpanel = panel Or m_focusedpanel = panel.m_parent
 			Return True
 		Else
 			Return False
 		End If
 	End Function
 	
-'#end region (Active and focus)
+'#end region Active and focus
 	
 '#region Cursor
 	
@@ -444,9 +444,9 @@ Type duiMain
 	Rem
 		bbdoc: Set the cursor type.
 		returns: Nothing.
-		about: @cursortype can be:<br/>
-		0 - Normal cursor (the skin's cursors)<br/>
-		1 - System cursor<br/>
+		about: @cursortype can be:<br>
+		0 - Normal cursor (the skin's cursors)<br>
+		1 - System cursor<br>
 	End Rem
 	Function SetCursorType(cursortype:Int)
 		m_cursortype = cursortype
@@ -465,10 +465,12 @@ Type duiMain
 	End Rem
 	Function RenderCursor()
 		If m_cursortype = 0
+			dProtogDrawState.Push(True, True, True, False, False, False)
 			dProtog2DDriver.SetBlend(BLEND_ALPHA)
 			dProtog2DDriver.SetAlpha(1.0)
 			dProtog2DDriver.BindColorParams(1.0, 1.0, 1.0)
 			m_cursorrenderer.RenderCursor(m_currentcursor, Float(MouseX()), Float(MouseY()))
+			dProtogDrawState.Pop(True, True, True, False, False, False)
 		Else If m_cursortype = 1
 			'?win32
 			'Select m_currentcursor
@@ -483,7 +485,7 @@ Type duiMain
 		End If
 	End Function
 	
-'#end region (Cursor)
+'#end region Cursor
 	
 '#region Default color & alpha
 	
@@ -491,123 +493,120 @@ Type duiMain
 		bbdoc: Set the default gadget color.
 		returns: Nothing.
 	End Rem
-	Method SetDefaultColor(color:dProtogColor, alpha:Int = True, index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaultcolor.Length
+	Function SetDefaultColor(color:dProtogColor, alpha:Int = True, index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaultcolor.Length
 			duiGadget.m_defaultcolor[index].SetFromColor(color, alpha)
 		End If
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Set the defautl gadget color to the parameters given.
 		returns: Nothing.
 	End Rem
-	Method SetDefaultColorParams(red:Float, green:Float, blue:Float, index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaultcolor.Length
+	Function SetDefaultColorParams(red:Float, green:Float, blue:Float, index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaultcolor.Length
 			duiGadget.m_defaultcolor[index].SetColor(red, green, blue)
 		End If
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Get the default gadget color.
 		returns: The default gadget color at the given index, or Null if the given index was invalid.
 	End Rem
-	Method GetDefaultColor:dProtogColor(index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaultcolor.Length
+	Function GetDefaultColor:dProtogColor(index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaultcolor.Length
 			Return duiGadget.m_defaultcolor[index]
 		End If
 		Return Null
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Set the default gadget text color.
 		returns: Nothing.
 	End Rem
-	Method SetDefaultTextColor(color:dProtogColor, alpha:Int = True, index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaulttextcolor.Length
+	Function SetDefaultTextColor(color:dProtogColor, alpha:Int = True, index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaulttextcolor.Length
 			duiGadget.m_defaulttextcolor[index].SetFromColor(color, alpha)
 		End If
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Set the default gadget text color by the parameters given.
 		returns: Nothing.
 	End Rem
-	Method SetDefaultTextColorParams(red:Float, green:Float, blue:Float, index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaulttextcolor.Length
+	Function SetDefaultTextColorParams(red:Float, green:Float, blue:Float, index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaulttextcolor.Length
 			duiGadget.m_defaulttextcolor[index].SetColor(red, green, blue)
 		End If
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Get the default gadget text color.
 		returns: The default gadget text color at the given index, or Null if the given index was invalid.
 	End Rem
-	Method GetDefaultTextColor:dProtogColor(index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaulttextcolor.Length
+	Function GetDefaultTextColor:dProtogColor(index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaulttextcolor.Length
 			Return duiGadget.m_defaulttextcolor[index]
 		End If
 		Return Null
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Set the default gadget alpha.
 		returns: Nothing.
 	End Rem
-	Method SetDefaultAlpha(alpha:Float, index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaultcolor.Length
+	Function SetDefaultAlpha(alpha:Float, index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaultcolor.Length
 			duiGadget.m_defaultcolor[index].SetAlpha(alpha)
 		End If
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Get the default gadget alpha.
 		returns: The default gadget alpha at the given index, or 1.0 if the given index was invalid.
 	End Rem
-	Method GetDefaultAlpha:Float(index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaultcolor.Length
+	Function GetDefaultAlpha:Float(index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaultcolor.Length
 			Return duiGadget.m_defaultcolor[index].GetAlpha()
 		End If
 		Return 1.0
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Set the default gadget text alpha.
 		returns: Nothing.
 	End Rem
-	Method SetDefaultTextAlpha(alpha:Float, index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaulttextcolor.Length
+	Function SetDefaultTextAlpha(alpha:Float, index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaulttextcolor.Length
 			duiGadget.m_defaulttextcolor[index].SetAlpha(alpha)
 		End If
-	End Method
+	End Function
 	
 	Rem
 		bbdoc: Get the default gadget text alpha.
 		returns: The default gadget text alpha at the given index, or 1.0 if the given index was invalid.
 	End Rem
-	Method GetDefaultTextAlpha:Float(index:Int = 0)
-		If index > - 1 And index < duiGadget.m_defaulttextcolor.Length
+	Function GetDefaultTextAlpha:Float(index:Int = 0)
+		If index > -1 And index < duiGadget.m_defaulttextcolor.Length
 			Return duiGadget.m_defaulttextcolor[index].GetAlpha()
 		End If
 		Return 1.0
-	End Method
+	End Function
 	
-'#end region (Default color & alpha)
+'#end region Default color & alpha
 	
 '#region Key hook
 	
 	' For some reason EVENT_KEYCHAR is only repeated in windows (not getting the event, over and over, when a key is held down on Ubuntu 8.04)
 	Function __keyinputhook:Object(id:Int, data:Object, context:Object)
-		Local event:TEvent
-		
-		event = TEvent(data)
-		If event <> Null
+		Local event:TEvent = TEvent(data)
+		If event
 			Select event.id
 				Case EVENT_KEYDOWN
-					'DebugLog("duiMain.__keyinputhook(); EVENT_KEYDOWN (ed: " + event.data + ") caught")
+					'DebugLog("duiMain.__keyinputhook(); EVENT_KEYDOWN (ed: " + event.data + ")")
 					SendKeyToActiveGadget(event.data, 0)
 				Case EVENT_KEYREPEAT
-					'DebugLog("duiMain.__keyinputhook(); EVENT_KEYREPEAT (ed: " + event.data + ") caught")
-					
+					'DebugLog("duiMain.__keyinputhook(); EVENT_KEYREPEAT (ed: " + event.data + ")")
 					' Temporary fix for EVENT_KEYCHAR not repeating (sadly the event's data is always upper-case, so this isn't completely viable)
 					?Linux
 						If event.data > 31
@@ -619,14 +618,14 @@ Type duiMain
 						SendKeyToActiveGadget(event.data, 0)
 					?
 				Case EVENT_KEYCHAR
-					'DebugLog("duiMain.__keyinputhook(); EVENT_KEYCHAR (ed: " + event.data + ") caught")
+					'DebugLog("duiMain.__keyinputhook(); EVENT_KEYCHAR (ed: " + event.data + ")")
 					SendKeyToActiveGadget(event.data, 1)
 			End Select
 		End If
 		Return data
 	End Function
 	
-'#end region (Key hook)
+'#end region Key hook
 	
 End Type
 

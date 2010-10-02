@@ -28,10 +28,15 @@ bbdoc: Localization
 End Rem
 Module duct.locale
 
-ModuleInfo "Version: 0.6"
+ModuleInfo "Version: 0.7"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.7"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Updated for duct.objectmap changes"
+ModuleInfo "History: Corrected variable code for duct.variables update"
+ModuleInfo "History: Moved inc/ to src/"
 ModuleInfo "History: Version 0.6"
 ModuleInfo "History: Added post-processing feature for dLocalizedText"
 ModuleInfo "History: Version 0.5"
@@ -53,8 +58,7 @@ ModuleInfo "History: Initial release"
 Import duct.etc
 Import duct.objectmap
 Import duct.scriptparser
-Import duct.variables
 
-Include "inc/language.bmx"
-Include "inc/localization.bmx"
+Include "src/language.bmx"
+Include "src/localization.bmx"
 

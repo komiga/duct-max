@@ -28,11 +28,15 @@ bbdoc: Vector module
 End Rem
 Module duct.vector
 
-ModuleInfo "Version: 0.27"
+ModuleInfo "Version: 0.28"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "Author: Yahfree (most of dVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.28"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Added SetXY, SetXYVec, SetZW and SetZWVec to dVec4"
+ModuleInfo "History: Moved inc/ to src/"
 ModuleInfo "History: Version 0.27"
 ModuleInfo "History: Fixed documentation, licenses"
 ModuleInfo "History: Renamed TVec2 to dVec2"
@@ -60,7 +64,6 @@ ModuleInfo "History: Added TVec3 type (some methods/functions may be incorrect)"
 ModuleInfo "History: Added Get and Set methods (get/set both vector values at the same time)"
 ModuleInfo "History: Formaterized and modified from Yahfree's code (http://www.blitzbasic.com/codearcs/codearcs.php?code=2320)"
 
-' Used modules
 Import brl.math
 Import brl.stream
 
@@ -68,13 +71,13 @@ Private
 
 Function TrueMod:Float(val:Float, modul:Short)
 	val:Mod modul
-	If val < 0 Then val:+modul
+	If val < 0 Then val:+ modul
 	Return val
 End Function
 
 Public
 
-Include "inc/vec2.bmx"
-Include "inc/vec3.bmx"
-Include "inc/vec4.bmx"
+Include "src/vec2.bmx"
+Include "src/vec3.bmx"
+Include "src/vec4.bmx"
 

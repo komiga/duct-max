@@ -28,10 +28,13 @@ bbdoc: Application argument handling
 End Rem
 Module duct.arghandling
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: Updated for duct.objectmap changes"
+ModuleInfo "History: Corrected variable code for duct.variables update"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
@@ -78,7 +81,7 @@ Type dArgumentHandler Extends dObjectMap
 	End Rem
 	Method GetArgImplWithAlias:dArgumentImplementation(als:String)
 		Assert als, "(dArgumentHandler.GetArgImplWithAlias) als = Null"
-		Return dArgumentImplementation(_ValueByKey(als))
+		Return dArgumentImplementation(_ObjectWithKey(als))
 	End Method
 	
 End Type
@@ -130,7 +133,7 @@ Type dArgumentImplementation Abstract
 	End Rem
 	Method SetArgs(args:dIdentifier)
 		m_args = args
-		m_argcount = m_args.GetValueCount()
+		m_argcount = m_args.GetChildCount()
 	End Method
 	
 	Rem

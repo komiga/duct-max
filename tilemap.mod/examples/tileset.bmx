@@ -3,40 +3,36 @@ SuperStrict
 
 Framework brl.blitz
 Import brl.standardio
-Import brl.bank
 Import brl.bankstream
-
 Import brl.pngloader
-Import brl.bmploader
 
 Import duct.protog2d
 Import duct.tilemap
-Import duct.memcrypt
 Import duct.scriptparser
 
 AppTitle = "resourceset builder"
 brl.Graphics.SetGraphicsDriver(dProtog2DDriver.GetInstance())
 brl.Graphics.Graphics(320, 240)
 
-Local rb:TResBuilder = New TResBuilder
+Local rb:ResBuilder = New ResBuilder
 
 ChangeDir("tiles")
 rb.BuildScript("tiles.scc")
 
-rb = New TResBuilder
+rb = New ResBuilder
 rb.BuildScript("statics.scc")
 
-Type TResBuilder
+Type ResBuilder
 	
-	Global tpl_base:dTemplate = New dTemplate.Create(["base"], [[TV_INTEGER], [TV_STRING], [TV_STRING] ], False, False, Null)
-	Global tpl_flag:dTemplate = New dTemplate.Create(Null, [[TV_INTEGER, TV_STRING] ], False, False, Null)
-	Global tpl_static_height:dTemplate = New dTemplate.Create(["height"], [[TV_INTEGER] ], False, False, Null)
+	Global tpl_base:dTemplate = New dTemplate.Create(["base"], [[TV_INTEGER], [TV_STRING], [TV_STRING]], False, False, Null)
+	Global tpl_flag:dTemplate = New dTemplate.Create(Null, [[TV_BOOL]], False, False, Null)
+	Global tpl_static_height:dTemplate = New dTemplate.Create(["height"], [[TV_INTEGER]], False, False, Null)
 	
-	'Global tpl_maskcolor:dTemplate = New dTemplate.Create(["maskcolor"], [[TV_INTEGER], [TV_INTEGER], [TV_INTEGER] ], False, False, Null)
-	Global tpl_datadir:dTemplate = New dTemplate.Create(["datadir"], [[TV_STRING] ], False, False, Null)
-	Global tpl_outputfile:dTemplate = New dTemplate.Create(["outputfile"], [[TV_STRING] ], False, False, Null)
-	Global tpl_idoffset:dTemplate = New dTemplate.Create(["idoffset"], [[TV_INTEGER] ], False, False, Null)
-	Global tpl_incrementoffset:dTemplate = New dTemplate.Create(["incrementoffset"], [[TV_INTEGER, TV_STRING] ], False, False, Null)
+	'Global tpl_maskcolor:dTemplate = New dTemplate.Create(["maskcolor"], [[TV_INTEGER], [TV_INTEGER], [TV_INTEGER]], False, False, Null)
+	Global tpl_datadir:dTemplate = New dTemplate.Create(["datadir"], [[TV_STRING]], False, False, Null)
+	Global tpl_outputfile:dTemplate = New dTemplate.Create(["outputfile"], [[TV_STRING]], False, False, Null)
+	Global tpl_idoffset:dTemplate = New dTemplate.Create(["idoffset"], [[TV_INTEGER]], False, False, Null)
+	Global tpl_incrementoffset:dTemplate = New dTemplate.Create(["incrementoffset"], [[TV_BOOL]], False, False, Null)
 	
 	Field datadir:String, outputfile:String, idoffset:Int = 0, incrementoffset:Int = False
 	Field resourceset:dMapResourceSet
@@ -45,28 +41,30 @@ Type TResBuilder
 		resourceset = New dMapResourceSet.Create()
 		outputfile = scripturl + "_auto.dts"
 		Try
-			Local script:dSNode = dSNode.LoadScriptFromObject(scripturl)
-			If script <> Null
-				Local child:Object, node:dSNode, iden:TIdentifier
-				
-				For child = EachIn script.GetChildren()
-					node = dSNode(child) ; iden = TIdentifier(child)
-					If node <> Null
+			Local script:dNode = dScriptFormatter.LoadFromFile(scripturl)
+			If script
+				Local node:dNode, iden:dIdentifier
+				For Local child:dCollectionVariable = EachIn script
+					node = dNode(child)
+					iden = dIdentifier(child)
+					If node
 						Select node.GetName().ToLower()
 							Case "tiles"
 								DoTiles(node)
 							Case "statics"
 								DoStatics(node)
 						End Select
-					Else If iden <> Null
-						If tpl_datadir.ValidateIdentifier(iden) = True
+					Else If iden
+						If tpl_datadir.ValidateIdentifier(iden)
 							datadir = dStringVariable(iden.GetValueAtIndex(0)).Get()
-						Else If tpl_outputfile.ValidateIdentifier(iden) = True
+						Else If tpl_outputfile.ValidateIdentifier(iden)
 							outputfile = dStringVariable(iden.GetValueAtIndex(0)).Get()
-						Else If tpl_idoffset.ValidateIdentifier(iden) = True
+						Else If tpl_idoffset.ValidateIdentifier(iden)
 							idoffset = dIntVariable(iden.GetValueAtIndex(0)).Get()
-						Else If tpl_incrementoffset.ValidateIdentifier(iden) = True
-							incrementoffset = dSNode.ConvertVariableToBool(TVariable(iden.GetValueAtIndex(0)))
+						Else If tpl_incrementoffset.ValidateIdentifier(iden)
+							incrementoffset = dBoolVariable(iden.GetValueAtIndex(0)).Get()
+						Else
+							DebugLog("(ResBuilder.BuildScript) Unknown identifier: {" + dScriptFormatter.FormatIdentifier(iden) + "}")
 						End If
 					End If
 				Next
@@ -76,56 +74,54 @@ Type TResBuilder
 			resourceset.Serialize(stream)
 			stream._bank.Save(outputfile)
 			stream.Close()
-		Catch e:String
-			Print("BuildScript(); Caught exception: " + e)
+		Catch e:Object
+			Print("BuildScript(); Caught exception: " + e.ToString())
 		End Try
 	End Method
 	
-	Method DoTiles(root:dSNode)
-		Local child:Object, node:dSNode, iden:TIdentifier
-		For child = EachIn root.GetChildren()
-			node = dSNode(child)
-			If node <> Null
+	Method DoTiles(root:dNode)
+		Local node:dNode, iden:dIdentifier
+		For Local child:dCollectionVariable = EachIn root
+			node = dNode(child)
+			If node
 				If node.GetName().ToLower() = "tile"
 					Local tile:dMapTileResource = New dMapTileResource.Create(0, "generic_tile", Null)
-					For iden = EachIn node.GetChildren()
-						If tpl_base.ValidateIdentifier(iden) = True
+					For iden = EachIn node
+						If tpl_base.ValidateIdentifier(iden)
 							tile.SetID(idoffset + dIntVariable(iden.GetValueAtIndex(0)).Get())
+							DebugLog("tile id: " + tile.GetID())
 							tile.SetName(dStringVariable(iden.GetValueAtIndex(1)).Get())
 							tile.SetTexture(New dProtogTexture.Create(LoadPixmap(datadir + "/" + dStringVariable(iden.GetValueAtIndex(2)).Get()), 0))
 						End If
 					Next
 					resourceset.InsertResource(tile)
-					If incrementoffset = True Then idoffset:+1
+					If incrementoffset = True Then idoffset:+ 1
 				End If
 			End If
 		Next
 	End Method
 	
-	Method DoStatics(root:dSNode)
-		Local child:Object, node:dSNode, iden:TIdentifier
-		For child = EachIn root.GetChildren()
-			node = dSNode(child)
-			If node <> Null
+	Method DoStatics(root:dNode)
+		Local node:dNode, iden:dIdentifier
+		For Local child:dCollectionVariable = EachIn root
+			node = dNode(child)
+			If node
 				If node.GetName().ToLower() = "static"
-					Local static:TMapStaticResource
-					
-					static = New TMapStaticResource.Create(0, 1, "generic_static", Null)
-					For iden = EachIn node.GetChildren()
-						If tpl_base.ValidateIdentifier(iden) = True
+					Local static:dMapStaticResource = New dMapStaticResource.Create(0, 1, "generic_static", Null)
+					For iden = EachIn node
+						If tpl_base.ValidateIdentifier(iden)
 							static.SetID(idoffset + dIntVariable(iden.GetValueAtIndex(0)).Get())
 							static.SetName(dStringVariable(iden.GetValueAtIndex(1)).Get())
 							static.SetTexture(New dProtogTexture.Create(LoadPixmap(datadir + "/" + dStringVariable(iden.GetValueAtIndex(2)).Get()), 0))
-						Else If tpl_flag.ValidateIdentifier(iden) = True
-							Local flag:Int = dSNode.ConvertVariableToBool(iden.GetValueAtIndex(0))
-							
+						Else If tpl_flag.ValidateIdentifier(iden)
+							Local flag:Int = dBoolVariable(iden.GetValueAtIndex(0)).Get()
 							Select iden.GetName().ToLower()
 								Case "impassable"
-									If flag = True Then static.AddFlag(RESFLAG_Impassable) Else static.RemoveFlag(RESFLAG_Impassable)
+									If flag Then static.AddFlag(RESFLAG_Impassable) Else static.RemoveFlag(RESFLAG_Impassable)
 								Case "door"
-									If flag = True Then static.AddFlag(RESFLAG_Door) Else static.RemoveFlag(RESFLAG_Door)
+									If flag Then static.AddFlag(RESFLAG_Door) Else static.RemoveFlag(RESFLAG_Door)
 								Case "blocksview"
-									If flag = True Then static.AddFlag(RESFLAG_BlocksView) Else static.RemoveFlag(RESFLAG_BlocksView)
+									If flag Then static.AddFlag(RESFLAG_BlocksView) Else static.RemoveFlag(RESFLAG_BlocksView)
 							End Select
 						Else If tpl_static_height.ValidateIdentifier(iden) = True
 							static.SetHeight(dIntVariable(iden.GetValueAtIndex(0)).Get())

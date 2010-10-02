@@ -1,0 +1,61 @@
+attr value1 "value two! '' lalala {}"
+
+namednode {
+	data.zip\\sounds\intro.ogg 0 1 1 2 3 5 8 13
+}
+
+{
+	namelessnode foobar
+	echoes "a + b / 0.1392"
+}
+
+test.some.struff la(foo)
+"White-spaced identifier names" Booyah!
+
+SingleNode {
+	First "single line test"
+}
+
+{
+	Second "single line test" 0.003 2.0
+}
+
+"Node names can also be quoted!" {
+	Indeed
+}
+
+"And multiline
+as well" {
+	Named {
+		Alloc 22
+	}
+	Named2 {
+	}
+	"Make cookies"
+	{
+		notnamed 84.001
+	}
+}
+
+foobar "Multiline
+string!" "more stuff" 1241235
+bools true false true true
+stringsafety "1234" "1234.4567" "false" "true"
+stringsafety ".1234" "" "FALSe" "TruE"
+stringsafety 1234a 1234.4567. FALSee tTruE
+foobar=1234
+boofar=4321
+str=bork
+another=abc
+
+node {
+	value=1234
+	foo=bar
+}
+
+edon {
+	value=4321
+	identifier "foo bar"
+}
+
+fine=enif

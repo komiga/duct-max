@@ -85,7 +85,7 @@ Function FixPathEnding:String(path:String, remove_slash:Int = False)
 			Exit
 		End If
 	Forever
-	If remove_slash = False
+	If Not remove_slash
 		' "\" = 92; "/" = 47
 		If path[lastchar] = 92
 			Return path[..lastchar] + "/"

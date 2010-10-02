@@ -26,10 +26,12 @@ bbdoc: Max2D TImage writer/reader module.
 End Rem
 Module duct.imageio
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: Changed some documentation"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: Fixed documentation, license"
 ModuleInfo "History: Renamed TImageIO to dImageIO"
@@ -45,13 +47,13 @@ Import brl.max2d
 Import duct.objectio
 
 Rem
-	bbdoc: duct image reader/writer type.
+	bbdoc: duct Max2D TImage reader/writer.
 End Rem
 Type dImageIO
 	
 	Rem
 		bbdoc: Read an image from the given stream.
-		returns: The read image.
+		returns: An image.
 		about: NOTE: This does not check if the stream is Null.
 	End Rem
 	Function Read:TImage(stream:TStream)

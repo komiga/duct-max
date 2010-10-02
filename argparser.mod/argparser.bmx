@@ -28,10 +28,12 @@ bbdoc: Application argument parser
 End Rem
 Module duct.argparser
 
-ModuleInfo "Version: 0.4"
+ModuleInfo "Version: 0.5"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.5"
+ModuleInfo "History: Corrected variable code for duct.variables update"
 ModuleInfo "History: Version 0.4"
 ModuleInfo "History: Changed parsing for single-dash options"
 ModuleInfo "History: Version 0.3"
@@ -67,7 +69,7 @@ Type dArgParser
 		optarglimit = (optarglimit = -1) And length Or optarglimit
 		For i = 0 To length
 			arg = args[i]
-			sub = New dIdentifier.CreateByData(arg, Null)
+			sub = New dIdentifier.Create(arg, Null)
 			If arg <> Null And arg[0] = 45 ' "-"
 				If arg[1] = 45 ' "-"
 					Local lim:Int = Min(length, i + optarglimit)
@@ -75,7 +77,7 @@ Type dArgParser
 					While i <= length
 						arg = args[i]
 						If arg = Null Or arg[0] <> 45 ' "-"
-							sub.AddValue(dVariable.RawToVariable(arg))
+							sub.AddVariable(dVariable.RawToVariable(arg))
 							i:+1
 							If i > lim
 								i:-1
@@ -86,17 +88,17 @@ Type dArgParser
 							Exit
 						End If
 					End While
-					root.AddValue(sub)
+					root.AddVariable(sub)
 				Else
-					root.AddValue(sub)
+					root.AddVariable(sub)
 				End If
 			Else
 				If subset = False
-					root.AddValue(sub)
+					root.AddVariable(sub)
 					root = sub
 					subset = True
 				Else
-					root.AddValue(dVariable.RawToVariable(arg))
+					root.AddVariable(dVariable.RawToVariable(arg))
 				End If
 			End If
 		Next

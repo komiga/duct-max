@@ -7,21 +7,22 @@ Framework brl.blitz
 Import brl.standardio
 Import brl.glmax2d
 
+Import duct.intmap
 Import duct.graphix
 Import duct.vector
 Import duct.reflectivenetwork
 
-Include "inc/base.bmx"
-Include "inc/masterserver.bmx"
+Include "src/base.bmx"
+Include "src/masterserver.bmx"
 
-Global mainapp:TServerApp
-TServerApp(New TServerApp.Create())
+Global mainapp:ServerApp
+ServerApp(New ServerApp.Create())
 mainapp.Run()
 
 Rem
 	bbdoc: Server application.
 End Rem
-Type TServerApp Extends dGraphicsApp
+Type ServerApp Extends dGraphicsApp
 	
 	Field m_msgmap:dReflNetMessageMap = New dReflNetMessageMap.Create()
 	Field m_server:TMasterServer
@@ -82,7 +83,7 @@ Type TServerApp Extends dGraphicsApp
 		returns: Nothing.
 	End Rem
 	Method Render()
-		m_server.DrawPlayers()
+		m_server.RenderPlayers()
 	End Method
 	
 	Rem

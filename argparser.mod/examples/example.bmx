@@ -13,11 +13,12 @@ Print(ArgsToString(root))
 
 Function ArgsToString:String(root:dIdentifier)
 	Local build:String = "~q" + root.GetName() + "~q: [", subbuild:String, count:Int
-	For Local variable:dVariable = EachIn root.GetValues()
+	For Local variable:dVariable = EachIn root
 		If dIdentifier(variable)
 			build:+ ArgsToString(dIdentifier(variable)) + ", "
-		Else
-			build:+ variable.ReportType() + ": ~q" + variable.ValueAsString() + "~q, "
+		Else If dValueVariable(variable)
+			Local vv:dValueVariable = dValueVariable(variable)
+			build:+ vv.ReportType() + ": ~q" + vv.ValueAsString() + "~q, "
 		End If
 		count:+1
 	Next

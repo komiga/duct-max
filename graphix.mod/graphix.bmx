@@ -28,10 +28,12 @@ bbdoc: duct graphics app module
 End Rem
 Module duct.graphix
 
-ModuleInfo "Version: 0.17"
+ModuleInfo "Version: 0.18"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.18"
+ModuleInfo "History: Removed unnecessary New method in dGraphicsApp"
 ModuleInfo "History: Version 0.17"
 ModuleInfo "History: Fixed documentation, license"
 ModuleInfo "History: Renamed TDGraphicsApp to dGraphicsApp"
@@ -61,9 +63,6 @@ Rem
 	bbdoc: Wrapper type for graphical applications (extend this).
 End Rem
 Type dGraphicsApp Extends dApp
-	
-	Method New()
-	End Method
 	
 	Rem
 		bbdoc: Create a new app.

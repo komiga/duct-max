@@ -24,13 +24,13 @@ End Rem
 Rem
 	bbdoc: String builder (useful for large string concatenations, where normal means are not efficient enough).
 End Rem
-Type TStringBuilder Extends TListEx
+Type dStringBuilder Extends TListEx
 	
 	Rem
 		bbdoc: Create a string builder.
 		returns: Itself.
 	End Rem
-	Method Create:TStringBuilder()
+	Method Create:dStringBuilder()
 		Return Self
 	End End Method
 	
@@ -47,7 +47,7 @@ Type TStringBuilder Extends TListEx
 		returns: Nothing.
 	End Rem
 	Method AddMultiple(what:String, times:Int)
-		For Local i:Int = 1 To times
+		For Local i:Int = 0 Until times
 			AddLast(what)
 		Next
 	End Method
@@ -69,7 +69,7 @@ Type TStringBuilder Extends TListEx
 		Local i:Int
 		For Local str:String = EachIn Self
 			strings[i] = str
-			i:+1
+			i:+ 1
 		Next
 		Return strings
 	End Method
@@ -86,7 +86,7 @@ Type TStringBuilder Extends TListEx
 		bbdoc: Get a clone of the string builder.
 		returns: A copy of the string builder.
 	End Rem
-	Method Copy:TStringBuilder()
+	Method Copy:dStringBuilder()
 		Super.Copy()
 		Return Self
 	End Method

@@ -28,10 +28,22 @@ bbdoc: Protog OpenGL 2D graphics engine
 End Rem
 Module duct.protog2d
 
-ModuleInfo "Version: 0.8"
+ModuleInfo "Version: 0.9"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.9"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Updated for duct.objectmap changes"
+ModuleInfo "History: Added GetDefaultState, SetDefaultStates and StoreDefaultStates functions to dProtogDrawState"
+ModuleInfo "History: Renamed the dProtogDrawState.InitiateDefaultState function to InitDefaultState"
+ModuleInfo "History: Renamed dProtogDrawState.*ColorsState to *ColorStates"
+ModuleInfo "History: Renamed dProtog2DCollision to dProtogCollision"
+ModuleInfo "History: Renamed 'Draw' to 'Render' in methods and functions"
+ModuleInfo "History: Added Set and Get methods to dProtogColor"
+ModuleInfo "History: Adapted to duct.etc changes"
+ModuleInfo "History: Corrected variable code for duct.variables update"
+ModuleInfo "History: Moved inc/ to src/"
 ModuleInfo "History: Version 0.8"
 ModuleInfo "History: Restructured includes"
 ModuleInfo "History: Fixed documentation, licenses, examples"
@@ -79,11 +91,10 @@ ModuleInfo "History: Code copied from http://www.blitzbasic.com/Community/posts.
 
 Import brl.standardio
 Import brl.ramstream
-
 Import pub.glew
 Import brl.pixmap
-Import brl.Graphics
-Import brl.GLGraphics
+Import brl.graphics
+Import brl.glgraphics
 
 Import duct.etc
 Import duct.intmap
@@ -91,19 +102,20 @@ Import duct.objectmap
 Import duct.objectio
 Import duct.vector
 Import duct.graphix
-Import duct.scriptparser
+Import duct.variables
 
-Include "inc/protog.bmx"
-Include "inc/program.bmx"
-Include "inc/param.bmx"
-Include "inc/material.bmx"
-Include "inc/texture.bmx"
-Include "inc/fbo.bmx"
-Include "inc/font.bmx"
-Include "inc/entity.bmx"
-Include "inc/collision.bmx"
-Include "inc/color.bmx"
-Include "inc/primitives.bmx"
-Include "inc/drawstate.bmx"
+Include "src/protog.bmx"
+Include "src/program.bmx"
+Include "src/param.bmx"
+Include "src/material.bmx"
+Include "src/texture.bmx"
+Include "src/fbo.bmx"
+Include "src/font.bmx"
+Include "src/entity.bmx"
+Include "src/collision.bmx"
+Include "src/color.bmx"
+Include "src/primitives.bmx"
+Include "src/drawstate.bmx"
 
-Include "inc/app.bmx"
+Include "src/app.bmx"
+

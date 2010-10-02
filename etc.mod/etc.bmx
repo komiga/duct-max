@@ -28,10 +28,23 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.23"
+ModuleInfo "Version: 0.24"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.24"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Added RemoveLink to TListEx"
+ModuleInfo "History: Renamed TStringBuilder to dStringBuilder"
+ModuleInfo "History: Renamed dTextReplacer.GetReplacementFromName to dTextReplacer.GetReplacementWithName"
+ModuleInfo "History: Renamed dTextReplacer.SetReplacementByName to dTextReplacer.SetReplacementsWithName"
+ModuleInfo "History: Renamed TTextReplacer to dTextReplacer and TTextReplacement to dTextReplacement"
+ModuleInfo "History: Moved string reading/writing functions into dStreamIO"
+ModuleInfo "History: Renamed WriteNString to WriteCString and ReadNString to ReadCString"
+ModuleInfo "History: Removed WriteNLString and ReadNLString"
+ModuleInfo "History: Renamed src/nstring.bmx to src/streamio.bmx"
+ModuleInfo "History: Renamed TMSTimer to dMSTimer"
+ModuleInfo "History: Added text encoding constants"
 ModuleInfo "History: Version 0.23"
 ModuleInfo "History: Several doc and code fixes, added ReadNLString and WriteNLString"
 ModuleInfo "History: Renamed inc/ to src/"
@@ -84,9 +97,10 @@ Import brl.linkedlist
 Import brl.filesystem
 
 Include "src/pow2size.bmx"
-Include "src/nstring.bmx"
+Include "src/streamio.bmx"
 Include "src/minmax.bmx"
 Include "src/other.bmx"
+Include "src/constants.bmx"
 
 Include "src/listreversed.bmx"
 Include "src/fpscounter.bmx"

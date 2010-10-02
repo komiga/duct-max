@@ -28,10 +28,13 @@ bbdoc: Logging module
 End Rem
 Module duct.logging
 
-ModuleInfo "Version: 0.5"
+ModuleInfo "Version: 0.6"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.6"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Adapted to duct.etc changes"
 ModuleInfo "History: Version 0.5"
 ModuleInfo "History: Adapted for time module"
 ModuleInfo "History: Version 0.4"
@@ -59,13 +62,13 @@ Type dLogger
 	Const LOGTYPE_NONE:Int = 1, LOGTYPE_WARNING:Int = 2, LOGTYPE_ERROR:Int = 3
 	
 	Field m_timeformat:String
-	Field m_formatter:TTextReplacer, m_rep_time:TTextReplacement, m_rep_type:TTextReplacement, m_rep_msg:TTextReplacement
+	Field m_formatter:dTextReplacer, m_rep_time:dTextReplacement, m_rep_type:dTextReplacement, m_rep_msg:dTextReplacement
 	
 	Field m_logfile:String, m_logstream:TStream
 	Field m_usestream:Int = True, m_useprint:Int = False, m_usedebuglog:Int = False
 	
 	Method New()
-		m_formatter = New TTextReplacer
+		m_formatter = New dTextReplacer
 	End Method
 	
 	Rem
@@ -106,9 +109,9 @@ Type dLogger
 	Method SetFormat(format:String, beginiden:String = "{", endiden:String = "}")
 		m_formatter.SetString(format)
 		m_formatter.AutoReplacements(beginiden, endiden)
-		m_rep_time = m_formatter.GetReplacementFromName("time")
-		m_rep_type = m_formatter.GetReplacementFromName("type")
-		m_rep_msg = m_formatter.GetReplacementFromName("msg")
+		m_rep_time = m_formatter.GetReplacementWithName("time")
+		m_rep_type = m_formatter.GetReplacementWithName("type")
+		m_rep_msg = m_formatter.GetReplacementWithName("msg")
 	End Method
 	Rem
 		bbdoc: Get the format.
@@ -154,14 +157,12 @@ Type dLogger
 	End Rem
 	Method OpenLogStream:Int(append:Int = True)
 		Local file:String
-		
-		If append = True
+		If append
 			file = "append::" + m_logfile
 		Else
 			file = m_logfile
 		End If
 		m_logstream = WriteStream(file)
-		
 		Return m_logstream <> Null
 	End Method
 	
@@ -170,7 +171,7 @@ Type dLogger
 		returns: True if the stream was closed, or False if it was not (stream has not been opened/set).
 	End Rem
 	Method CloseLogStream:Int()
-		If m_logstream <> Null
+		If m_logstream
 			m_logstream.Close()
 			Return True
 		End If
@@ -222,7 +223,7 @@ Type dLogger
 		Return m_usedebuglog
 	End Method
 	
-'#end region (Field accessors)
+'#end region Field accessors
 	
 '#region Formatting
 	
@@ -231,7 +232,7 @@ Type dLogger
 		returns: The current time in the logger's time format, or Null if the format is Null.
 	End Rem
 	Method GetFormattedTime:String()
-		If m_timeformat <> Null
+		If m_timeformat
 			Return dTime.CurrentFormat(m_timeformat)
 		Else
 			Return Null
@@ -243,10 +244,10 @@ Type dLogger
 		returns: Nothing.
 	End Rem
 	Method GetFormattedMessage:String(message:String, logtype:Int = LOGTYPE_NONE)
-		If m_rep_time <> Null And m_timeformat <> Null
+		If m_rep_time And m_timeformat
 			m_rep_time.SetReplacement(GetFormattedTime())
 		End If
-		If m_rep_type <> Null
+		If m_rep_type
 			Select logtype
 				Case LOGTYPE_NONE
 					m_rep_type.SetReplacement("")
@@ -256,14 +257,13 @@ Type dLogger
 					m_rep_type.SetReplacement("ERROR")
 			End Select
 		End If
-		If m_rep_msg <> Null
+		If m_rep_msg
 			m_rep_msg.SetReplacement(message)
 		End If
-		
 		Return m_formatter.DoReplacements()
 	End Method
 	
-'#end region (Formatting)
+'#end region Formatting
 	
 '#region Logging
 	
@@ -273,20 +273,18 @@ Type dLogger
 	End Rem
 	Method LogString(message:String, formatted:Int = True, logtype:Int = LOGTYPE_NONE)
 		Local formattedmessage:String
-		
-		If formatted = True
+		If formatted
 			formattedmessage = GetFormattedMessage(message, logtype)
 		Else
 			formattedmessage = message
 		End If
-		
-		If m_usestream = True And m_logstream <> Null
+		If m_usestream And m_logstream
 			m_logstream.WriteLine(formattedmessage)
 		End If
-		If m_useprint = True
+		If m_useprint
 			Print(formattedmessage)
 		End If
-		If m_usedebuglog = True
+		If m_usedebuglog
 			DebugLog(formattedmessage)
 		End If
 	End Method
@@ -315,7 +313,7 @@ Type dLogger
 		LogString(message, formatted, LOGTYPE_ERROR)
 	End Method
 	
-'#end region (Logging)
+'#end region Logging
 	
 End Type
 

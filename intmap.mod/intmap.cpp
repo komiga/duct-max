@@ -62,15 +62,15 @@ void bmx_intmap_remove(intmap* imap, int key) {
 }
 
 void bmx_intmap_set(intmap* imap, int key, BBObject* obj) {
-	BBObject* value = (*imap)[key];
-	if (value) {
-		BBRELEASE(value);
-	}
-	// Null checks are now on the Max-side, this is just a sanity check
-	if (obj != &bbNullObject) {
+	if (obj == &bbNullObject) {
+		imap->erase(key);
+	} else {
+		BBObject* value = (*imap)[key];
+		if (value)
+			BBRELEASE(value);
 		BBRETAIN(obj);
+		(*imap)[key] = obj;
 	}
-	(*imap)[key] = obj;
 }
 
 BBObject* bmx_intmap_get(intmap* imap, int key) {

@@ -28,10 +28,14 @@ bbdoc: duct integer map (binary tree).
 End Rem
 Module duct.intmap
 
-ModuleInfo "Version: 0.4"
+ModuleInfo "Version: 0.5"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.5"
+ModuleInfo "History: dIntMap now safely removes null entries when a Null object is inserted"
+ModuleInfo "History: Added documentation to dIntMapStandardEnum and dIntMapReverseEnum"
+ModuleInfo "History: Added CurrentObject, CurrentKey and GrabNext to dIntMapStandardEnum and dIntMapReverseEnum"
 ModuleInfo "History: Version 0.4"
 ModuleInfo "History: Added Null return in dIntMap.ForKey for non-Null gets (insignificant)"
 ModuleInfo "History: Changed enumerator types to use duct.enumerator"
@@ -130,10 +134,8 @@ Type dIntMap
 		returns: Nothing.
 	End Rem
 	Method Insert(key:Int, obj:Object)
-		Assert obj, "(dIntMap.Insert) Cannot set key (" + String(key) + ") to Null!"
-		If obj
-			bmx_intmap_set(m_cmap, key, obj)
-		End If
+		'Assert obj, "(dIntMap.Insert) Cannot set key (" + String(key) + ") to Null!"
+		bmx_intmap_set(m_cmap, key, obj)
 	End Method
 	
 	Rem
@@ -243,6 +245,10 @@ Type dIntMapStandardEnum Extends dEnumerator
 		Return Self
 	End Method
 	
+	Rem
+		bbdoc: Get the next-pair state.
+		returns: True if the enumerator has another pair, or False if it does not.
+	End Rem
 	Method HasNext:Int()
 		Local has:Int = bmx_intmap_iter_hasnext(m_cmap, m_iter)
 		If has = False
@@ -251,16 +257,51 @@ Type dIntMapStandardEnum Extends dEnumerator
 		Return has
 	End Method
 	
+	Rem
+		bbdoc: Get the current object and grab the next pair.
+		returns: The current object.
+	End Rem
 	Method NextObject:Object()
 		Local value:Object = bmx_intmap_iter_getobject(m_iter)
 		bmx_intmap_iter_next(m_iter)
 		Return value
 	End Method
 	
+	Rem
+		bbdoc: Get the current key and grab the next pair.
+		returns: The current key.
+	End Rem
 	Method NextKey:Int()
 		Local value:Int = bmx_intmap_iter_getkey(m_iter)
 		bmx_intmap_iter_next(m_iter)
 		Return value
+	End Method
+	
+	Rem
+		bbdoc: Get the current object without grabbing the next pair.
+		returns: The current object.
+	End Rem
+	Method CurrentObject:Object()
+		Local value:Object = bmx_intmap_iter_getobject(m_iter)
+		Return value
+	End Method
+	
+	Rem
+		bbdoc: Get the current key without grabbing the next pair.
+		returns: The current key.
+	End Rem
+	Method CurrentKey:Int()
+		Local value:Int = bmx_intmap_iter_getkey(m_iter)
+		Return value
+	End Method
+	
+	Rem
+		bbdoc: Go to the next pair in the iterator.
+		returns: Nothing.
+		about: Only do this if you know there is another pair to grab (#HasNext).
+	End Rem
+	Method GrabNext()
+		bmx_intmap_iter_next(m_iter)
 	End Method
 	
 End Type
@@ -289,6 +330,10 @@ Type dIntMapReverseEnum Extends dEnumerator
 		Return Self
 	End Method
 	
+	Rem
+		bbdoc: Get the next-pair state.
+		returns: True if the enumerator has another pair, or False if it does not.
+	End Rem
 	Method HasNext:Int()
 		Local has:Int = bmx_intmap_riter_hasnext(m_cmap, m_iter)
 		If has = False
@@ -297,16 +342,51 @@ Type dIntMapReverseEnum Extends dEnumerator
 		Return has
 	End Method
 	
+	Rem
+		bbdoc: Get the current object and grab the next pair.
+		returns: The current object.
+	End Rem
 	Method NextObject:Object()
 		Local value:Object = bmx_intmap_riter_getobject(m_iter)
 		bmx_intmap_riter_next(m_iter)
 		Return value
 	End Method
 	
+	Rem
+		bbdoc: Get the current key and grab the next pair.
+		returns: The current key.
+	End Rem
 	Method NextKey:Int()
 		Local value:Int = bmx_intmap_riter_getkey(m_iter)
 		bmx_intmap_riter_next(m_iter)
 		Return value
+	End Method
+	
+	Rem
+		bbdoc: Get the current object without grabbing the next pair.
+		returns: The current object.
+	End Rem
+	Method CurrentObject:Object()
+		Local value:Object = bmx_intmap_riter_getobject(m_iter)
+		Return value
+	End Method
+	
+	Rem
+		bbdoc: Get the current key without grabbing the next pair.
+		returns: The current key.
+	End Rem
+	Method CurrentKey:Int()
+		Local value:Int = bmx_intmap_riter_getkey(m_iter)
+		Return value
+	End Method
+	
+	Rem
+		bbdoc: Go to the next pair in the iterator.
+		returns: Nothing.
+		about: Only do this if you know there is another pair to grab (#HasNext).
+	End Rem
+	Method GrabNext()
+		bmx_intmap_riter_next(m_iter)
 	End Method
 	
 End Type

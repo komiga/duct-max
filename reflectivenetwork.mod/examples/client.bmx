@@ -7,20 +7,21 @@ Framework brl.blitz
 Import brl.standardio
 Import brl.glmax2d
 
+Import duct.intmap
 Import duct.graphix
 Import duct.vector
 Import duct.reflectivenetwork
 
-Include "inc/base.bmx"
-Include "inc/masterclient.bmx"
+Include "src/base.bmx"
+Include "src/masterclient.bmx"
 
-Global mainapp:TClientApp = TClientApp(New TClientApp.Create())
+Global mainapp:ClientApp = ClientApp(New ClientApp.Create())
 mainapp.Run()
 
 Rem
 	bbdoc: Client application.
 End Rem
-Type TClientApp Extends dGraphicsApp
+Type ClientApp Extends dGraphicsApp
 	
 	Field m_msgmap:dReflNetMessageMap = New dReflNetMessageMap.Create()
 	Field m_client:TMasterClient
@@ -33,7 +34,7 @@ Type TClientApp Extends dGraphicsApp
 		AppTitle = "Client"
 		m_client = New TMasterClient.Create(TSocket.CreateTCP())
 		m_msgmap.Initialize(m_client)
-		If m_client.Connect(HostIp("localhost"), 30249) = False
+		If Not m_client.Connect(HostIp("localhost"), 30249)
 			Print("Unable to connect to server!")
 			Shutdown()
 		End If
@@ -48,7 +49,7 @@ Type TClientApp Extends dGraphicsApp
 	End Rem
 	Method OnExit()
 		EndGraphics()
-		If m_client <> Null
+		If m_client
 			m_client.Close()
 			m_client = Null
 		End If
@@ -74,7 +75,7 @@ Type TClientApp Extends dGraphicsApp
 		returns: Nothing.
 	End Rem
 	Method Render()
-		m_client.DrawPlayers()
+		m_client.RenderPlayers()
 	End Method
 	
 	Rem
@@ -82,7 +83,7 @@ Type TClientApp Extends dGraphicsApp
 		returns: Nothing.
 	End Rem
 	Method Update()
-		If m_client.Connected() = False
+		If Not m_client.Connected()
 			Print("Disconnected from server!")
 			Shutdown()
 		End If

@@ -28,10 +28,14 @@ bbdoc: Networking module
 End Rem
 Module duct.network
 
-ModuleInfo "Version: 0.7"
+ModuleInfo "Version: 0.8"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.8"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Renamed dNetMessageMap.GetMessageByID to GetMessageWithID"
+ModuleInfo "History: Renamed inc/ to src/"
 ModuleInfo "History: Version 0.7"
 ModuleInfo "History: Appified example code"
 ModuleInfo "History: dNetMessageMap now uses dIntMap instead of extending dObjectMap"
@@ -63,7 +67,7 @@ Import brl.socket
 Import duct.etc
 Import duct.intmap
 
-Include "inc/client.bmx"
-Include "inc/server.bmx"
-Include "inc/message.bmx"
+Include "src/client.bmx"
+Include "src/server.bmx"
+Include "src/message.bmx"
 

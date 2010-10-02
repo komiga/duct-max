@@ -28,10 +28,15 @@ bbdoc: Input handling module
 End Rem
 Module duct.input
 
-ModuleInfo "Version: 0.41"
+ModuleInfo "Version: 0.5"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.5"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Updated for duct.objectmap changes"
+ModuleInfo "History: Corrected variable code for duct.variables update"
+ModuleInfo "History: Moved inc/ to src/"
 ModuleInfo "History: Version 0.41"
 ModuleInfo "History: Fixed documentation, licenses, examples"
 ModuleInfo "History: Renamed TBindRecognizeException to dBindRecognizeException"
@@ -59,9 +64,9 @@ Import brl.polledinput
 Import brl.keycodes
 
 Import duct.etc
-Import duct.scriptparser
+Import duct.variables
 
-Include "inc/inputconv.bmx"
-Include "inc/keyhandler.bmx"
-Include "inc/bindmap.bmx"
+Include "src/inputconv.bmx"
+Include "src/keyhandler.bmx"
+Include "src/bindmap.bmx"
 

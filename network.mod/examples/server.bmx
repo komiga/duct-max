@@ -7,22 +7,22 @@ Framework brl.blitz
 Import brl.standardio
 Import brl.glmax2d
 
-Import duct.objectmap
+Import duct.intmap
 Import duct.graphix
 Import duct.vector
 Import duct.network
 
-Include "inc/base.bmx"
-Include "inc/masterserver.bmx"
+Include "src/base.bmx"
+Include "src/masterserver.bmx"
 
-Global mainapp:TServerApp
-New TServerApp.Create()
+Global mainapp:ServerApp
+New ServerApp.Create()
 mainapp.Run()
 
 Rem
 	bbdoc: Server application.
 End Rem
-Type TServerApp Extends dGraphicsApp
+Type ServerApp Extends dGraphicsApp
 	
 	Field m_msgmap:dNetMessageMap = New dNetMessageMap.Create()
 	Field m_server:TMasterServer
@@ -39,7 +39,7 @@ Type TServerApp Extends dGraphicsApp
 		m_msgmap.InsertMessage(New TPositionMessage)
 		m_server = New TMasterServer.Create(TSocket.CreateTCP(), 30249, 1)
 		m_server.Start()
-		If m_server.Connected() = False
+		If Not m_server.Connected()
 			Print("Server on port " + m_server.GetPort() + " could not be created")
 			Shutdown()
 		End If
@@ -54,7 +54,7 @@ Type TServerApp Extends dGraphicsApp
 	End Rem
 	Method OnExit()
 		EndGraphics()
-		If m_server <> Null
+		If m_server
 			m_server.Close()
 			m_server = Null
 		End If
@@ -66,7 +66,7 @@ Type TServerApp Extends dGraphicsApp
 		returns: Nothing.
 	End Rem
 	Method Run()
-		While KeyHit(KEY_ESCAPE) = False And AppTerminate() = False
+		While Not KeyHit(KEY_ESCAPE) And Not AppTerminate()
 			Cls()
 			Update()
 			Render()
@@ -80,7 +80,7 @@ Type TServerApp Extends dGraphicsApp
 		returns: Nothing.
 	End Rem
 	Method Render()
-		m_server.DrawPlayers()
+		m_server.RenderPlayers()
 	End Method
 	
 	Rem

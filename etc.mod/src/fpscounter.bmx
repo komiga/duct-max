@@ -28,7 +28,7 @@ End Rem
 Type TFPSCounter
 	
 	Global g_fps:Int, g_counter:Int
-	Global g_timer:TMSTimer = New TMSTimer.Create(1000)
+	Global g_timer:dMSTimer = New dMSTimer.Create(1000)
 	
 	Rem
 		bbdoc: Update the FPS counter.

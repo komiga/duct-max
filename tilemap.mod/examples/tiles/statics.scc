@@ -5,7 +5,6 @@ incrementoffset true
 datadir "static"
 outputfile "../statics.dts"
 
-
 statics {
 	
 	' Since incrementoffset is true, the id's will automagically increase by one (starting from the idoffset)
@@ -13,7 +12,6 @@ statics {
 	static {
 		base 0 "stone wall" "wall_stone_corner.png"
 		height 20
-		
 		impassable true
 		blocksview true
 	}
@@ -21,7 +19,6 @@ statics {
 	static {
 		base 0 "stone wall" "wall_stone_southwest.png"
 		height 20
-		
 		impassable true
 		blocksview true
 	}
@@ -29,16 +26,7 @@ statics {
 	static {
 		base 0 "stone wall" "wall_stone_southeast.png"
 		height 20
-		
 		impassable true
 		blocksview true
 	}
 }
-
-
-
-
-
-
-
-

@@ -28,10 +28,12 @@ bbdoc: duct numeric map (int-int key-value binary tree).
 End Rem
 Module duct.numericmap
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 
@@ -122,7 +124,7 @@ Type dNumericMap
 		returns: An integer with the given key, or Null if there is no value with the key given.
 	End Rem
 	Method ForKey:Int(key:Int)
-		If Contains(key) = True
+		If Contains(key)
 			Return bmx_numericmap_get(m_cmap, key)
 		End If
 		Return 0
@@ -218,26 +220,40 @@ Type dNumericMapStandardEnum Extends dIntEnumerator
 		End If
 	End Method
 	
+	Rem
+		bbdoc: Create a standard #dNumericMap enumerator.
+		returns: Itself.
+	End Rem
 	Method Create:dNumericMapStandardEnum(cmap:dCNumericMap)
 		m_cmap = cmap
 		m_iter = bmx_numericmap_iter_first(m_cmap)
 		Return Self
 	End Method
 	
+	Rem
+		bbdoc: Check if the enumerator has another number.
+		returns: Nothing.
+	End Rem
 	Method HasNext:Int()
 		Local has:Int = bmx_numericmap_iter_hasnext(m_cmap, m_iter)
-		If has = False
-			Free()
-		End If
+		If has Then Free()
 		Return has
 	End Method
 	
+	Rem
+		bbdoc: Get the next integer value.
+		returns: The next integer.
+	End Rem
 	Method NextInt:Int()
 		Local value:Int = bmx_numericmap_iter_getvalue(m_iter)
 		bmx_numericmap_iter_next(m_iter)
 		Return value
 	End Method
 	
+	Rem
+		bbdoc: Get the next key.
+		returns: The next key.
+	End Rem
 	Method NextKey:Int()
 		Local value:Int = bmx_numericmap_iter_getkey(m_iter)
 		bmx_numericmap_iter_next(m_iter)
@@ -264,26 +280,40 @@ Type dNumericMapReverseEnum Extends dIntEnumerator
 		End If
 	End Method
 	
+	Rem
+		bbdoc: Create a reversed #dNumericMap enumerator.
+		returns: Itself.
+	End Rem
 	Method Create:dNumericMapReverseEnum(cmap:dCNumericMap)
 		m_cmap = cmap
 		m_iter = bmx_numericmap_riter_first(m_cmap)
 		Return Self
 	End Method
 	
+	Rem
+		bbdoc: Check if the enumerator has another number.
+		returns: Nothing.
+	End Rem
 	Method HasNext:Int()
 		Local has:Int = bmx_numericmap_riter_hasnext(m_cmap, m_iter)
-		If has = False
-			Free()
-		End If
+		If has Then Free()
 		Return has
 	End Method
 	
+	Rem
+		bbdoc: Get the next integer value.
+		returns: The next integer.
+	End Rem
 	Method NextInt:Int()
 		Local value:Int = bmx_numericmap_riter_getvalue(m_iter)
 		bmx_numericmap_riter_next(m_iter)
 		Return value
 	End Method
 	
+	Rem
+		bbdoc: Get the next key.
+		returns: The next key.
+	End Rem
 	Method NextKey:Int()
 		Local value:Int = bmx_numericmap_riter_getkey(m_iter)
 		bmx_numericmap_riter_next(m_iter)

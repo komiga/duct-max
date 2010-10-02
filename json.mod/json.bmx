@@ -28,10 +28,14 @@ bbdoc: JSON handler for cower.jonk
 End Rem
 Module duct.json
 
-ModuleInfo "Version: 0.5"
+ModuleInfo "Version: 0.6"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.6"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Renamed TV_NULL to TV_JSON_NULL"
+ModuleInfo "History: Corrected variable code for duct.variables update"
 ModuleInfo "History: Version 0.5"
 ModuleInfo "History: Added GetVariableWithName method to dJObject"
 ModuleInfo "History: Version 0.4"
@@ -52,11 +56,11 @@ End Rem
 Type dJObject Extends dIdentifier
 	
 	Rem
-		bbdoc: Create a new dJObject.
-		returns: The new dJObject (itself).
+		bbdoc: Create a dJObject.
+		returns: Itself.
 	End Rem
-	Method Create:dJObject()
-		Super.Create()
+	Method Create:dJObject(name:String = Null, parent:dCollectionVariable = Null, children:TListEx = Null)
+		Super.Create(name, parent, children)
 		Return Self
 	End Method
 	
@@ -68,19 +72,6 @@ Type dJObject Extends dIdentifier
 		Return dJObject(m_parent)
 	End Method
 	
-	Rem
-		bbdoc: Get the variable with the given name.
-		returns: The variable with the given name, or Null if there is no variable with the given name.
-	End Rem
-	Method GetVariableWithName:dVariable(name:String)
-		For Local v:dVariable = EachIn m_values
-			If v.m_name = name
-				Return v
-			End If
-		Next
-		Return Null
-	End Method
-	
 End Type
 
 Rem
@@ -89,11 +80,11 @@ End Rem
 Type dJArray Extends dJObject
 	
 	Rem
-		bbdoc: Create a new dJArray.
-		returns: The new dJArray (itself).
+		bbdoc: Create a dJArray.
+		returns: Itself.
 	End Rem
-	Method Create:dJArray()
-		Super.Create()
+	Method Create:dJArray(name:String = Null, parent:dCollectionVariable = Null, children:TListEx = Null)
+		Super.Create(name, parent, children)
 		Return Self
 	End Method
 	
@@ -102,16 +93,16 @@ End Type
 Rem
 	bbdoc: Template variable type for the #dJNullVariable type.
 End Rem
-Const TV_NULL:Int = 100
+Const TV_JSON_NULL:Int = 32
 
 Rem
 	bbdoc: duct JSON null variable.
 End Rem
-Type dJNullVariable Extends dVariable
+Type dJNullVariable Extends dValueVariable
 	
 	Rem
-		bbdoc: Create a New dJNullVariable.
-		returns: The New dJNullVariable (itself).
+		bbdoc: Create a dJNullVariable.
+		returns: Itself.
 	End Rem
 	Method Create:dJNullVariable(name:String = Null)
 		SetName(name)
@@ -121,31 +112,34 @@ Type dJNullVariable Extends dVariable
 '#region Field accessors
 	
 	Rem
-		bbdoc: Set the value of the variable To the given String (ambiguous).
+		bbdoc: Set the value of the variable to the given string (ambiguous).
 		returns: Nothing.
-		about: This does nothing for dJNullVariable.
+		about: NOTE: This does nothing for dJNullVariable.
 	End Rem
 	Method SetAmbiguous(value:String)
 	End Method
 	
 	Rem
-		bbdoc: Convert the variable to a String.
-		returns: A string representation of the variable.
-		about: This function is for script output, for in-code use see #ValueAsString.
+		bbdoc: Get the variable's value with the given format.
+		returns: The formatted value.
 	End Rem
-	Method ConvToString:String()
-		Return "null"
+	Method GetValueFormatted:String(format:Int = 0)
+		If format & FMT_VALUE_QUOTE_ALWAYS
+			Return "~qnull~q"
+		Else
+			Return "null"
+		End If
 	End Method
 	
 	Rem
-		bbdoc: Get the variable as a String.
-		returns: The variable's value converted to a String.
+		bbdoc: Get the variable as a string.
+		returns: Null.
 	End Rem
 	Method ValueAsString:String()
 		Return Null
 	End Method
 	
-'#end region (Field accessors)
+'#end region Field accessors
 	
 '#region Data handling
 	
@@ -167,26 +161,22 @@ Type dJNullVariable Extends dVariable
 			stream.WriteByte(TV_INTEGER)
 		End If
 		If name = True
-			WriteLString(stream, m_name)
+			dStreamIO.WriteLString(stream, m_name)
 		End If
 	End Method
 	
 	Rem
 		bbdoc: Deserialize the variable from a stream.
-		returns: The deserialized variable.
+		returns: Itself.
 		about: @tv tells the method whether it should deserialize the TV type for the variable, or to not.
 	End Rem
-	Method DeSerialize:dJNullVariable(stream:TStream, tv:Int = True, name:Int = False)
-		If tv = True
-			stream.ReadByte()
-		End If
-		If name = True
-			m_name = ReadLString(stream)
-		End If
+	Method Deserialize:dJNullVariable(stream:TStream, tv:Int = True, name:Int = False)
+		If tv = True Then stream.ReadByte()
+		If name = True Then m_name = dStreamIO.ReadLString(stream)
 		Return Self
 	End Method
 	
-'#end region (Data handling)
+'#end region Data handling
 	
 	Rem
 		bbdoc: Get the type of this variable.
@@ -198,10 +188,10 @@ Type dJNullVariable Extends dVariable
 	
 	Rem
 		bbdoc: Get the TV type of this variable.
-		returns: The TV_* type of this variable (TV_NULL).
+		returns: The TV_* type of this variable (TV_JSON_NULL).
 	End Rem
 	Function GetTVType:Int()
-		Return TV_NULL
+		Return TV_JSON_NULL
 	End Function
 	
 End Type
@@ -257,25 +247,25 @@ Type dJEventHandler Extends JEventHandler
 			tmpvar = New dIntVariable.Create(Null, Int(number))
 		End If
 		SetAndClearName(tmpvar)
-		m_object.AddValue(tmpvar)
+		m_object.AddVariable(tmpvar)
 	End Method
 	
 	Method StringValue(value:String)
 		tmpvar = New dStringVariable.Create(Null, value)
 		SetAndClearName(tmpvar)
-		m_object.AddValue(tmpvar)
+		m_object.AddVariable(tmpvar)
 	End Method
 	
 	Method BooleanValue(value:Int)
 		tmpvar = New dBoolVariable.Create(Null, value)
 		SetAndClearName(tmpvar)
-		m_object.AddValue(tmpvar)
+		m_object.AddVariable(tmpvar)
 	End Method
 	
 	Method NullValue()
 		tmpvar = New dJNullVariable.Create(Null)
 		SetAndClearName(tmpvar)
-		m_object.AddValue(tmpvar)
+		m_object.AddVariable(tmpvar)
 	End Method
 	
 	Method Error:Int(err:JParserException)
@@ -289,7 +279,7 @@ Type dJEventHandler Extends JEventHandler
 	
 	Method DoBegin()
 		SetAndClearName(tmpvar)
-		If m_object <> Null m_object.AddValue(tmpvar)
+		If m_object Then m_object.AddVariable(tmpvar)
 		m_object = dJObject(tmpvar)
 		If Not m_root Then m_root = m_object
 	End Method
@@ -313,9 +303,9 @@ Type dJReader
 		bbdoc: Initiate the reader with the given url/stream.
 		returns: Itself, or Null if the stream could not be opened.
 	End Rem
-	Method InitWithStream:dJReader(url:Object, encoding:Int = JSONEncodingUTF8, bufferLength:Int = JParser.JPARSERBUFFER_INITIAL_SIZE)
+	Method InitWithStream:dJReader(stream:TStream, encoding:Int = JSONEncodingUTF8, bufferlength:Int = JParser.JPARSERBUFFER_INITIAL_SIZE)
 		Try
-			m_parser = New JParser.InitWithStream(url, m_evthandler, encoding, bufferLength)
+			m_parser = New JParser.InitWithStream(stream, m_evthandler, encoding, bufferlength)
 			Return Self
 		Catch e:JException
 			Return Null

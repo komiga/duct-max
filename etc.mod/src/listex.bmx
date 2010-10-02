@@ -30,8 +30,8 @@ Type TListEx Extends TList
 	
 	Rem
 		bbdoc: Create a new TListEx.
-		returns: The new TListEx (itself).
-		about: This method does nothing (you can simply call #{New TListEx}).
+		returns: Itself.
+		about: This method does nothing (you can simply do New TListEx).
 	End Rem
 	Method Create:TListEx()
 		Return Self
@@ -42,10 +42,9 @@ Type TListEx Extends TList
 		returns: The link that was added to the list.
 	End Rem
 	Method InsertAfterLink:TLink(value:Object, pred:TLink)
-		Local link:TLink
-		link = Super.InsertAfterLink(value, pred)
-		If link <> Null
-			m_count:+1
+		Local link:TLink = Super.InsertAfterLink(value, pred)
+		If link
+			m_count:+ 1
 		End If
 		Return link
 	End Method
@@ -55,10 +54,9 @@ Type TListEx Extends TList
 		returns: The link that was added to the list.
 	End Rem
 	Method InsertBeforeLink:TLink(value:Object, succ:TLink)
-		Local link:TLink
-		link = Super.InsertBeforeLink(value, succ)
-		If link <> Null
-			m_count:+1
+		Local link:TLink = Super.InsertBeforeLink(value, succ)
+		If link
+			m_count:+ 1
 		End If
 		Return link
 	End Method
@@ -68,9 +66,9 @@ Type TListEx Extends TList
 		returns: True if the object was removed, or False if it was not (either the given value is Null or it was not found in the list).
 	End Rem
 	Method Remove:Int(value:Object)
-		Local removed:Int = Super.Remove(value) = True
-		If removed = True
-			m_count:-1
+		Local removed:Int = Super.Remove(value)
+		If removed
+			m_count:- 1
 		End If
 		Return removed
 	End Method
@@ -81,8 +79,8 @@ Type TListEx Extends TList
 	End Rem
 	Method RemoveFirst:Object()
 		Local obj:Object = Super.RemoveFirst()
-		If obj <> Null
-			m_count:-1
+		If obj
+			m_count:- 1
 		End If
 		Return obj
 	End Method
@@ -93,10 +91,26 @@ Type TListEx Extends TList
 	End Rem
 	Method RemoveLast:Object()
 		Local obj:Object = Super.RemoveLast()
-		If obj <> Null
-			m_count:-1
+		If obj
+			m_count:- 1
 		End If
 		Return obj
+	End Method
+	
+	Rem
+		bbdoc: Remove the given link from the list.
+		returns: True if the link was removed, or False if it was not (Null link, or list was empty, therefor the link cannot be from this list).
+		about: WARNING: This method does not check if the given link is from this list. If it is from a different list strange things will happen.<br>
+		The purpose of this method is to simply update the list's count when removing a link. You should only use this when you know that the link to remove is from this list.<br>
+		The only thing it will protect against is: removing the head link, removing the link when the list is empty (meaning the link cannot be from the list), and removing a Null link.
+	End Rem
+	Method RemoveLink:Int(link:TLink)
+		If link And m_count > 0 And Not(_head = link)
+			link.Remove()
+			m_count:- 1
+			Return True
+		End If
+		Return False
 	End Method
 	
 	Rem
@@ -137,7 +151,7 @@ Type TListEx Extends TList
 	End Rem
 	Function FromArray:TListEx(arr:Object[])
 		Local list:TListEx = New TListEx
-		For Local index:Int = 0 To arr.Length - 1
+		For Local index:Int = 0 Until arr.Length
 			list.AddLast(arr[index])
 		Next
 		list.m_count = arr.Length

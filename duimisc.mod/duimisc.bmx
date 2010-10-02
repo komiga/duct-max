@@ -28,11 +28,13 @@ bbdoc: dui miscellaneous module
 End Rem
 Module duct.duimisc
 
-ModuleInfo "Version: 1.01"
+ModuleInfo "Version: 1.2"
 ModuleInfo "Copyright: Liam McGuigan (FryGUI creator)"
 ModuleInfo "Copyright: Tim Howard (dui is a heavily modified FryGUI)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 1.2"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 1.01"
 ModuleInfo "History: Cleanup"
 ModuleInfo "History: Version 1.0"
@@ -67,17 +69,15 @@ Function dui_SplitString:String[] (str:String, separator:String)
 	Local textarray:String[1]
 	Local rtext:String = str
 	Local index:Int = 0
-	
 	Repeat
 		If rtext.Length = 0
 			Exit
 		End If
 		Local sp_p:Int = rtext.Find(separator)
-		If sp_p = -1 Then
+		If sp_p = -1
 			textarray[index] = rtext
 			Exit
 		End If
-		
 		textarray[index] = rtext[..sp_p]
 		rtext = rtext[rtext.Length - (rtext.Length - sp_p) - 1..]
 		index:+1
@@ -111,22 +111,14 @@ Rem
 	bbdoc: Find the point of intersection of two lines.
 	returns: True if the lines intersect (@xi and @yi will be the point of intersection), or False if they do not intersect. 
 End Rem
-Function dui_LineIntersection:Int(xi:Float Var, yi:Float Var, x1:Float, y1:Float, x2:Float, y2:Float,  ..
-									x3:Float, y3:Float, x4:Float, y4:Float)
-	
-	Local l1d:Float, l2d:Float
-	Local l1x:Float, l1y:Float, l2x:Float, l2y:Float
-	
-	l1x = x2 - x1
-	l1y = y2 - y1
-	l2x = x4 - x3
-	l2y = y4 - y3
-	
-	l1d = (y3 - y1 + (l2y / l2x) * (x1 - x3)) / (l1y - l2y * l1x / l2x)
-	
+Function dui_LineIntersection:Int(xi:Float Var, yi:Float Var, x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float, x4:Float, y4:Float)
+	Local l1x:Float = x2 - x1
+	Local l1y:Float = y2 - y1
+	Local l2x:Float = x4 - x3
+	Local l2y:Float = y4 - y3
+	Local l1d:Float = (y3 - y1 + (l2y / l2x) * (x1 - x3)) / (l1y - l2y * l1x / l2x)
 	If l1d >= 0 And l1d <= 1		' If intersection lies on first line
-		l2d = (x1 + l1x * l1d - x3) / l2x
-		
+		Local l2d:Float = (x1 + l1x * l1d - x3) / l2x
 		If l2d >= 0 And l2d <= 1	' If intersection also lies on second line
 			xi = x1 + l1d * l1x
 			yi = y1 + l1d * l1y
@@ -137,19 +129,17 @@ Function dui_LineIntersection:Int(xi:Float Var, yi:Float Var, x1:Float, y1:Float
 End Function
 
 Rem
-	bbdoc: Get an index for a string in a string array.
+	bbdoc: Get the index for a string in a string array.
 	returns: The index of the string if it was found, or -1 if it was not found in the array.
-	about: This is not case sensitive.
+	about: NOTE: This is not case sensitive.
 End Rem
 Function dui_SelectString:Int(array:String[], str:String)
-	Local item:Int = -1
-	
 	str = str.ToLower()
-	For Local count:Int = 0 To array.Length - 1
+	For Local count:Int = 0 Until array.Length
 		If array[count].ToLower() = str
-			item = count
+			Return count
 		End If
 	Next
-	Return item
+	Return -1
 End Function
 

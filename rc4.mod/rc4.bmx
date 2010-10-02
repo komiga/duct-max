@@ -1,24 +1,24 @@
 
 Rem
-	Copyright (c) 2010 Tim Howard
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
+Copyright (c) 2010 Tim Howard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 End Rem
 
 SuperStrict
@@ -28,11 +28,13 @@ bbdoc: RC4 encryption module
 End Rem
 Module duct.rc4
 
-ModuleInfo "Version: 1.1"
+ModuleInfo "Version: 1.2"
 ModuleInfo "Credit: Noel Cower/RepeatUntil on the forums, see: http://www.blitzbasic.com/codearcs/codearcs.php?code=1711"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 1.2"
+ModuleInfo "History: General Cleanup"
 ModuleInfo "History: Version 1.1"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 1.02"
@@ -47,15 +49,13 @@ Import brl.math
 
 Rem
 	bbdoc: Encrypt/decrypt the given string.
-	returns: The encryped/decrypted string.
+	returns: The encryped/decrypted string, or Null if either the given data or key was Null.
 End Rem
 Function RC4:String(inp:String, key:String)
-	If inp = Null Or key = Null Then Return Null
-	
+	If Not inp Or Not key Then Return Null
     Local s:Int[512 + Ceil(inp.Length * 0.55)]
-    Local i:Int, j:Int, t:Int, x:Int
+    Local i:Int, j:Int, t:Int
     Local outbuf:Short Ptr = Short Ptr(Varptr s[512])
-    
 	j = 0
 	For i = 0 To 255
 		s[i] = i
@@ -76,14 +76,14 @@ Function RC4:String(inp:String, key:String)
     
     i = 0
     j = 0
-    For x = 0 To inp.Length - 1
+    For Local x:Int = 0 Until inp.Length
         i = (i + 1) & $ff
         j = (j + s[i]) & $ff
         t = s[i]
         s[i] = s[j]
         s[j] = t
         t = (s[i] + s[j]) & $ff
-        outbuf[x] = (inp[x] ~ S[t])
+        outbuf[x] = (inp[x] ~ s[t])
     Next
     Return String.FromShorts(outbuf, inp.Length)
 End Function
@@ -94,9 +94,8 @@ Rem
 End Rem
 Function RC4_Bytes(inp:Byte Ptr, count:Int, key:String) 
 	Local s:Int[512 + Ceil(count * 0.55)]
-	Local i:Int, j:Int, t:Int, x:Int
+	Local i:Int, j:Int, t:Int
 	'Local outbuf:Byte Ptr = Byte Ptr(VarPtr s[512]) 
-    
 	j = 0
 	For i = 0 To 255
 		s[i] = i
@@ -117,7 +116,7 @@ Function RC4_Bytes(inp:Byte Ptr, count:Int, key:String)
 	
 	i = 0
 	j = 0
-	For x = 0 To count - 1
+	For Local x:Int = 0 Until count
 		i = (i + 1) & $ff
 		j = (j + S[i]) & $ff
 		t = s[i]

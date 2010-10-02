@@ -28,10 +28,22 @@ bbdoc: Tile map module
 End Rem
 Module duct.tilemap
 
-ModuleInfo "Version: 0.5"
+ModuleInfo "Version: 0.6"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.6"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Corrected variable code for duct.variables update"
+ModuleInfo "History: dTileMap methods AddStaticToPos, AddStaticArrayToPos and SetTileAtPos now update the given object's position"
+ModuleInfo "History: Added UpdateTile to dTileMap"
+ModuleInfo "History: Added UpdateTileResource and UpdateStaticResource methods to dMapResourceSet and dTileMap"
+ModuleInfo "History: Renamed dTileMapHandler.*Drawn to *Rendered and dTileMapHandler.FinishDrawing to FinishRendering"
+ModuleInfo "History: Renamed dTileMap.Draw to dTileMap.Render"
+ModuleInfo "History: Renamed dMapResourceSet.*ByID methods to *WithID"
+ModuleInfo "History: Added dTileMap.LoadFromFile"
+ModuleInfo "History: Corrected flag removal in dMapResource.RemoveFlag"
+ModuleInfo "History: Renamed inc/ to src/"
 ModuleInfo "History: Version 0.5"
 ModuleInfo "History: Fixed documentation, licenses, examples"
 ModuleInfo "History: Renamed type prefix from 'T' to 'd'"
@@ -72,17 +84,16 @@ ModuleInfo "History: Version 0.061"
 ModuleInfo "History: Cleaned up documentation and code"
 ModuleInfo "History: Fixed tile rendering flaw"
 
-Import duct.objectmap
-Import duct.vector
-Import duct.etc
-Import duct.protog2d
 Import brl.pixmap
 Import brl.stream
-Import brl.filesystem
+Import duct.etc
+Import duct.intmap
+Import duct.vector
+Import duct.protog2d
 
-Include "inc/drawnobject.bmx"
-Include "inc/map.bmx"
-Include "inc/mapres.bmx"
-Include "inc/mapenv.bmx"
-Include "inc/mappos.bmx"
+Include "src/drawnobject.bmx"
+Include "src/map.bmx"
+Include "src/mapres.bmx"
+Include "src/mapenv.bmx"
+Include "src/mappos.bmx"
 

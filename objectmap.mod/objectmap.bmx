@@ -28,10 +28,13 @@ bbdoc: Objectmap module
 End Rem
 Module duct.objectmap
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Renamed dObjectMap._ValueByKey to _ObjectWithKey"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: Fixed documentation, license"
 ModuleInfo "History: Renamed TObjectMap to dObjectMap"
@@ -68,32 +71,31 @@ Type dObjectMap
 	Rem
 		bbdoc: Insert an object into the map.
 		returns: Nothing.
-		about: This method does not provide Null checking.
+		about: NOTE: This method does not provide Null checking.
 	End Rem
 	Method _Insert(key:Object, value:Object)
 		m_map.Insert(key, value)
-		m_count:+1
+		m_count:+ 1
 	End Method
 	
 	Rem
-		bbdoc: Remove a key from the map.
-		returns: True if the key was removed from the map, or False if it was not.
-		about: Count is lowered by 1 if the key was removed.
+		bbdoc: Remove the object with the given key.
+		returns: True if the object-key pair was removed, or False if the given key was not found.
 	End Rem
 	Method _Remove:Int(key:Object)
-		If m_map.Remove(key) = True
-			m_count:-1
+		If m_map.Remove(key)
+			m_count:- 1
 			Return True
 		End If
 		Return False
 	End Method
 	
 	Rem
-		bbdoc: Get a value by its key.
-		returns: An object or Null (not found).
+		bbdoc: Get a value with the given key.
+		returns: The object with the given key, or Null if the key was not found.
 	End Rem
-	Method _ValueByKey:Object(key:Object)
-		If key = Null
+	Method _ObjectWithKey:Object(key:Object)
+		If Not key
 			Return Null
 		Else
 			Return m_map.ValueForKey(key)

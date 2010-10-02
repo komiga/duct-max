@@ -28,10 +28,12 @@ bbdoc: Archive module
 End Rem
 Module duct.archive
 
-ModuleInfo "Version: 0.3"
+ModuleInfo "Version: 0.4"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.4"
+ModuleInfo "History: Updated for duct.objectmap changes"
 ModuleInfo "History: Version 0.3"
 ModuleInfo "History: Fixed documentation, license"
 ModuleInfo "History: Renamed TArchivedFile to dArchivedFile"
@@ -334,7 +336,7 @@ Type dArchive
 		An exception will be thrown if you do not supply the key when encryption is on.
 	End Rem
 	Method GetFileWithName:dArchivedFile(name:String, key:String = Null)
-		Local file:dArchivedFile = dArchivedFile(m_children._ValueByKey(name))
+		Local file:dArchivedFile = dArchivedFile(m_children._ObjectWithKey(name))
 		_ReadUnreadFileData(file, key)
 		Return file
 	End Method

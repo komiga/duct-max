@@ -28,10 +28,14 @@ bbdoc: CSV (comma-separated value) reading/writing
 End Rem
 Module duct.csv
 
-ModuleInfo "Version: 0.6"
+ModuleInfo "Version: 0.7"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.7"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Serialization methods now take formats"
+ModuleInfo "History: Corrected variable code for duct.variables update"
 ModuleInfo "History: Version 0.6"
 ModuleInfo "History: Added RemoveRow and RemoveRecord to dCSVMap, added RemoveRecord to dCSVRow"
 ModuleInfo "History: Use dStringVariable.Create(, Null) instead of dVariable.RawToVariable(Null) in dCSVRow.InsertRecordsFromString"
@@ -242,9 +246,9 @@ Type dCSVMap
 		about: @separator is the separator for columns.<br>
 		If @setheader is True, the first column encountered will be the header.
 	End Rem
-	Method DeserializeFromFile:dCSVMap(url:String, separator:String = ",", setheader:Int = True)
+	Method DeserializeFromFile:dCSVMap(path:String, separator:String = ",", setheader:Int = True)
 		If separator
-			Local stream:TStream = ReadStream(url)
+			Local stream:TStream = ReadStream(path)
 			If stream
 				Deserialize(stream, separator, setheader)
 				stream.Close()
@@ -272,14 +276,14 @@ Type dCSVMap
 	End Method
 	
 	Rem
-		bbdoc: Serialize the CSV map to the given file.
-		returns: True if the map was serialized, or False if it was not (bad url or Null separator).
+		bbdoc: Serialize the CSV map to the given file path.
+		returns: True if the map was serialized, or False if it was not (bad path or Null separator).
 	End Rem
-	Method SerializeToFile:Int(url:String, separator:String, forcequoting:Int = False)
+	Method SerializeToFile:Int(path:String, separator:String, format:Int = FMT_ALL_DEFAULT)
 		If separator
-			Local stream:TStream = WriteStream(url)
+			Local stream:TStream = WriteStream(path)
 			If stream
-				Serialize(stream, separator, forcequoting)
+				Serialize(stream, separator, format)
 				stream.Close()
 				Return True
 			End If
@@ -451,14 +455,14 @@ Type dCSVRow
 		bbdoc: Serialize the row to the given stream.
 		returns: Nothing.
 	End Rem
-	Method Serialize(stream:TStream, separator:String = ",", forcequoting:Int = False)
+	Method Serialize(stream:TStream, separator:String = ",", format:Int = FMT_ALL_DEFAULT)
 		Local lastindex:Int
 		For Local record:dCSVRecord = EachIn m_records
 			'DebugLog("i, li, sub: " + record.m_index + ", " + lastindex + ", " + (record.m_index - lastindex))
 			For Local i:Int = 0 Until record.m_index - lastindex
 				stream.WriteString(separator)
 			Next
-			record.Serialize(stream, separator, forcequoting)
+			record.Serialize(stream, separator, format)
 			lastindex = record.m_index
 		Next
 	End Method
@@ -467,22 +471,13 @@ Type dCSVRow
 		bbdoc: Get the row as a string.
 		returns: A string containing all the records in the row, separated by the given separator.
 	End Rem
-	Method Report:String(separator:String = ",", forcequoting:Int = False)
-		Local build:String, lastindex:Int, str:String
+	Method Report:String(separator:String = ",", format:Int = FMT_ALL_DEFAULT)
+		Local build:String, lastindex:Int
 		For Local record:dCSVRecord = EachIn m_records
 			For Local i:Int = 0 Until record.m_index - lastindex
 				build:+ separator
 			Next
-			str = record.ToString()
-			If str
-				If str.Contains(" ") Or str.Contains("~t") Or str.Contains(separator) Or forcequoting
-					build:+ "~q" + str + "~q"
-				Else
-					build:+ str
-				End If
-			Else If forcequoting
-				build:+ "~q~q"
-			End If
+			build:+ record.GetValueFormatted(format)
 			lastindex = record.m_index
 		Next
 		Return build
@@ -496,16 +491,13 @@ End Rem
 Type dCSVRecord
 	
 	Field m_index:Int
-	Field m_variable:dVariable
-	
-	Method New()
-	End Method
+	Field m_variable:dValueVariable
 	
 	Rem
 		bbdoc: Create a new record.
 		returns: Itself.
 	End Rem
-	Method Create:dCSVRecord(index:Int, variable:dVariable)
+	Method Create:dCSVRecord(index:Int, variable:dValueVariable)
 		SetIndex(index)
 		SetVariable(variable)
 		Return Self
@@ -533,7 +525,7 @@ Type dCSVRecord
 		bbdoc: Set the variable for the record.
 		returns: Nothing.
 	End Rem
-	Method SetVariable(variable:dVariable)
+	Method SetVariable(variable:dValueVariable)
 		m_variable = variable
 	End Method
 	
@@ -541,8 +533,19 @@ Type dCSVRecord
 		bbdoc: Get the record's variable.
 		returns: The variable for the record.
 	End Rem
-	Method GetVariable:dVariable()
+	Method GetVariable:dValueVariable()
 		Return m_variable
+	End Method
+	
+	Rem
+		bbdoc: Get the record's value with format.
+		returns: The record's formatted value, or Null if the record's variable is Null.
+	End Rem
+	Method GetValueFormatted:String(format:Int = FMT_ALL_DEFAULT)
+		If m_variable
+			Return m_variable.GetValueFormatted(format)
+		End If
+		Return Null
 	End Method
 	
 	Rem
@@ -569,17 +572,18 @@ Type dCSVRecord
 		bbdoc: Serialize the record to the given stream.
 		returns: Nothing.
 	End Rem
-	Method Serialize(stream:TStream, separator:String = ",", forcequoting:Int = False)
-		Local str:String = ToString()
-		If str
-			If str.Contains(" ") Or str.Contains("~t") Or str.Contains(separator) Or forcequoting
-				stream.WriteString("~q" + str + "~q")
-			Else
-				stream.WriteString(str)
+	Method Serialize(stream:TStream, separator:String = ",", format:Int = FMT_ALL_DEFAULT)
+		Local str:String = GetValueFormatted(format)
+		If Not(format & FMT_VALUE_QUOTE_ALWAYS) And str
+			If str.Contains(separator)
+				If str[0] = 34 And str[str.Length - 1] = 34
+					str = "~q" + str + "~q"
+				End If
 			End If
-		Else If forcequoting
-			stream.WriteString("~q~q")
+		Else If format & FMT_VALUE_QUOTE_ALWAYS And Not str
+			str = "~q~q"
 		End If
+		stream.WriteString(str)
 	End Method
 	
 	Rem
@@ -597,53 +601,50 @@ Type dTempBuf
 	Const BUFFERINITIAL_SIZE:Int = 128
 	Const BUFFER_MULTIPLIER:Double = 1.75:Double
 
-	Field m_buffer:Short Ptr = Null, m_bufSize:Int = 0, m_bufLen:Int = 0
-	Field m_bufS:String = Null
-
-	Method New()
-	End Method
+	Field m_buffer:Short Ptr = Null, m_bufsize:Int = 0, m_buflength:Int = 0
+	Field m_bufstring:String = Null
 
 	Method Delete() NoDebug
-		If m_buffer <> Null
+		If m_buffer
 			MemFree(m_buffer)
 			m_buffer = Null
 		End If
 	End Method
 
 	Method Clear()
-		m_bufS = Null
-		m_bufLen = 0
+		m_bufstring = Null
+		m_buflength = 0
 	End Method
 
 	Method AddChar(char:Int)
-		If m_buffer = Null
-			m_bufSize = BUFFERINITIAL_SIZE
-			m_buffer = Short Ptr(MemAlloc(m_bufSize * 2))
-			m_bufLen = 0
-		Else If m_bufLen = m_bufSize
-			Local newsize:Int = Ceil(m_bufSize * BUFFER_MULTIPLIER)
-			If newSize < m_bufLen
-				newSize = Ceil(m_bufLen * BUFFER_MULTIPLIER)
+		If Not m_buffer
+			m_bufsize = BUFFERINITIAL_SIZE
+			m_buffer = Short Ptr(MemAlloc(m_bufsize * 2))
+			m_buflength = 0
+		Else If m_buflength = m_bufsize
+			Local newsize:Int = Ceil(m_bufsize * BUFFER_MULTIPLIER)
+			If newSize < m_buflength
+				newSize = Ceil(m_buflength * BUFFER_MULTIPLIER)
 			End If
 			Local temp:Short Ptr = Short Ptr(MemAlloc(newSize * 2))
-			If temp = Null
-				Throw("(dTempBuf.AddChar()) Unable To allocate buffer of size " + (newSize * 2) + " bytes")
+			If Not temp
+				Throw "(dTempBuf.AddChar()) Unable To allocate buffer of size " + (newSize * 2) + " bytes"
 			End If
-			m_bufSize = newSize
-			MemCopy(temp, m_buffer, m_bufLen * 2)
+			m_bufsize = newSize
+			MemCopy(temp, m_buffer, m_buflength * 2)
 			MemFree(m_buffer)
 			m_buffer = temp
 		End If
-		m_buffer[m_bufLen] = char
-		m_bufLen:+1
+		m_buffer[m_buflength] = char
+		m_buflength:+1
 	End Method
 
 	Method AsString:String()
-		If m_bufS <> Null And (m_buffer = Null Or m_bufS.Length = m_bufLen)
-			Return m_bufS
+		If m_bufstring And (Not m_buffer Or m_bufstring.Length = m_buflength)
+			Return m_bufstring
 		End If
-		m_bufS = String.FromShorts(m_buffer, m_bufLen)
-		Return m_bufS
+		m_bufstring = String.FromShorts(m_buffer, m_buflength)
+		Return m_bufstring
 	End Method
 
 End Type

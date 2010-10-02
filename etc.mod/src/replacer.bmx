@@ -24,7 +24,7 @@ End Rem
 Rem
 	bbdoc: Text replacement manager.
 End Rem
-Type TTextReplacer
+Type dTextReplacer
 	
 	Field m_list:TListEx
 	
@@ -33,25 +33,23 @@ Type TTextReplacer
 	End Method
 	
 	Rem
-		bbdoc: Create a TTextReplacer.
+		bbdoc: Create a text replacer.
 		returns: Itself.
 	End Rem
-	Method Create:TTextReplacer(str:String)
+	Method Create:dTextReplacer(str:String)
 		SetString(str)
 		Return Self
 	End Method
 	
 	Rem
-		bbdoc: Set a replacement string by the name of the TTextReplacement (e.g. "FOO" for the '{FOO}' part of the text).
-		returns: True if the TTextReplacement value was set, or False if it was not (could not find the given name).
+		bbdoc: Set the value of all replacements with the given name.
+		returns: True if a replacement value was set, or False if none were was not (could not find the given name).
 	End Rem
-	Method SetReplacementByName:Int(name:String, value:String, casesens:Int = False)
+	Method SetReplacementsWithName:Int(name:String, value:String, casesens:Int = False)
 		Local changed:Int = False
-		If casesens = True
-			name = name.ToLower()
-		End If
-		For Local replacement:TTextReplacement = EachIn m_list
-			If (casesens = True And replacement.m_name.ToLower() = name) Or replacement.m_name = name
+		If Not casesens Then name = name.ToLower()
+		For Local replacement:dTextReplacement = EachIn m_list
+			If (Not casesens And replacement.m_name.ToLower() = name) Or replacement.m_name = name
 				replacement.SetReplacement(value)
 				changed = True
 			End If
@@ -60,16 +58,14 @@ Type TTextReplacer
 	End Method
 	
 	Rem
-		bbdoc: Get a TTextReplacement by the name given.
-		returns: The TTextReplacement with the name given, or Null if the given name was not found.
-		about: This will obviously only give you the first instance of @name, to set all replacements with the given name, use #SetReplacementByName.
+		bbdoc: Get a replacement with the name given.
+		returns: The replacement with the name given, or Null if the given name was not found.
+		about: This will obviously only give you the first instance of @name, to set all replacements with the given name, use #SetReplacementsWithName.
 	End Rem
-	Method GetReplacementFromName:TTextReplacement(name:String, casesens:Int = False)
-		If casesens = True
-			name = name.ToLower()
-		End If
-		For Local replacement:TTextReplacement = EachIn m_list
-			If (casesens = True And replacement.m_name.ToLower() = name) Or replacement.m_name = name
+	Method GetReplacementWithName:dTextReplacement(name:String, casesens:Int = False)
+		If Not casesens Then name = name.ToLower()
+		For Local replacement:dTextReplacement = EachIn m_list
+			If (Not casesens And replacement.m_name.ToLower() = name) Or replacement.m_name = name
 				Return replacement
 			End If
 		Next
@@ -86,7 +82,7 @@ Type TTextReplacer
 			Local i:Int
 			For Local block:Object = EachIn m_list
 				strings[i] = block.ToString()
-				i:+1
+				i:+ 1
 			Next
 			Return "".Join(strings)
 		End If
@@ -94,44 +90,38 @@ Type TTextReplacer
 	End Method
 	
 	Rem
-		bbdoc: Automatically create TTextReplacements around all strings.
+		bbdoc: Automatically create text replacements around all strings.
 		returns: Nothing.
-		about: The @beginiden and @endiden parameters are used to find replacements in the string.<br/>
-		For example, all the points (with the default idens) surrounded by brackets in "The greatest {string} of testingleness {is} not so {awesome}" will become TTextReplacements.
+		about: The @beginiden and @endiden parameters are used to find replacements in the string.<br>
+		For example, all the points (with the default idens) surrounded by brackets in "Foo {bar} boo {far}" will become text replacements.
 	End Rem
 	Method AutoReplacements(beginiden:String = "{", endiden:String = "}")
-		Local str:String, tmplist:TListEx
-		Local bi:Int, ei:Int, lastei:Int
-		Local tmpstr:String
-		
-		Assert beginiden, "(TTextReplacement.AutoReplacements) Cannot use Null @beginiden"
-		Assert endiden, "(TTextReplacement.AutoReplacements) Cannot use Null @endiden"
-		
+		Assert beginiden, "(dTextReplacement.AutoReplacements) Cannot use Null @beginiden"
+		Assert endiden, "(dTextReplacement.AutoReplacements) Cannot use Null @endiden"
 		If m_list.Count() > 0
-			tmplist = New TListEx
-			For str = EachIn m_list
+			Local bi:Int, ei:Int, lastei:Int
+			Local tmpstr:String
+			Local tmplist:TListEx = New TListEx
+			For Local str:String = EachIn m_list
 				bi = 0
 				ei = 0
 				lastei = 0
 				Repeat
 					bi = str.Find(beginiden, lastei)
-					If bi > - 1
+					If bi > -1
 						ei = str.Find(endiden, bi)
-						If ei > - 1
+						If ei > -1
 							Local val:Int = lastei + ((lastei > 0) And endiden.Length Or 0)
-							'DebugLog("(TTextReplacer.AutoReplacements) val = " + lastei + "  ((" + lastei + " > 0) And " + endiden.Length + " Or 0)")
-							'DebugLog("(TTextReplacer.AutoReplacements) val = " + val)
+							'DebugLog("(dTextReplacer.AutoReplacements) val = " + lastei + "  ((" + lastei + " > 0) And " + endiden.Length + " Or 0)")
+							'DebugLog("(dTextReplacer.AutoReplacements) val = " + val)
 							tmpstr = str[val..bi]
-							If tmpstr <> Null
-								tmplist.AddLast(tmpstr)
-							End If
-							
+							If tmpstr Then tmplist.AddLast(tmpstr)
 							tmpstr = str[bi + beginiden.Length..ei]
-							tmplist.AddLast(New TTextReplacement.Create(tmpstr, Null))
+							tmplist.AddLast(New dTextReplacement.Create(tmpstr, Null))
 							lastei = ei
 						Else
 							?Debug
-							DebugLog("(TTextReplacement.AutoReplacements) Mismatched iden at " + bi + " in " + str)
+							DebugLog("(dTextReplacement.AutoReplacements) Mismatched iden at " + bi + " in " + str)
 							?
 						End If
 					End If
@@ -179,7 +169,7 @@ Type TTextReplacer
 	Rem
 		bbdoc: Get the original string for the replacer.
 		returns: The original string for the replacer (if Null, the string was never set, or was set to Null).
-		about: @beginiden and @endiden will be placed at the beginning and end of each TTextReplacement name, respectively.
+		about: @beginiden and @endiden will be placed at the beginning and end of each text replacement name, respectively.
 	End Rem
 	Method GetOriginal:String(beginiden:String = "{", endiden:String = "}")
 		If m_list.Count() > 0
@@ -189,56 +179,53 @@ Type TTextReplacer
 				If String(block)
 					strings[i] = String(block)
 				Else
-					strings[i] = beginiden + TTextReplacement(block).m_name + endiden
+					strings[i] = beginiden + dTextReplacement(block).m_name + endiden
 				End If
-				i:+1
+				i:+ 1
 			Next
 			Return "".Join(strings)
 		End If
 		Return Null
 	End Method
 	
-'#end region (Field accessors)
+'#end region Field accessors
 	
-'#region Data handlers
+'#region Data handling
 	
 	Rem
-		bbdoc: Create a copy of the replacer.
+		bbdoc: Get a copy of the replacer.
 		returns: A clone of the replacer.
 	End Rem
-	Method Copy:TTextReplacer()
-		Local clone:TTextReplacer = New TTextReplacer
+	Method Copy:dTextReplacer()
+		Local clone:dTextReplacer = New dTextReplacer
 		clone.m_list = m_list.Copy()
 		Return clone
 	End Method
 	
-'#region (Data handlers)
+'#region Data handling
 	
 End Type
 
 Rem
 	bbdoc: Text replacement.
 End Rem
-Type TTextReplacement
+Type dTextReplacement
 	
 	Field m_name:String
 	Field m_replacement:String
 	
-	Method New()
-	End Method
-	
 	Rem
-		bbdoc: Create a new TTextReplacement.
+		bbdoc: Create a dTextReplacement.
 		returns: Itself.
 	End Rem
-	Method Create:TTextReplacement(name:String, replacement:String = Null)
+	Method Create:dTextReplacement(name:String, replacement:String = Null)
 		SetName(name)
 		SetReplacement(replacement)
 		Return Self
 	End Method
 	
 	Rem
-		bbdoc: Get the TTextReplacement as a string.
+		bbdoc: Get the dTextReplacement as a string.
 		returns: The replacement field.
 	End Rem
 	Method ToString:String()
@@ -279,41 +266,41 @@ Type TTextReplacement
 		Return m_replacement
 	End Method
 	
-'#end region (Field accessors)
+'#end region Field accessors
 	
 '#region Data handlers
 	
 	Rem
-		bbdoc: Serialize the TTextReplacement to the given stream.
+		bbdoc: Serialize the dTextReplacement to the given stream.
 		returns: Nothing.
 	End Rem
 	Method Serialize(stream:TStream)
-		WriteLString(stream, m_name)
-		WriteLString(stream, m_replacement)
+		dStreamIO.WriteLString(stream, m_name)
+		dStreamIO.WriteLString(stream, m_replacement)
 	End Method
 	
 	Rem
-		bbdoc: Deserialize the TTextReplacement from the given stream.
-		returns: The deserialized TTextReplacement (itself).
+		bbdoc: Deserialize the dTextReplacement from the given stream.
+		returns: The deserialized dTextReplacement (itself).
 	End Rem
-	Method Deserialize:TTextReplacement(stream:TStream)
-		m_name = ReadLString(stream)
-		m_replacement = ReadLString(stream)
+	Method Deserialize:dTextReplacement(stream:TStream)
+		m_name = dStreamIO.ReadLString(stream)
+		m_replacement = dStreamIO.ReadLString(stream)
 		Return Self
 	End Method
 	
 	Rem
-		bbdoc: Create a copy of the TTextReplacement.
-		returns: A clone of the TTextReplacement.
+		bbdoc: Create a copy of the dTextReplacement.
+		returns: A clone of the dTextReplacement.
 	End Rem
-	Method Copy:TTextReplacement()
-		Local clone:TTextReplacement
+	Method Copy:dTextReplacement()
+		Local clone:dTextReplacement
 		clone.m_name = m_name
 		clone.m_replacement = m_replacement
 		Return clone
 	End Method
 	
-'#end region (Data handlers)
+'#end region Data handling
 	
 End Type
 

@@ -28,10 +28,13 @@ bbdoc: Soundmap module
 End Rem
 Module duct.soundmap
 
-ModuleInfo "Version: 0.07"
+ModuleInfo "Version: 0.08"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.08"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Updated for duct.objectmap changes"
 ModuleInfo "History: Version 0.07"
 ModuleInfo "History: Fixed documentation, license, examples"
 ModuleInfo "History: Renamed TSoundMap to dSoundMap"
@@ -75,8 +78,8 @@ Type dSoundMap Extends dObjectMap
 	End Rem
 	Method SetRootPath(rootpath:String)
 		m_rootpath = rootpath
-		If m_rootpath.EndsWith("/") = False And m_rootpath.EndsWith("\") = False
-			m_rootpath:+"/"
+		If Not m_rootpath.EndsWith("/") And Not m_rootpath.EndsWith("\")
+			m_rootpath:+ "/"
 		End If
 	End Method
 	
@@ -88,7 +91,7 @@ Type dSoundMap Extends dObjectMap
 		Return m_rootpath
 	End Method
 	
-'#end region (Field accessors)
+'#end region Field accessors
 	
 '#region Collections
 	
@@ -98,10 +101,8 @@ Type dSoundMap Extends dObjectMap
 		about: The load path is based on the root path.
 	End Rem
 	Method LoadAndInsertSound:TSound(path:String, flags:Int = 0)
-		Local sound:TSound
-		
 		path = _fixpath(path)
-		sound = LoadSound(m_rootpath + path, flags)
+		Local sound:TSound = LoadSound(m_rootpath + path, flags)
 		If InsertSound(path, sound) = True
 			Return sound
 		End If
@@ -111,12 +112,12 @@ Type dSoundMap Extends dObjectMap
 	Rem
 		bbdoc: Insert a sound into the map.
 		returns: True if the sound was added, or False if it was not (either @path or @sound are Null).
-		about: @path should be what comes after the root path.<br/>
+		about: @path should be what comes after the root path.<br>
 		i.e. If the root path is "sound/" and the path is "ambient/rain.ogg", then the resulting path (when trying to load) will be "sound/ambient/rain.ogg".
 	End Rem
 	Method InsertSound:Int(path:String, sound:TSound)
 		path = _fixpath(path)
-		If sound <> Null And path <> Null
+		If sound And path
 			InsertSound(path, sound)
 			Return True
 		End If
@@ -131,10 +132,10 @@ Type dSoundMap Extends dObjectMap
 	End Rem
 	Method GetSoundByPath:TSound(path:String)
 		path = _fixpath(path)
-		Return TSound(_ValueByKey(path))
+		Return TSound(_ObjectWithKey(path))
 	End Method
 	
-'#end region (Collections)
+'#end region Collections
 	
 End Type
 
