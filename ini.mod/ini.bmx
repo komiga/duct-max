@@ -32,6 +32,8 @@ ModuleInfo "Version: 0.1"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.2"
+ModuleInfo "History: dIniParser now uses a guard stream to keep from closing a user stream"
 ModuleInfo "History: Version 0.1"
 ModuleInfo "History: Initial release"
 

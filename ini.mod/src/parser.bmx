@@ -230,7 +230,8 @@ Type dIniParser
 	End Rem
 	Method InitWithStream(stream:TStream, encoding:Int = ENC_UTF8)
 		Assert stream, "(duct.ini.dIniParser) stream is Null"
-		m_stream = TTextStream.Create(stream, encoding)
+		m_sourcestream = New dCloseGuardStreamWrapper.Create(stream) ' Wrap the given stream so that calls to m_stream.Close() don't close the stream
+		m_stream = TTextStream.Create(m_sourcestream, encoding)
 		m_line = 1
 		m_col = 0
 		m_curchar = CHAR_EOF

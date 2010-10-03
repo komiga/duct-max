@@ -28,12 +28,15 @@ bbdoc: Scriptparser module
 End Rem
 Module duct.scriptparser
 
-ModuleInfo "Version: 1.0"
+ModuleInfo "Version: 1.1"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 1.1"
+ModuleInfo "History: dScriptParser now uses a guard stream to keep from closing a user stream"
 ModuleInfo "History: Version 1.0"
 ModuleInfo "History: Corrected some documentation"
+ModuleInfo "History: dScriptParser now uses a guard stream to keep from closing a user stream"
 ModuleInfo "History: Added Finish method to dScriptParserHandler as a safeguard"
 ModuleInfo "History: Fixed dScriptParser non-newline-ending parsing (EOFToken was never sent)"
 ModuleInfo "History: Fixed dScriptParser.InitWithString (crash due to incorrect data handling)"

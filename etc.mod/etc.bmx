@@ -28,10 +28,12 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.24"
+ModuleInfo "Version: 0.25"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.25"
+ModuleInfo "History: Added dCloseGuardStreamWrapper"
 ModuleInfo "History: Version 0.24"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Added RemoveLink to TListEx"
@@ -108,4 +110,5 @@ Include "src/mstimer.bmx"
 Include "src/replacer.bmx"
 Include "src/listex.bmx"
 Include "src/stringbuilder.bmx"
+Include "src/closeguardstream.bmx"
 
