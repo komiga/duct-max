@@ -28,10 +28,12 @@ bbdoc: JSON handler for cower.jonk
 End Rem
 Module duct.json
 
-ModuleInfo "Version: 0.6"
+ModuleInfo "Version: 0.7"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.7"
+ModuleInfo "History: Added LoadFromString, LoadFromStream and LoadFromFile functions to dJReader"
 ModuleInfo "History: Version 0.6"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Renamed TV_NULL to TV_JSON_NULL"
@@ -241,7 +243,7 @@ Type dJEventHandler Extends JEventHandler
 	End Method
 	
 	Method NumberValue(number:String, isdecimal:Int)
-		If isdecimal = True
+		If isdecimal
 			tmpvar = New dFloatVariable.Create(Null, Float(number))
 		Else
 			tmpvar = New dIntVariable.Create(Null, Int(number))
@@ -303,7 +305,7 @@ Type dJReader
 		bbdoc: Initiate the reader with the given url/stream.
 		returns: Itself, or Null if the stream could not be opened.
 	End Rem
-	Method InitWithStream:dJReader(stream:TStream, encoding:Int = JSONEncodingUTF8, bufferlength:Int = JParser.JPARSERBUFFER_INITIAL_SIZE)
+	Method InitWithStream:dJReader(stream:TStream, encoding:Int = ENC_UTF8, bufferlength:Int = JParser.JPARSERBUFFER_INITIAL_SIZE)
 		Try
 			m_parser = New JParser.InitWithStream(stream, m_evthandler, encoding, bufferlength)
 			Return Self
@@ -323,13 +325,60 @@ Type dJReader
 	
 	Rem
 		bbdoc: Parse the reader's data.
-		returns: The root object for the json data.
+		returns: The root object.
 		about: A #JParserException will be thrown if there is an error during parsing.
 	End Rem
 	Method Parse:dJObject()
 		m_parser.Parse()
 		Return m_evthandler.m_root
 	End Method
+	
+	Rem
+		bbdoc: Load a file containing JSON data.
+		returns: The root object, or Null if an error occurred.
+		A #JParserException will be thrown if there is an error during parsing.
+	End Rem
+	Function LoadFromFile:dJObject(path:String, encoding:Int = ENC_UTF8, bufferlength:Int = JParser.JPARSERBUFFER_INITIAL_SIZE)
+		Local stream:TStream = ReadStream(path)
+		If stream
+			Local root:dJObject = LoadFromStream(stream, encoding, bufferlength)
+			stream.Close()
+			Return root
+		End If
+		Return Null
+	End Function
+	
+	Rem
+		bbdoc: Load a JSON object from the given stream.
+		returns: The root object, or Null if either an error occurred or the given stream was Null.
+		about: NOTE: The given stream will not be closed.
+	End Rem
+	Function LoadFromStream:dJObject(stream:TStream, encoding:Int = ENC_UTF8, bufferlength:Int = JParser.JPARSERBUFFER_INITIAL_SIZE)
+		If stream
+			If Not dCloseGuardStreamWrapper(stream)
+				stream = New dCloseGuardStreamWrapper.Create(stream) ' Protect the stream from being closed (merge this into cower.jonk)
+			End If
+			Local parser:dJReader = New dJReader.InitWithStream(stream, encoding, bufferlength)
+			If parser
+				Return parser.Parse()
+			End If
+		End If
+		Return Null
+	End Function
+	
+	Rem
+		bbdoc: Load a JSON object from the given string.
+		returns: The root object, or Null if either the given string was Null or an error occurred.
+	End Rem
+	Function LoadFromString:dJObject(str:String)
+		If str
+			Local parser:dJReader = New dJReader.InitWithString(str)
+			If parser
+				Return parser.Parse()
+			End If
+		End If
+		Return Null
+	End Function
 	
 End Type
 

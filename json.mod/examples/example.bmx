@@ -5,10 +5,15 @@ Framework brl.blitz
 Import brl.standardio
 Import duct.json
 
-Local jreader:dJReader = New dJReader.InitWithString("{ ~qmodule~q: { ~qname~q: ~qvalue~q, ~qnumber~q: 1234.567, ~qsuperman~q: [~qohai~q, 100, 1234.12, true, false, null] } }")
-Local root:dJObject = jreader.Parse()
+Const json_data:String = "{ ~qmodule~q: { ~qname~q: ~qvalue~q, ~qnumber~q: 1234.567, ~qsuperman~q: [~qohai~q, 100, 1234.12, true, false, null] } }"
+Local root:dJObject = dJReader.LoadFromString(json_data)
 
-PrintObject(root)
+If root
+	PrintObject(root)
+Else
+	Print("Failed to parse string")
+End If
+
 Function PrintObject(obj:dJObject, tablevel:String = "")
 	Local lastvar:dVariable = dVariable(obj.GetChildren().Last())
 	For Local child:dVariable = EachIn obj
