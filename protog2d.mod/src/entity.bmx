@@ -357,7 +357,7 @@ Type dProtogTextEntity Extends dProtogEntity
 	Method Deserialize:dProtogTextEntity(stream:TStream)
 		m_pos = New dVec2.Deserialize(stream)
 		m_color = New dProtogColor.Deserialize(stream)
-		m_font = dProtogFont.GetFontFromName(dStreamIO.ReadLString(stream))
+		m_font = dProtogFont.GetFontWithName(dStreamIO.ReadLString(stream))
 		m_vcenter = Int(stream.ReadByte())
 		m_hcenter = Int(stream.ReadByte())
 		m_text = dStreamIO.ReadLString(stream)

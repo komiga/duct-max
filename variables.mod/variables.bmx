@@ -28,10 +28,12 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.26"
+ModuleInfo "Version: 0.27"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.27"
+ModuleInfo "History: Added GetValueMatchingTemplate method to dCollectionVariable"
 ModuleInfo "History: Version 0.26"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Updated for duct.objectmap changes"
@@ -732,6 +734,19 @@ Type dCollectionVariable Extends dVariable Abstract
 			If Not casesens Then itername = itername.ToLower()
 			If name = itername
 				Return variable
+			End If
+		Next
+		Return Null
+	End Method
+	
+	Rem
+		bbdoc: Get a value variable matching the given template.
+		returns: The first matching value variable, or Null if no matches were found.
+	End Rem
+	Method GetValueMatchingTemplate:dValueVariable(template:dTemplate)
+		For Local value:dValueVariable = EachIn m_children
+			If template.ValidateValue(value)
+				Return value
 			End If
 		Next
 		Return Null

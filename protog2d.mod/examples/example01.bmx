@@ -86,7 +86,7 @@ Type MyGraphicsApp Extends dProtogGraphicsApp
 		TFPSCounter.Update()
 		m_infotext.SetReplacementsWithName("fps", TFPSCounter.GetFPS())
 		If KeyHit(KEY_F1)
-			m_graphics.SetVSyncState(m_graphics.GetVSyncState() ~1)
+			m_graphics.SetVSyncState(m_graphics.GetVSyncState() ~ 1)
 			m_infotext.SetReplacementsWithName("vsync", m_graphics.GetVSyncState())
 		End If
 		If KeyHit(KEY_SPACE)

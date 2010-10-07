@@ -67,21 +67,21 @@ Type dProtogFont
 		Local offsetx:Float, offsety:Float
 		Local incx:Float, incy:Float
 		If str
-			If hcenter = True
+			If hcenter
 				offsetx = -(StringWidth(str) / 2.0)
 			End If
-			If vcenter = True
+			If vcenter
 				offsety = -(StringHeight(str) / 2.0)
 			End If
 			m_texture.m_gltexture.Bind()
 			For index = 0 Until str.Length
 				charcode = str[index]
-				char = GetChar(charcode)
+				char = dProtogFontChar(m_chars.ForKey(charcode))
 				If charcode = 10
 					incx = 0.0
 					incy:+ m_height
 				Else If charcode <> 13 ' Just ignore ~r
-					If char = Null
+					If Not char
 						char = m_emptychar
 					End If
 					char.Render(x + offsetx + incx, y + offsety + incy)
@@ -94,22 +94,22 @@ Type dProtogFont
 	
 	Rem
 		bbdoc: Get the combined pixel-width of the given string (if it were drawn using this font).
-		returns: Nothing.
+		returns: The width of the given string in pixels (0.0 if the given string is Null).
 	End Rem
 	Method StringWidth:Float(str:String)
-		Local char:dProtogFontChar, index:Int, charcode:Int
-		Local largestwidth:Float, width:Float
+		Local largestwidth:Float
 		If str
-			For index = 0 Until str.Length
+			Local char:dProtogFontChar, charcode:Int, width:Float
+			For Local index:Int = 0 Until str.Length
 				charcode = str[index]
-				char = GetChar(charcode)
+				char = dProtogFontChar(m_chars.ForKey(charcode))
 				If charcode = 10
 					If width > largestwidth
 						largestwidth = width
 					End If
 					width = 0.0
 				Else If charcode <> 13 ' Just ignore ~r
-					If char = Null
+					If Not char
 						char = m_emptychar
 					End If
 					width:+ char.m_width
@@ -124,14 +124,14 @@ Type dProtogFont
 	
 	Rem
 		bbdoc: Get the combined pixel-height of the given string (if it were drawn using this font).
-		returns: The height of the given string (0.0 will be returned if the string is Null).
+		returns: The height of the given string in pixels (0.0 if the given string is Null).
 		about: This really only needs to be used if the given string contains a newline character (if it does not you can simply use the font's height).
 	End Rem
 	Method StringHeight:Float(str:String)
-		Local index:Int, height:Float
+		Local height:Float
 		If str
 			height = m_height
-			For index = 0 Until str.Length
+			For Local index:Int = 0 Until str.Length
 				If str[index] = 10
 					height:+ m_height
 				End If
@@ -147,20 +147,19 @@ Type dProtogFont
 	Rem
 		bbdoc: Deserialize a font from the given stream.
 		returns: The deserialized dProtogFont.
-		about: If @readtexture is True, the texture's pixmap will be deserialized from the stream.<br/>
-		If @upload is True the texture (if loaded) will be uploaded to OpenGL (the GL texture will be created).<br/>
+		about: If @readtexture is True, the texture's pixmap will be deserialized from the stream.<br>
+		If @upload is True the texture (if loaded) will be uploaded to OpenGL (the GL texture will be created).<br>
 		If @upload is False you must upload the texture at some point in the future.
 	End Rem
 	Method Deserialize:dProtogFont(stream:TStream, readtexture:Int = True, upload:Int = True)
-		Local count:Int, index:Int
-		Local char:dProtogFontChar
 		m_name = dStreamIO.ReadLString(stream)
 		m_height = stream.ReadFloat()
-		count = stream.ReadInt()
-		If readtexture = True
+		Local count:Int = stream.ReadInt()
+		If readtexture
 			m_texture = New dProtogTexture.Deserialize(stream, upload)
 		End If
-		For index = 0 Until count
+		Local char:dProtogFontChar
+		For Local index:Int = 0 Until count
 			char = New dProtogFontChar.Deserialize(stream)
 			m_chars.Insert(char.m_char, char)
 		Next
@@ -178,7 +177,7 @@ Type dProtogFont
 		dStreamIO.WriteLString(stream, m_name)
 		stream.WriteFloat(m_height)
 		stream.WriteInt(m_chars.Count())
-		If writetexture = True
+		If writetexture
 			m_texture.Serialize(stream)
 		End If
 		For Local char:dProtogFontChar = EachIn m_chars
@@ -215,16 +214,16 @@ Type dProtogFont
 		End If
 		For iden = EachIn root.GetChildren()
 			'If iden
-				If dProtogFontChar.ValidateIdentifier(iden) = True
+				If dProtogFontChar.ValidateIdentifier(iden)
 					char = New dProtogFontChar.FromIdentifier(iden, posx, posy)
 					char.SetUV(posx * texc_width, posy * texc_height, (posx + char.m_width) * texc_width, (posy + char.m_height) * texc_height)
 					m_chars.Insert(char.m_char, char)
-				Else If m_template_name.ValidateIdentifier(iden) = True
+				Else If m_template_name.ValidateIdentifier(iden)
 					m_name = dStringVariable(iden.GetVariableAtIndex(0)).Get()
 				End If
 			'End If
 		Next
-		m_emptychar = GetChar(- 1)
+		m_emptychar = GetChar(-1)
 		InsertSelf()
 		Return Self
 	End Method
@@ -254,8 +253,8 @@ Type dProtogFont
 '#region Field accessors
 	
 	Rem
-		bbdoc: Get a character from the given character code.
-		returns: The character for the given character code, or Null if the font does not have that character.
+		bbdoc: Get the character with the given character code.
+		returns: The character with the given character code, or Null if the given code was not found.
 	End Rem
 	Method GetChar:dProtogFontChar(charcode:Int)
 		Return dProtogFontChar(m_chars.ForKey(charcode))
@@ -295,7 +294,7 @@ Type dProtogFont
 	
 	Rem
 		bbdoc: Get the font's texture.
-		returns: The texture for the font.
+		returns: The font's texture.
 	End Rem
 	Method GetTexture:dProtogTexture()
 		Return m_texture
@@ -306,23 +305,23 @@ Type dProtogFont
 '#region Collections
 	
 	Rem
-		bbdoc: Get a font from the name given.
-		returns: A dProtogFont which has the given name, or NUll if there was no font found that has the given name.
+		bbdoc: Get the font with the given name.
+		returns: The font with the given name, or Null if the name given was not found.
 	End Rem
-	Function GetFontFromName:dProtogFont(name:String)
+	Function GetFontWithName:dProtogFont(name:String)
 		Return dProtogFont(m_map._ObjectWithKey(name))
 	End Function
 	
 	Rem
-		bbdoc: Remove a font by the name given.
-		returns: True if the font with the given name was removed, or False if it was not (no font with the given name exists).
+		bbdoc: Remove the font with the name given.
+		returns: True if the font with the given name was removed, or False if the name given was not found.
 	End Rem
-	Function RemoveFontByName:Int(name:String)
+	Function RemoveFontWithName:Int(name:String)
 		Return m_map._Remove(name)
 	End Function
 	
 	Rem
-		bbdoc: Remove the given font from the tracking map.
+		bbdoc: Remove the given font.
 		returns: True if the given font was removed, or False if it was not (the given font does not exist in the tracking map).
 	End Rem
 	Function RemoveFont:Int(font:dProtogFont)
@@ -330,16 +329,16 @@ Type dProtogFont
 	End Function
 	
 	Rem
-		bbdoc: Check if the tracking map contains a font with the name given.
-		returns: True if the font exists in the tracking map, or False if it does not.
+		bbdoc: Check if a font with the given name has been loaded.
+		returns: True if there is a font with the given name, or False if the name given was not found.
 	End Rem
-	Function ContainsFontByName:Int(name:String)
+	Function ContainsFontWithName:Int(name:String)
 		Return m_map._Contains(name)
 	End Function
 	
 	Rem
-		bbdoc: Check if the tracking map contains the given font.
-		returns: True if the font exists in the tracking map, or False if it does not.
+		bbdoc: Check if the given font has been loaded.
+		returns: True if the given font was found, or False if the given font was not found.
 	End Rem
 	Function ContainsFont:Int(font:dProtogFont)
 		Return m_map._Contains(font.m_name)

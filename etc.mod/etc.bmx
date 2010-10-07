@@ -28,10 +28,12 @@ bbdoc: Miscellaneous module
 End Rem
 Module duct.etc
 
-ModuleInfo "Version: 0.25"
+ModuleInfo "Version: 0.26"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.26"
+ModuleInfo "History: General cleanup"
 ModuleInfo "History: Version 0.25"
 ModuleInfo "History: Added dCloseGuardStreamWrapper"
 ModuleInfo "History: Version 0.24"

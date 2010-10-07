@@ -450,7 +450,7 @@ Type duiTextField Extends duiGadget
 						End If
 				End Select
 			Else If _type = 1
-				If key > 31
+				If key > 31 And Not(key = 127) ' Fix for delete key in KEYCHAR events
 					InsertTextAtIndex(Chr(key), m_cursorpos, True)
 				End If
 			End If

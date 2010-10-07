@@ -28,10 +28,13 @@ bbdoc: Protog OpenGL 2D graphics engine
 End Rem
 Module duct.protog2d
 
-ModuleInfo "Version: 0.9"
+ModuleInfo "Version: 1.0"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 1.0"
+ModuleInfo "History: General cleanup"
+ModuleInfo "History: Renamed *ByName methods to *WithName"
 ModuleInfo "History: Version 0.9"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Updated for duct.objectmap changes"

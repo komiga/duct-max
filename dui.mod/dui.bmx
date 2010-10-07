@@ -28,11 +28,13 @@ bbdoc: duct ui module
 End Rem
 Module duct.dui
 
-ModuleInfo "Version: 0.48"
+ModuleInfo "Version: 0.49"
 ModuleInfo "Copyright: Liam McGuigan (FryGUI creator)"
 ModuleInfo "Copyright: Tim Howard (dui is a heavily modified FryGUI)"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.49"
+ModuleInfo "History: Corrected duplicate-key input and delete key with text fields"
 ModuleInfo "History: Version 0.48"
 ModuleInfo "History: General cleanup"
 ModuleInfo "History: Updated for duct.objectmap changes"
@@ -597,7 +599,6 @@ Type duiMain
 	
 '#region Key hook
 	
-	' For some reason EVENT_KEYCHAR is only repeated in windows (not getting the event, over and over, when a key is held down on Ubuntu 8.04)
 	Function __keyinputhook:Object(id:Int, data:Object, context:Object)
 		Local event:TEvent = TEvent(data)
 		If event
@@ -605,21 +606,25 @@ Type duiMain
 				Case EVENT_KEYDOWN
 					'DebugLog("duiMain.__keyinputhook(); EVENT_KEYDOWN (ed: " + event.data + ")")
 					SendKeyToActiveGadget(event.data, 0)
+					Return Null
 				Case EVENT_KEYREPEAT
 					'DebugLog("duiMain.__keyinputhook(); EVENT_KEYREPEAT (ed: " + event.data + ")")
 					' Temporary fix for EVENT_KEYCHAR not repeating (sadly the event's data is always upper-case, so this isn't completely viable)
-					?Linux
-						If event.data > 31
-							SendKeyToActiveGadget(event.data, 1)
-						Else
-							SendKeyToActiveGadget(event.data, 0)
-						End If
-					?Not Linux
+					' Doesn't seem to need this anymore, yay!
+					'?Linux
+					'	If event.data > 31
+					'		SendKeyToActiveGadget(event.data, 1)
+					'	Else
+					'		SendKeyToActiveGadget(event.data, 0)
+					'	End If
+					'?Not Linux
 						SendKeyToActiveGadget(event.data, 0)
-					?
+					'?
+					Return Null
 				Case EVENT_KEYCHAR
 					'DebugLog("duiMain.__keyinputhook(); EVENT_KEYCHAR (ed: " + event.data + ")")
 					SendKeyToActiveGadget(event.data, 1)
+					Return Null
 			End Select
 		End If
 		Return data
