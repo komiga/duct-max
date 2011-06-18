@@ -28,10 +28,14 @@ bbdoc: Variables module
 End Rem
 Module duct.variables
 
-ModuleInfo "Version: 0.27"
+ModuleInfo "Version: 0.28"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.28"
+ModuleInfo "History: Fixed some documentation"
+ModuleInfo "History: Explicit conditional for dIntVariable->boolean conversion in dVariable.ConvertVariableToBool"
+ModuleInfo "History: Added newline check to whitespaced-string formatting"
 ModuleInfo "History: Version 0.27"
 ModuleInfo "History: Added GetValueMatchingTemplate method to dCollectionVariable"
 ModuleInfo "History: Version 0.26"
@@ -258,7 +262,7 @@ Type dVariable Abstract
 			Return "~q" + m_name + "~q"
 		Else If Not m_name And format & FMT_STRING_QUOTE_EMPTY
 			Return "~q~q"
-		Else If format & FMT_STRING_QUOTE_WHITESPACE And (m_name.Contains("~t") Or m_name.Contains(" "))
+		Else If format & FMT_STRING_QUOTE_WHITESPACE And (m_name.Contains("~t") Or m_name.Contains(" ") Or m_name.Contains("~n"))
 			Return "~q" + m_name + "~q"
 		End If
 		Return m_name
@@ -402,7 +406,7 @@ Type dVariable Abstract
 	Function ConvertVariableToBool:Int(variable:dValueVariable)
 		If dIntVariable(variable)
 			Local val:Int = dIntVariable(variable).Get()
-			If Not(val = -1)
+			If val = 0 Or val = 1
 				Return val
 			End If
 		Else If dStringVariable(variable)

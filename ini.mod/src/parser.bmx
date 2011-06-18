@@ -357,6 +357,7 @@ Type dIniParser
 				End If
 		End Select
 		m_token.SetBeginningPosition(m_line, m_col)
+		Return m_token
 	End Method
 	
 	Rem
@@ -429,7 +430,7 @@ Type dIniParser
 	Method ReadDigitToken()
 		While m_curchar <> CHAR_EOF
 			If m_curchar = CHAR_QUOTE
-				Throw New dIniException.Create(dIniException.ERROR_PARSER, "dIniParser.ReadNumberToken()", "Unexpected quote", m_token, Self)
+				Throw New dIniException.Create(dIniException.ERROR_PARSER, "dIniParser.ReadDigitToken()", "Unexpected quote", m_token, Self)
 			Else If m_eolset.Contains(m_curchar) = True Or m_whitespaceset.Contains(m_curchar) = True Or m_curchar = CHAR_SEMICOLON
 				Exit
 			Else

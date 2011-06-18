@@ -28,10 +28,14 @@ bbdoc: Ini parser module
 End Rem
 Module duct.ini
 
-ModuleInfo "Version: 0.1"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.3"
+ModuleInfo "History: Fixed value formatting in dIniFormatter.WriteToStream"
+ModuleInfo "History: Added token return in dIniParser.NextToken"
+ModuleInfo "History: Fixed exception report in dIniParser.ReadDigitToken"
 ModuleInfo "History: Version 0.2"
 ModuleInfo "History: dIniParser now uses a guard stream to keep from closing a user stream"
 ModuleInfo "History: Version 0.1"
@@ -87,7 +91,7 @@ Type dIniFormatter
 			If node
 				WriteToStream(node, stream, tablevel, nameformat, varformat)
 			Else If value
-				stream.WriteLine(FormatValue(value))
+				stream.WriteLine(FormatValue(value, nameformat, varformat))
 			Else
 				DebugLog("(dIniFormatter.WriteToStream) Unhandled variable: " + child.ToString())
 			End If

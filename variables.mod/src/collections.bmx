@@ -121,7 +121,7 @@ Type dNode Extends dCollectionVariable
 	End Method
 	
 	Rem
-		bbdoc: Create a new dNode.
+		bbdoc: Create a dNode.
 		returns: Itself.
 	End Rem
 	Method Create:dNode(name:String = Null, parent:dCollectionVariable = Null)

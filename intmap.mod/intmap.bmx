@@ -28,10 +28,12 @@ bbdoc: duct integer map (binary tree).
 End Rem
 Module duct.intmap
 
-ModuleInfo "Version: 0.5"
+ModuleInfo "Version: 0.6"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.6"
+ModuleInfo "History: Prevent enumerator pre-deallocation in HasNext"
 ModuleInfo "History: Version 0.5"
 ModuleInfo "History: dIntMap now safely removes null entries when a Null object is inserted"
 ModuleInfo "History: Added documentation to dIntMapStandardEnum and dIntMapReverseEnum"
@@ -251,9 +253,10 @@ Type dIntMapStandardEnum Extends dEnumerator
 	End Rem
 	Method HasNext:Int()
 		Local has:Int = bmx_intmap_iter_hasnext(m_cmap, m_iter)
-		If has = False
-			Free()
-		End If
+		' Don't free the iterator, HasNext might be called again by user
+		'If Not has
+		'	Free()
+		'End If
 		Return has
 	End Method
 	
@@ -336,9 +339,10 @@ Type dIntMapReverseEnum Extends dEnumerator
 	End Rem
 	Method HasNext:Int()
 		Local has:Int = bmx_intmap_riter_hasnext(m_cmap, m_iter)
-		If has = False
-			Free()
-		End If
+		' Don't free the iterator, HasNext might be called again by user
+		'If Not has
+		'	Free()
+		'End If
 		Return has
 	End Method
 	

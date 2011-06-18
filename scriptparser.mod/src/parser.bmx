@@ -354,6 +354,7 @@ Type dScriptParser
 				End If
 		End Select
 		m_token.SetBeginningPosition(m_line, m_col)
+		Return m_token
 	End Method
 	
 	Rem
@@ -430,7 +431,7 @@ Type dScriptParser
 	Method ReadDigitToken()
 		While m_curchar <> CHAR_EOF
 			If m_curchar = CHAR_QUOTE
-				Throw New dScriptException.Create(dScriptException.ERROR_PARSER, "dScriptParser.ReadNumberToken()", "Unexpected quote", m_token, Self)
+				Throw New dScriptException.Create(dScriptException.ERROR_PARSER, "dScriptParser.ReadDigitToken()", "Unexpected quote", m_token, Self)
 			Else If m_eolset.Contains(m_curchar) = True Or m_whitespaceset.Contains(m_curchar) = True Or m_curchar = CHAR_CLOSEBRACE Or m_curchar = CHAR_SINGLEQUOTE Or m_curchar = CHAR_EQUALSIGN
 				Exit
 			Else

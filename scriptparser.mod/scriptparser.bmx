@@ -28,10 +28,13 @@ bbdoc: Scriptparser module
 End Rem
 Module duct.scriptparser
 
-ModuleInfo "Version: 1.1"
+ModuleInfo "Version: 1.2"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 1.2"
+ModuleInfo "History: Added token return in dScriptParser.NextToken"
+ModuleInfo "History: Fixed exception report in dScriptParser.ReadDigitToken"
 ModuleInfo "History: Version 1.1"
 ModuleInfo "History: dScriptParser now uses a guard stream to keep from closing a user stream"
 ModuleInfo "History: Version 1.0"
