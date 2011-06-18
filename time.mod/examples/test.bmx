@@ -16,6 +16,9 @@ Print(tc.Format(format, "UTC"))
 tc.SetFromPath("test.bmx")
 Print(tc.Format(format, convtz))
 
+tc.SetFromPath("test.bmx", True)
+Print(tc.Format(format, convtz))
+
 tc.SetCurrent()
 Print(tc.Format(format, "UTC-5"))
 

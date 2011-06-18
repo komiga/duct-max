@@ -28,10 +28,12 @@ bbdoc: Time module
 End Rem
 Module duct.time
 
-ModuleInfo "Version: 0.2"
+ModuleInfo "Version: 0.3"
 ModuleInfo "Copyright: Tim Howard"
 ModuleInfo "License: MIT"
 
+ModuleInfo "History: Version 0.3"
+ModuleInfo "History: Corrected creation-time return value in dTime.SetFromPath"
 ModuleInfo "History: Version 0.2"
 ModuleInfo "History: Added (limited) Win32 support (no timezone conversion (or strptime for that matter), because Microsoft is a homosexual deviant)"
 ModuleInfo "History: Removed SetFromFormatted and CreateFromFormatted methods in dTime"
@@ -135,7 +137,11 @@ Type dTime
 			If Not(FileType(path) = FILETYPE_NONE)
 				Local mode:Int, size:Int, mtime:Int, ctime:Int
 				If stat_(path, mode, size, mtime, ctime) = 0
-					Set(creationtime = True Or ctime Or mtime)
+					If creationtime = True
+						Set(ctime)
+					Else
+						Set(mtime)
+					End If
 					Return True
 				End If
 			End If
