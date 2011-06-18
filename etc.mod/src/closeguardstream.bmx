@@ -23,7 +23,7 @@ End Rem
 
 Rem
 	bbdoc: Close-guard stream wrapper.
-	about: This type will wrap a stream in the same was as brl.stream's TStreamWrapper, but does @not close the stream when told to.
+	about: This type will wrap a stream in the same way as brl.stream's TStreamWrapper, but does @not close the stream when told to.
 End Rem
 Type dCloseGuardStreamWrapper Extends TStreamWrapper
 	

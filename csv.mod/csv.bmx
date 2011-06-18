@@ -347,7 +347,7 @@ Type dCSVRow
 	
 	Rem
 		bbdoc: Insert the given record.
-		returns: Nothing.
+		returns: True if the record was inserted, or False if the given record was Null.
 	End Rem
 	Method InsertRecord:Int(record:dCSVRecord)
 		If record

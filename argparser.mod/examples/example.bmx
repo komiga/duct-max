@@ -12,7 +12,7 @@ root = dArgParser.ParseArray(AppArgs, True, 1) ' Appname on, limited option args
 Print(ArgsToString(root))
 
 Function ArgsToString:String(root:dIdentifier)
-	Local build:String = "~q" + root.GetName() + "~q: [", subbuild:String, count:Int
+	Local build:String = "~q" + root.GetName() + "~q: [", count:Int
 	For Local variable:dVariable = EachIn root
 		If dIdentifier(variable)
 			build:+ ArgsToString(dIdentifier(variable)) + ", "
