@@ -1,6 +1,6 @@
 
 Rem
-Copyright (c) 2010 Tim Howard
+Copyright (c) 2010 plash <plash@komiga.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,8 @@ End Rem
 Module duct.vector
 
 ModuleInfo "Version: 0.28"
-ModuleInfo "Copyright: Tim Howard"
-ModuleInfo "Author: Yahfree (most of dVec2, public domain), modified and adapted to duct by Plash (Tim Howard)"
+ModuleInfo "Copyright: plash <plash@komiga.com>"
+ModuleInfo "Author: Yahfree (most of dVec2, public domain), modified and adapted to duct by plash"
 ModuleInfo "License: MIT"
 
 ModuleInfo "History: Version 0.28"
